@@ -1,0 +1,35 @@
+@Icon note
+@Color darkblue
+
+# @pfg wen eta?
+#@ShowInShareSheet true
+#@Accepts ["Safari Web Pages"]
+
+SetVariable webpage
+Comment "Get the source of a webpage. To use, trigger from the Safari share sheet. "
+Dictionary {
+    Name: "View Source",
+    Author: @supermamon,
+    Version: "1.0.0",
+    Released: "4 Oct 2018",
+    Changes: {
+        "v1.0.0": "Initial release."
+    }
+} -> v:meta
+
+GetVariable v:webpage
+RunJavaScriptonWebpage
+|var result = document.head.outerHTML;
+|result+=document.body.outerHTML;
+|completion(result);
+SetVariable code
+QuickLook
+ChoosefromMenu items=["Copy to Clipboard", "Save to iCloud"]
+Case
+    CopytoClipboard
+Case
+    AskforInput question="Filename" defaultAnswer="source.html" -> mv:"Ask for Input"
+    GetVariable v:code
+    SetName name=mv:"Ask for Input"
+    SaveFile
+End
