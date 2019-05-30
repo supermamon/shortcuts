@@ -24,7 +24,7 @@
 #     when it's released.
 #
 # Usage:
-#   @def @debug true
+#   @set debug true
 #   Number 10 -> v:num
 #   @dbgAlert v:num
 #
