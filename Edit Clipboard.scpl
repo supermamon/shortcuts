@@ -1,0 +1,39 @@
+@Icon clipboard
+@Color red
+@ShowInWidget true
+
+Comment "Edit the contents of the clipboard"
+Dictionary {
+    "Shortcut"      : "Edit Clipboard",
+    "Author"        : "@supermamon",
+    "RoutineHub ID" : "286",
+    "Version"       : "1.0",
+    "Changes"       : {
+        "v1.0": "Initial release"
+    }
+} -> mv:meta
+GetClipboard -> mv:"Get Clipboard"
+GetType -> mv:"Get Type"
+ReplaceText a{
+    findText="Image|(Photo media)"
+    replaceWith="Image"
+    caseSensitive=false
+    regularExpression=true
+}
+If Equals "Image"
+	GetClipboard
+	Markup
+Otherwise
+	Text "\(mv:"Get Clipboard")\(s:askWhenRun)"
+End
+CopytoClipboard
+Comment "UpdateKit stuff below"
+GetMyShortcuts
+If Contains value=UpdateKit
+	Dictionary {
+        "Shortcut Name": mv:meta.Shortcut,
+        "Current Version": mv:meta.Version,
+        "RoutineHub ID": mv:meta."RoutineHub ID"
+    }
+	RunShortcut shortcut=UpdateKit showWhileRunning=false
+End
