@@ -1,0 +1,70 @@
+@icon "list"
+@color "red"
+@ShowInWidget false
+#@ShowInShareSheet = true
+#@Accepts          = Anything
+
+
+SetVariable "argv"
+
+
+Comment
+| Same as Choose From List but with a
+| dictionary.
+|
+| This is a recursion demo. Provide a
+| dictionary as an input to this
+| shortcut and it will show the list of
+| keys. the keys that have child nodes
+| that are also dictionaries will be
+| appended with ` >`
+| The recursion will end when a key where
+| the value is not a dictionary is chosen
+Dictionary {
+    shortcut    : "Show Dictionary Menu",
+    author      : "@supermamon",
+    version     : "1.0.0",
+    changelog   : {
+        "v1.0.0" : "Initial release"
+    }
+} -> v:meta
+GetVariable v:meta:shortcut -> v:self
+GetVariable v:meta:settings -> v:opt
+
+@set debug false
+@import "lib/helpers.scpl"
+
+@import "lib/get-dictionary-typename.scpl"
+SetVariable v:lDictionary
+
+GetVariable v:argv
+@dbgAlert v:argv
+
+GetType
+If Equals v:lDictionary
+    GetVariable v:argv
+    GetDictionaryValue get="All Keys"
+    RepeatWithEach
+        GetVariable v:argv
+        GetDictionaryValue get="Value" key=v:"Repeat Item"
+        GetType
+        If Equals v:lDictionary
+            Text "\(v:"Repeat Item") >"
+        Otherwise
+            Text "\(v:"Repeat Item")"
+        End
+    End
+    ChooseFromList
+    ReplaceText a{
+        findtext=" >"
+        replacewith=""
+        casesensitive=true
+        regularexpression=false
+    } -> v:key
+    GetVariable v:argv
+    GetDictionaryValue get="Value" key=v:key
+    RunShortcut v:self false
+Otherwise
+    GetVariable v:argv
+End
+
