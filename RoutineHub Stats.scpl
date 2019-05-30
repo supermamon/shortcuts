@@ -1,0 +1,111 @@
+@Icon sync
+@Color darkgray
+
+Comment
+| Get a summary of your shortcuts published
+| on routinehub.co
+|
+| This is a demonstration for using the
+| Bootstrap toolkit.
+
+Comment
+|..:: Metadata ::..
+Dictionary {
+    shortcut    : "RoutineHub Stats",
+    author      : "@supermamon",
+    version     : "1.0.0",
+    changelog   : {
+        "v:1.0.0" : "Initial release"
+    }
+} -> mv:meta
+GetVariable mv:meta:shortcut -> v:self
+
+@set debug true
+@import "lib/helpers.scpl"
+
+Comment "..:: API Key ::.."
+#Dictionary { "get":"secrets/api-keyes/routinehub_api_key"}
+#RunShortcut "Preferences" false
+Text "Paste Routinehub api-key here"
+SetVariable v:api_key
+
+
+# embed the bootstrap tooklit into this
+# shortcut.
+Comment "..:: Bootstrap Toolkit ::.."
+@import "lib/Bootstrap.scpl"
+GetDictionaryFromInput
+SetVariable B
+
+Comment "..:: Build the summary ::.."
+Text
+|\(v:B."html")
+|\(v:B."head")
+|   \(v:B."title")RoutineHub\(v:B."/title")
+|\(v:B."/head")
+|\(v:B."body")
+|   \(v:B."jumbotron")
+|   \(v:B."h1")Download Summary\(v:B."/h1")
+|   \(v:B."/jumbotron")
+|
+|   \(v:B."table.striped")
+|   \(v:B."thead.light")
+|       \(v:B."tr.plain")
+|           \(v:B."td")Shortcut\(v:B."/td")
+|           \(v:B."td")Downloads\(v:B."/td")
+|       \(v:B."/tr")
+|   \(v:B."/thead")
+SetVariable summary
+
+Number 0 -> v:total_downloads
+URL "https://routinehub.co/api/v1/\(v:api_key)/shortcuts" -> mv:URL
+GetContentsofURL -> mv:"Get Contents of URL"
+GetDictionaryValue key=shortcuts
+SetVariable shortcuts
+GetDictionaryValue get="All Keys"
+RepeatwithEach
+    SetVariable v:name
+    GetVariable v:shortcuts
+    GetDictionaryValue key=v:name -> v:shortcut
+    GetVariable v:shortcut.published
+    If input=Equals value=true
+        URL "https://routinehub.co/shortcut/\(v:shortcut.id)" -> mv:URL1
+        GetContentsofURL -> mv:"Get Contents of URL1"
+        SetName name="page.txt" -> mv:"Set Name"
+        SetVariable page
+        MatchText pattern="Downloads\\:\\s\\d+" caseSensitive=false -> mv:"Match Text"
+        ReplaceText a{
+            findText="Downloads\\:\\s"
+            replaceWith=""
+            caseSensitive=false
+            regularExpression=true
+        }
+        SetVariable v:downloads
+        Calculate operand=v:total_downloads
+        SetVariable v:total_downloads
+    Otherwise
+        Text "n/a"
+        SetVariable downloads
+    End
+    Text
+    |\(v:summary)
+    |   \(v:B."tr.plain")
+    |       \(v:B."td")\(v:name)\(v:B."/td")
+    |       \(v:B."td")\(v:downloads)\(v:B."/td")
+    |   \(v:B."/tr")
+    SetVariable v:summary
+End
+
+Text
+|\(v:summary)
+|   \(v:B."tr.primary")
+|       \(v:B."td")\(v:B."strong")Total Downloads\(v:B."/strong")\(v:B."/td")
+|       \(v:B."td")\(v:B."strong")\(v:total_downloads)\(v:B."/strong")\(v:B."/td")
+|   \(v:B."/tr")
+|
+|\(v:B."/table")
+|
+|\(v:B."/body")
+|\(v:B."/html")
+MakeRichTextfromHTML
+QuickLook
