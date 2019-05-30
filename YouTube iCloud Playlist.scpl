@@ -1,0 +1,659 @@
+#|@ShortcutName     = YouTube iCloud Playlist
+#|@ShortcutIcon     = youtube
+#|@ShortcutColor    = red
+#|@ShowInWidget     = true
+#|@ShowInShareSheet = true
+#|@Accepts          = Anything
+#
+# Publish Notes
+# In the _playVideo function, the labels
+# of the menu items aren't displayed
+# when viewed in shortcuts.
+# Manually edit the labels to show the
+# labels
+
+SetVariable "argv"
+
+Comment
+|** Metadata ***************************
+|* this section loads data about the
+|* shortcut, it's settings and global
+|* variables
+|***************************************
+Dictionary {
+    shortcut    : "YouTube iCloud Playlist",
+    author      : "@supermamon",
+    version     : "1.0.0",
+    settings    : {
+        debug       : "0",
+        dir         : "YTIP",
+        file        : "pref.json"
+        RoutineHubID: "2611",
+        GetHighestQuality: "1"
+    },
+    changelog   : {
+        "v1.0.0"    : "Initial release"
+    }
+}
+SetVariable "meta"
+GetVariable v:meta:settings
+SetVariable "opt"
+GetVariable v:opt:debug
+SetVariable "debug"
+
+Comment
+|Set for future language support
+Dictionary {
+    "en": {
+        Dictionary: "Dictionary"
+    }
+}
+SetVariable "localizations"
+GetVariable v:localizations:en
+SetVariable "lang"
+
+Comment
+|** Input Proc *************************
+|* Initial input check. This essentially
+|* controls the flow if the shortcut.
+|* a dictionary input signifies a function
+|* call, otherwise, call the main function
+|***************************************
+
+GetVariable v:argv
+If input=Equals value=v:argv
+Otherwise
+    GetClipboard
+    SetVariable "argv"
+End
+
+GetVariable v:argv
+GetType
+If input=Equals value=v:lang:Dictionary
+Otherwise
+    Dictionary {fn:"main", yturl=v:argv}
+    RunShortcut shortcut=v:meta:shortcut showwhilerunning=v:debug
+    SetVariable "return"
+
+    GetVariable v:debug
+    If input=Equals value="1"
+        GetVariable v:return
+        QuickLook
+    End
+    Comment
+    |This is the primary exit point of
+    |the shortcut where everything goes
+    |back here after the call to `main`
+    ExitShortcut
+end
+
+
+Comment
+| Get the function to call and the
+| arguments
+GetVariable v:argv:fn
+SetVariable "function"
+
+# deprecate args
+GetVariable v:argv:args
+SetVariable "args"
+
+GetVariable v:debug
+If input="Equals" value="1"
+    ShowAlert a{
+        title="DEBUG"
+        message="function: \(v:function)\nargs:\n\(v:args)"
+    }
+End
+
+Comment
+|***************************************
+|*           Functions
+|***************************************
+
+
+Comment
+|** Main *******************************
+|* params
+|* - yturl: optional youtube url
+|*
+|***************************************
+GetVariable v:function
+If input=Equals value="main"
+
+    Dictionary {fn:"firstRun"}
+    RunShortcut shortcut=v:meta:shortcut showwhilerunning=v:debug
+
+    Dictionary {fn:"showMainMenu", yturl:v:argv:yturl}
+    RunShortcut shortcut=v:meta:shortcut showwhilerunning=v:debug
+    ExitShortcut
+
+End
+Comment
+|** End Main ***************************
+
+
+Comment
+|** showMainMenu ***********************
+|* Display the primary menu
+|* params
+|* - yturl: optional youtube url
+|***************************************
+GetVariable v:function
+If input=Equals value="showMainMenu"
+
+    Nothing -> v:menu
+
+    Dictionary {caption:"Playlist",subtitle:"View saved videos", value:"showPlaylist"}
+    AddToVariable "menu"
+    Dictionary {caption:"Manage",subtitle:"Manage saved videos", value:"showPlaylist"}
+    AddToVariable "menu"
+
+    Comment
+    |Test if it received a youtube url
+    |If it did, add the `Download` option
+    GetVariable v:argv:yturl
+    SetVariable "youtube_url"
+    If input="Contains" value="youtu.be"
+        ExpandUrl -> v:youtube_url
+    End
+    If input=Contains value="youtube.com"
+        Dictionary {caption:"Download",subtitle:v:youtube_url, value:"downloadYouTubeVideo"}
+        AddToVariable "menu"
+    End
+
+    Dictionary {caption:"Check for Updates",subtitle:"Call @pfg's Check For Updates", value:"checkForUpdates"}
+    AddToVariable "menu"
+
+    Dictionary {fn:"_showRichMenu"}
+    SetDictionaryValue key="menu" value=v:menu
+    RunShortcut shortcut=v:meta:shortcut showwhilerunning=v:debug
+
+    SetVariable "chosen_item"
+
+    Dictionary {fn:v:chosen_item:value, args:v:chosen_item:subtitle, caption=v:chosen_item:caption, subtitle:v:chosen_item:subtitle}
+    RunShortcut shortcut=v:meta:shortcut showwhilerunning=v:debug
+    SetVariable "return"
+
+    GetVariable v:return
+    ExitShortcut
+End
+Comment
+|** End showMainMenu *******************
+
+Comment
+|** downloadYouTubeVideo ***************
+|* Download the video with url specified
+|* on `args`
+|*
+|***************************************
+GetVariable v:function
+If input=Equals value="downloadYouTubeVideo"
+    Comment
+    | https://tyrrrz.me/Blog/Reverse-engineering-YouTube
+
+    CreateFolder service="iCloud Drive" path=v:opt:dir
+    GetVariable v:args
+    GetComponentOfUrl Query
+    GetDictionaryFromInput -> v:query
+    GetVariable v:query:v
+    SetVariable "video_id"
+    Url "http://youtube.com/get_video_info?video_id=\(v:video_id)&el=detailpage&ps=default&eurl=&gl=US&hl=en"
+    GetContentsOfUrl advanced=false headers=false
+    SetVariable "video_info"
+
+    #RunShortcut shortcut="View With Jayson" showwhilerunning=false
+    # initialize options
+    #Dictionary
+    #SetVariable "stream_options"
+
+    GetVariable v:video_info:title
+    ReplaceText findtext="+" replacewith=" "
+    SetVariable "yt_video_title"
+
+    Dictionary {
+        "_order":"38,37,85,96,22,84,95,59,78,83,94,18,82,93,92,132,91,151",
+        "38":"4K",
+        "37":"1080p",
+        "85":"1080p",
+        "96":"1080p",
+        "22":"720p",
+        "84":"720p",
+        "95":"720p",
+        "59":"480p",
+        "78":"480p",
+        "83":"480p",
+        "94":"480p",
+        "18":"360p",
+        "82":"360p",
+        "93":"360p",
+        "92":"240p",
+       "132":"240p",
+        "91":"144p",
+       "151":"144p"
+    }
+    SetVariable "itags"
+    #RunShortcut shortcut="View With Jayson" showwhilerunning=false
+
+    GetVariable v:video_info
+    GetDictionaryValue key="url_encoded_fmt_stream_map"
+    SplitText separator="Custom" custom=","
+    RepeatWithEach
+        GetDictionaryFromInput
+        SetVariable "stream"
+
+        GetVariable v:debug
+        If input="Equals" value="1"
+            GetVariable v:stream
+            RunShortcut shortcut="View With Jayson" showwhilerunning=false
+        End
+
+        GetVariable v:itags:"_order"
+        SplitText separator=Custom custom=","
+
+        # If itag is in the list
+        If input="Equals" value=v:stream:itag
+
+            GetVariable v:itags
+            GetDictionaryValue get=Value key=v:stream:itag -> v:quality_name
+
+            GetVariable v:stream:url
+            SetName "\(v:quality_name) (itag_\(v:stream:itag))"
+            AddToVariable v:stream_options
+
+        End
+    End
+    #ShowAlert title=steams message=v:stream_options
+
+    GetVariable v:opt:GetHighestQuality
+    If input=Equals value="1"
+        GetVariable v:stream_options
+        GetItemFromList get="First Item"
+    Otherwise
+        GetVariable v:stream_options
+        ChooseFromList prompt="Choose video quality"
+    End
+    GetContentsOfUrl
+    SetName v:yt_video_title
+    SaveFile service="iCloud Drive" askwheretosave=false destinationpath="\(v:opt:dir)/" -> v:return
+    ShowAlert title=v:meta:shortcut message="Downloaded:\n\(v:yt_video_title)"
+    ExitShortcut
+End
+Comment
+|End downloadYouTubeVideo
+
+Comment
+|** _getDownloadedItems ****************
+|*
+|*
+|*
+|***************************************
+GetVariable v:function
+If input=Equals value="_getDownloadedItems"
+
+    GetFile a{
+        service="iCloud Drive"
+        showdocumentpicker=false
+        filepath="\(v:argv:dir)/"
+        errorifnotfound=false
+    }
+    FilterFiles :filter{ name "is not" "pref" }
+    SetVariable v:downloaded_videos
+    RepeatWithEach
+        SetVariable "video"
+        GetName -> v:video_name
+
+        #GetVariable v:video
+        #GetDetailsOfImages get="Duration" -> v:duration
+
+        GetVariable v:video{as:"Media",get="Duration"} -> v:duration
+
+        Text
+        |\(v:video{as:File,get="Name"}).\(v:video{as:File,get="File Extension"})
+        SetVariable v:filename
+
+        Dictionary {name:v:video_name,duration:"\(v:duration)",filename=v:filename}
+        AddToVariable "return"
+    End
+    GetVariable v:return
+    ExitShortcut
+End
+Comment
+|** End getDownloadedItems *************
+
+Comment
+|** showPlaylist ***********************
+|* Show a list of downloaded videos
+|***************************************
+|* params
+|* - caption: (Manage|Playlist) determines
+|*   action to take when video is selected
+|***************************************
+GetVariable v:function
+If input=Equals value="showPlaylist"
+    GetVariable v:argv:caption
+    If input=Equals "Manage"
+        Text "_deleteVideo"
+    Otherwise
+        Text "_playVideo"
+    End -> v:video_action
+
+    Nothing -> v:playlist_menu
+
+    Dictionary {caption:"Back",subtitle:"Back to main manu", value:{ action="showMainMenu",filename="" }}
+    SetVariable "back_button"
+
+    Dictionary {fn:"_getDownloadedItems", dir:"\(v:opt:dir)"}
+    RunShortcut shortcut=v:meta:shortcut showwhilerunning=v:debug
+    SetVariable "downloaded_videos"
+    Count Items
+    If input=Equals 0
+        Dictionary {caption:"Playlist is empty",subtitle:"Back to main manu", value:{ action="showMainMenu",filename="" }}
+        SetVariable "back_button"
+    End
+    GetVariable v:downloaded_videos
+    RepeatWithEach
+        SetVariable "video"
+        Dictionary {
+            caption :v:video:filename,
+            subtitle:v:video:duration,
+            value   :{
+                action  :v:video_action,
+                filename:v:video:filename
+            }
+        }
+        AddToVariable "playlist_menu"
+    End
+
+    GetVariable v:back_button
+    AddToVariable "playlist_menu"
+
+    Dictionary {fn:_showRichMenu}
+    SetDictionaryValue key="menu" value=v:playlist_menu
+    RunShortcut shortcut=v:meta:shortcut showwhilerunning=v:debug
+    SetVariable "chosen_menu_item"
+
+    GetVariable v:chosen_menu_item:value
+    SetVariable "menu_value"
+    Dictionary {fn:v:menu_value:action, args:v:menu_value:filename, filename:v:menu_value:filename}
+    RunShortcut shortcut=v:meta:shortcut showwhilerunning=v:debug
+
+    Dictionary {fn:"showPlaylist", caption:v:argv:caption}
+    RunShortcut shortcut=v:meta:shortcut showwhilerunning=v:debug -> v:return
+    ExitShortcut
+End
+Comment
+|** End showPlaylist *******************
+
+Comment
+|** _playVideo *************************
+|* Play the video whose name is passed
+|* via the `args` variable
+|*
+|***************************************
+GetVariable v:function
+If input=Equals value="_playVideo"
+
+
+    GetFile a{
+        service="iCloud Drive"
+        showdocumentpicker=false
+        filepath="\(v:opt:dir)/\(v:args)"
+        errorifnotfound=false
+    }
+    SetVariable "video"
+    Count Items
+    If input=Equals value=0
+        ShowAlert title=v:meta:shortcut message="Unable to find selected video"
+        Nothing
+        ExitShortcut
+    End
+
+    GetVariable v:video
+    ChooseFromMenu prompt=v:args items=["QuickLook", "Open In Another App", "Back to Playlist"]
+    Case
+        Quicklook
+    Case
+        OpenIn showopeninmenu=true
+    Case
+        Comment "Do nothing"
+        #Dictionary {fn:"showPlaylist",args:"View"}
+        #RunShortcut shortcut=v:meta:shortcut showwhilerunning=v:debug
+    End
+
+    Nothing
+    ExitShortcut
+
+End
+|** End _playVideo *********************
+
+Comment
+|** _deleteVideo ***********************
+|* Delete the video whose name is passed
+|* via the `args` variable
+|*
+|***************************************
+GetVariable v:function
+If input=Equals value="_deleteVideo"
+
+    GetFile a{
+        service="iCloud Drive"
+        showdocumentpicker=false
+        filepath="\(v:opt:dir)/\(v:args)"
+        errorifnotfound=false
+    }
+    SetVariable "video"
+    Count Items
+    If input=Equals 0
+        ShowAlert title=v:meta:shortcut message="Unable to find selected video"
+        Nothing
+        ExitShortcut
+    End
+
+    GetVariable v:video
+    DeleteFiles
+
+    Nothing
+    ExitShortcut
+
+End
+|** End _deleteVideo *******************
+
+
+Comment
+|** _showRichMenu **********************
+|* Show a menu from a list of dictionaries
+|* casted into a list of contacts
+|*
+|***************************************
+GetVariable v:function
+If input=Equals value="_showRichMenu"
+    Text "" -> v:menu_txt
+    GetVariable v:argv:menu
+    RepeatWithEach
+        SetVariable "menuitem"
+
+        GetVariable v:menuitem:value
+        Base64Encode mode="Encode" linebreaks="None"
+        SetVariable "menu_value"
+
+        GetVariable v:debug
+        If input="Equals" value="1"
+            ShowAlert title="DEBUG" message="menuitem = \n\(v:menuitem)"
+        End
+
+        GetVariable v:menuitem
+        GetDictionaryValue get="All Keys"
+        If input=Equals value="icon"
+            Text
+            |\(v:menu_txt)
+            |BEGIN:VCARD
+            |VERSION:3.0
+            |N;CHARSET=utf-8
+            |\(v:menuitem:caption);;;;
+            |ORG:\(v:menuitem:subtitle)
+            |PHOTO;ENCODING=b:\(v:menuitem:icon)
+            |NOTE:\(v:menu_value)
+            |END:VCARD
+        Otherwise
+            Text
+            |\(v:menu_txt)
+            |BEGIN:VCARD
+            |VERSION:3.0
+            |N;CHARSET=utf-8
+            |\(v:menuitem:caption);;;;
+            |ORG:\(v:menuitem:subtitle)
+            |NOTE:\(v:menu_value)
+            |END:VCARD
+        End
+        SetVariable "menu_txt"
+    End
+
+    GetVariable v:debug
+    If input="Equals" value="1"
+        ShowAlert title="DEBUG" message="menu_txt = \n\(v:menu_txt)"
+    End
+
+    GetVariable v:menu_txt
+    SetName name="menu.vcf"
+    GetContactsFromInput -> v:contacts
+
+    GetVariable v:debug
+    If input="Equals" value="1"
+        GetVariable v:contacts
+        QuickLook
+    End
+
+    GetVariable v:contacts
+    ChooseFromList -> v:chosen
+
+    GetVariable v:debug
+    If input="Equals" value="1"
+        GetVariable v:chosen
+        QuickLook
+    End
+
+    GetVariable v:chosen{as:Contact,get:Notes}
+    Base64Encode mode="Decode"
+    SetVariable "menu_value"
+
+
+    Dictionary {
+        caption:v:chosen{as:Contact,get:Name}
+        subtitle:v:chosen{as:Contact,get:Company}
+        value:v:menu_value
+    }
+    SetVariable "return"
+
+    GetVariable v:debug
+    If input="Equals" value="1"
+        GetVariable v:return
+        QuickLook
+    End
+
+    GetVariable v:return
+    ExitShortcut
+
+End
+
+Comment
+|** checkForUpdates ********************
+|* Run Check For Updates
+|*
+|*
+|***************************************
+GetVariable v:function
+If input=Equals value="checkForUpdates"
+    GetMyShortcuts
+    If input="Equals" value="Check For Updates"
+        Nothing
+        RunShortcut shortcut="Check For Updates" showwhilerunning=v:debug
+    Otherwise
+        ShowAlert title=v:meta:shortcut message="Check For Updates shortcut required. Tap OK to download."
+        Url "https://routinehub.co/shortcut/793"
+        OpenUrls
+    End
+    ExitShortcut
+End
+Comment
+|** firstRun ***************************
+|* setup for first run
+|*
+|*
+|***************************************
+GetVariable v:function
+If input=Equals value="firstRun"
+
+    GetFile a{
+        service="iCloud Drive"
+        showdocumentpicker=false
+        filepath="\(v:opt:dir)/\(v:opt:file)"
+        errorifnotfound=false
+    }
+    SetVariable "pref_file"
+    Count Items
+    If input="Equals" value="0"
+        # First run
+
+        Text
+        |You are running this shortcut for
+        |the first time. Tap OK to begin
+        |configuration. Here are the tasks
+        |that will be performed.
+        |[  ] Create the \(v:opt:dir) folder
+        |[  ] Create the \(v:opt:file) file
+        |[  ] Add update file into the /CFU folder
+        |
+        |Tap OK to proceed
+        SetVariable "first_run_msg"
+
+        ShowAlert title=v:meta:shortcut message=v:first_run_msg
+
+        CreateFolder service="iCloud Drive" path=v:opt:dir
+        Text
+        |{
+        |   "config":"completed"
+        |}
+        SetVariable "conf"
+        SetName v:opt:file
+        SaveFile a{
+            service="iCloud Drive"
+            askwheretosave=false
+            destinationpath="\(v:opt:dir)/"
+            overwriteiffileexists=true
+        }
+
+        GetFile service="iCloud Drive" showdocumentpicker=false filepath="CFU/"
+        Count Items
+        If input="Is Greater Than" 0
+            Dictionary {
+                Name    : v:meta:shortcut,
+                Version : v:meta:version,
+                Service : "RoutineHub"
+                ID : v:opt:RoutineHubID,
+            }
+            SetName "YTIP_by_supermamon.json"
+            SaveFile a{
+                service="iCloud Drive"
+                askwheretosave=false
+                destinationpath="CFU/"
+                overwriteiffileexists=true
+            }
+        End
+        ShowAlert title=v:meta:shortcut message="Configuration completed. Thank you for using \(v:meta:shortcut)."
+    End
+    ExitShortcut
+End
+
+
+Comment
+|if the shortcut reached this point, an
+|undeclared function was called. Show
+|a message to the user, the show then
+|call main again
+ChooseFromMenu prompt="Error:\nUndeclared function - \(v:function)" items=["Back to main menu"]
+Case
+    Dictionary {fn:"main",args=""}
+    RunShortcut shortcut=v:meta:shortcut showwhilerunning=v:debug
+End
+
