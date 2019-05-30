@@ -1,0 +1,9 @@
+@Icon bitcoin
+@Color darkpurple
+
+Comment
+| Bootstrap™ (getbootstrap.com) library
+| ported for use with Shortcuts
+| - @supermamon
+
+@import "lib/bootstrap.scpl"
