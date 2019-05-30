@@ -1,0 +1,113 @@
+@Icon tree
+@Color blue
+
+#@ShowInShareSheet true
+#@Accepts [Anything]
+
+SetVariable v:passthru_arg
+Comment
+|*View a dictionary into a colored, collapsible tree.
+|
+|* Based mostly from this article that uses renderjson with a bit of style adjustments.
+|
+|https://ourcodeworld.com/articles/read/753/creating-collapsible-tree-structures-from-json-into-html-in-javascript
+|
+|
+Dictionary {
+    "Shortcut"      : "View Dictionary",
+    "Author"        : "@supermamon",
+    "Version"       : "2.0",
+    "RoutineHub ID" : "307",
+    Changes: {
+        "v1.0": "Initial release",
+        "v2.0": "support for list of dictionaries"
+    },
+    CheckUpdates: 1
+} -> mv:meta
+GetVariable v:passthru_arg
+SetVariable v:dict
+Count Items -> mv:Count
+If "Is Greater Than" 1
+    GetVariable v:dict
+    CombineText separator=Custom custom="," -> mv:"Combine Text"
+    Text "[\(mv:"Combine Text")]"
+    SetVariable dict
+End -> mv:If
+GetVariable v:dict
+Text
+|<!DOCTYPE html>
+|<html>
+|   <head>
+|       <meta charset=\"utf-8\" />
+|       <meta name=\"viewport\" content=\"width=device-width,initial-scale=1\" />
+|       <script src=\"https://cdn.rawgit.com/caldwell/renderjson/master/renderjson.js\"></script>
+|       <style>
+|           body {
+|               background: #303030;
+|           }
+|           #con {
+|               text-shadow: none;
+|               background: #303030;
+|               padding: 1em;
+|           }
+|           .renderjson a {
+|               text-decoration: none;
+|               color: #fff;
+|           }
+|           .renderjson .disclosure {
+|               color: crimson;
+|               font-size: 125%;
+|               position: relative;
+|               top: 3px;
+|           }
+|           .renderjson .syntax {
+|               color: grey;
+|           }
+|           .renderjson .string {
+|               color: pink;
+|           }
+|           .renderjson .number {
+|               color: cyan;
+|           }
+|           .renderjson .boolean {
+|               color: plum;
+|           }
+|           .renderjson .key {
+|               color: lightblue;
+|           }
+|           .renderjson .keyword {
+|               color: lightgoldenrodyellow;
+|           }
+|           .renderjson .object.syntax {
+|               color: lightseagreen;
+|           }
+|           .renderjson .array.syntax {
+|               color: lightsalmon;
+|           }
+|       </style>
+|   </head>
+|   <body>
+|       <div id=\"con\"></div>
+|       <script>
+|           var data = \(v:dict)
+|           document.getElementById(\"con\").appendChild(renderjson(data))
+|       </script>
+|   </body>
+|</html>
+SetName name="json.html"
+ShowWebpage
+Comment "*** UpdateKit ***"
+GetVariable mv:meta.CheckUpdates
+If input=Equals value=1
+    GetMyShortcuts
+    If Contains "UpdateKit"
+        Dictionary {
+            "Shortcut Name"     : mv:meta.Shortcut,
+            "Current Version"   : mv:meta.Version,
+            "RoutineHub ID"     : mv:meta."RoutineHub ID"
+        }
+        RunShortcut shortcut=UpdateKit showWhileRunning=false
+    End
+End
+Comment "* pass the original arguments out"
+GetVariable v:passthru_arg
