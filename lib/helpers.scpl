@@ -1,0 +1,44 @@
+# Helper Macros
+
+# ******************************************************************************
+# @call
+#   - use this to run the Shortcut itself and passing a dictionary of arguments,
+#   Assumes that the shortcut name is stored in v:self
+#
+# Usage:
+#   @call { fn:main, url:"https://scpl.dev" }
+#
+# Result:
+#   Dictionary { fn:main, url:"https://scpl.dev" }
+#   RunShortcut shortcut=v:self false
+# ******************************************************************************
+@def @call ["args"] @{
+    Dictionary @:args
+    RunShortcut shortcut=v:self false
+}
+
+# ******************************************************************************
+# @dbgAlert & @dbgNotify
+#   - Display an alert or notification when an @debug flag is true. Useful when
+#     a message needs to me shown while a shortcut is being developed but not
+#     when it's released.
+#
+# Usage:
+#   @def @debug true
+#   Number 10 -> v:num
+#   @dbgAlert v:num
+#
+# Result:
+#   ShowAlert title="DEBUG" message=v:num
+# ******************************************************************************
+@def @dbgAlert ["message"] @{
+    @if @:debug @{
+        ShowAlert title="DEBUG" message=@:message
+    }
+}
+
+@def @dbgNotify ["message"] @{
+    @if @:debug @{
+        ShowNotification title="DEBUG" body=@:message
+    }
+}
