@@ -53,7 +53,7 @@ If Equals "checkForUpdate"
             @dbgQuickLook
 
             If Equals "same"
-                ShowAlert title=v:self message="Your copy of \(v:self) is up-to-date."
+                #ShowAlert title=v:self message="Your copy of \(v:self) is up-to-date."
             Otherwise
                 Text "\(mv:comp) is available: \(mv:local.version) → \(v:remote.Version)\nNotes:\n\(v:remote.Notes)" -> mv:prompt
                 ChooseFromMenu "\(mv:prompt)"
