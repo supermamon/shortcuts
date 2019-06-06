@@ -5,6 +5,8 @@
     @set mock false
     @import "../lib/helpers.scpl"
 
+    @set ALERT_IF_NO_UPDATES true
+
     @icon "server"
     @color "lightblue"
     @ShowInWidget true
@@ -12,7 +14,7 @@
 
     @set shortcutName "AirtableKit"
     @set shortcutAuthor "@supermamon"
-    @set shortcutVersion "1.0.0"
+    @set shortcutVersion "1.1.0"
     @set routineHubID 2828
 
 # Shortcut Starts Here
