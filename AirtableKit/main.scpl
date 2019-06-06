@@ -101,7 +101,12 @@ If Equals "main"
         ExitShortcut
     End
     If Equals "check-for-update"
-        @call {fn:checkForUpdate}
+        @call {
+            fn:checkForUpdate, 
+            name:v:self, 
+            id:v:opt:"updater.RoutineHubID", 
+            version:mv:meta:version
+        }
         ExitShortcut
     End
 /*
