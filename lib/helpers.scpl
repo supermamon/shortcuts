@@ -42,3 +42,19 @@
         ShowNotification title="DEBUG" body=@:message
     }
 }
+
+@def @callExt ["fn","args"] @{
+    Dictionary @:args
+    RunShortcut shortcut=@:fn false
+}
+@def @dbgQuicklook [] @{
+    @if @:debug @{
+        Quicklook
+    }
+}
+
+@def @mockDictionary ["args"] @{
+    @if @:mock @{
+        Dictionary @:args
+    }
+}
