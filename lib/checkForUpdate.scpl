@@ -1,0 +1,79 @@
+Comment
+|..:: Function checkForUpdate ::..
+|Check if there is an updated version
+|of the shortcut on routinehub.co
+|
+If Equals "checkForUpdate"
+    @dbgAlert "Entered checkForUpdate"
+    GetCurrentIPAddress -> mv:ip
+    Count Items
+    If "Is Greater Than" 0
+        Dictionary{
+            ID : v:opt:"updater.RoutineHubID"
+            version: mv:meta.version
+        } -> mv:local
+        @dbgQuickLook
+        URL "https://routinehub.co/api/v1/shortcuts/\(mv:local.ID)/versions/latest"
+        GetContentsOfURL
+        @mockDictionary {
+            "result": "success",
+            "id": 0,
+            "Version": "2.0.0",
+            "URL": "https://www.icloud.com/shortcuts/be7aef8c42b4430182d7f5b3a376a9ac",
+            "Notes": "Fixes",
+            "Release": "June 6, 2019"
+        }
+        SetVariable v:remote
+        GetVariable v:remote.result
+        If Equals "success"
+            Dictionary{local: mv:local.version, remote: v:remote.Version} -> mv:versions
+
+            Text -> mv:versionsHTML
+            |<html><head></head><body><script>
+            | function comp(a, b) {
+            |  var re0=/(\\.0+)+$/;
+            |  var segA=a.replace(re0,'').split('.');
+            |  var segB=b.replace(re0,'').split('.');
+            |  var l=Math.min(segA.length, segB.length);
+            |  for (var i=0;i<l;i++) {
+            |   var d=parseInt(segA[i],10)-parseInt(segB[i],10);
+            |   if (d) return d;
+            |  }
+            |  return segA.length-segB.length;
+            | };
+            | var v=\(mv:versions)
+            | var m=comp(v.local, v.remote)
+            | m=m==0?'same':(m>0?'A rollback':'An update');
+            | document.write(m);
+            | </script></body></html>
+            @dbgQuickLook
+
+            URL "data:text/html,\(mv:versionsHTML)"
+            GetContentsOfWebpage -> mv:comp
+            @dbgQuickLook
+
+            If Equals "same"
+                ShowAlert title=v:self message="Your copy of \(v:self) is up-to-date."
+            Otherwise
+                Text "\(mv:comp) is available: \(mv:local.version) → \(v:remote.Version)\nNotes:\n\(v:remote.Notes)" -> mv:prompt
+                ChooseFromMenu "\(mv:prompt)"
+                | Install version \(v:remote.Version)
+                | Skip
+                case Install
+                    URL "https://routinehub.co/download/\(v:remote.id)"
+                    OpenURLs
+                case Skip
+                end
+            End
+
+        Otherwise
+            ShowAlert v:self
+            | Could not check for updates:
+            | \(v:remote.message)
+        End
+
+    End
+    ExitShortcut
+End
+Comment
+|..:: End checkForUpdate ::..

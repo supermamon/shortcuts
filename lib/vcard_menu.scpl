@@ -1,0 +1,66 @@
+Comment
+|..:: Function showRichMenu ::..
+|Shows a menu from a list of dictionaries
+|casted into a list of contacts
+|
+If Equals "chooseFromVcardMenu"
+    @dbgAlert "Entered chooseFromVcardMenu"
+    Text "" -> v:menu_txt
+
+    @dbgAlert v:argv:menu_items
+    GetVariable v:argv:menu_items
+    RepeatWithEach
+        SetVariable "menuitem"
+
+        GetVariable v:menuitem:value
+        Base64Encode mode="Encode" linebreaks="None"
+        SetVariable "menu_value"
+
+        GetVariable v:menuitem
+        GetDictionaryValue get="All Keys"
+        If input=Equals value="icon"
+            Text
+            |\(v:menu_txt)
+            |BEGIN:VCARD
+            |VERSION:3.0
+            |N;CHARSET=utf-8:\(v:menuitem:caption);;;;
+            |ORG;CHARSET=utf-8:\(v:menuitem:subtitle);
+            |PHOTO;ENCODING=b:\(v:menuitem:icon)
+            |NOTE:\(v:menu_value)
+            |END:VCARD
+        Otherwise
+            Text
+            |\(v:menu_txt)
+            |BEGIN:VCARD
+            |VERSION:3.0
+            |N;CHARSET=utf-8:\(v:menuitem:caption);;;;
+            |ORG;CHARSET=utf-8:\(v:menuitem:subtitle);
+            |NOTE:\(v:menu_value)
+            |END:VCARD
+        End
+        SetVariable "menu_txt"
+    End
+
+    GetVariable v:menu_txt
+
+    SetName name="menu.vcf"
+    GetContactsFromInput
+    SetVariable -> v:contacts
+
+    GetVariable v:contacts
+    ChooseFromList prompt="\(v:argv:caption)" -> v:chosen
+
+    GetVariable v:chosen{as:Contact,get:Notes}
+    Base64Encode mode="Decode"
+    SetVariable v:menu_value
+
+    Dictionary {
+        caption:v:chosen{as:Contact,get:Name}
+        subtitle:v:chosen{as:Contact,get:Company}
+    }
+    SetDictionaryValue key="value" value=v:menu_value -> v:selected
+    @dbgAlert "Exited chooseFromVcardMenu with\n\(v:selected)"
+    ExitShortcut
+End
+Comment
+|..:: End showRichMenu ::..

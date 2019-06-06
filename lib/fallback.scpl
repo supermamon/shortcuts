@@ -1,0 +1,3 @@
+@def @ShowInShareSheet ["bool"] @{
+    Comment "@ShowInShareSheet \(@:bool)"
+}
