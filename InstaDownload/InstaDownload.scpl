@@ -1,6 +1,10 @@
 # load fallback actions
 @import "../lib/fallback.scpl"
 
+@set debug false
+@set mock false
+@import "../lib/helpers.scpl"
+
 @icon "image"
 @color "darkorange"
 @ShowInWidget true
@@ -8,7 +12,7 @@
 
 @set shortcutName "InstaDownload"
 @set shortcutAuthor "@supermamon"
-@set shortcutVersion "2.2.0"
+@set shortcutVersion "2.3.0"
 @set routineHubID 297
 
 SetVariable v:argv
@@ -37,7 +41,8 @@ Dictionary {
             "Removed UpdateKit dependency causing black screen",
             "Embedded update check",
             "Moved copy caption before image preview"
-        ]
+        ],
+        "v2.3.0": "Remove no update alert"
     }
 } -> mv:meta
 GetVariable mv:meta:settings -> v:opt
