@@ -57,7 +57,7 @@ If Equals "checkForUpdate"
             Otherwise
                 Text "\(mv:comp) is available: \(mv:local.version) → \(v:remote.Version)\nNotes:\n\(v:remote.Notes)" -> mv:prompt
                 ChooseFromMenu "\(mv:prompt)"
-                | Install version \(v:remote.Version)
+                | Get version \(v:remote.Version)
                 | Skip
                 case Install
                     URL "https://routinehub.co/download/\(v:remote.id)"
