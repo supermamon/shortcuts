@@ -1,0 +1,137 @@
+# load fallback actions
+@import "../lib/fallback.scpl"
+
+@set debug false
+@set mock false
+@import "../lib/helpers.scpl"
+
+@icon "image"
+@color "darkorange"
+@ShowInWidget true
+@ShowInSharesheet true
+
+@set shortcutName "InstaDownload"
+@set shortcutAuthor "@supermamon"
+@set shortcutVersion "2.1.1"
+@set routineHubID 297
+
+SetVariable argv
+Comment
+|Download all pictures & videos from an Instagram post. Accepts urls via share sheet or clipboard.
+
+Dictionary {
+    "Shortcut"      : @shortcutName,
+    "Author"        : @shortcutAuthor,
+    "Version"       : @shortcutVersion,
+    "RoutineHub ID" : @routineHubID,
+    "Changes"    : {
+        "v1.0.0": "Initial release",
+        "v1.0.1": "fix not downloading when url does not have querystring",
+        "v2.0": [
+            "UpdateKit support",
+            "Renamed to InstaDownload"
+        ],
+        "v2.1": "Option to copy caption",
+        "v2.1.1": "Fixed downloading same image"
+    }
+} -> mv:meta
+GetVariable v:argv
+GetClipboard
+AddtoVariable v:argv
+GetItemfromList get="First Item" -> mv:"Get Item from List"
+SetVariable v:argv
+If value="https://www.instagram.com/p/"
+Otherwise
+    ShowResult "That's not an instagram link."
+    ExitShortcut
+End
+GetVariable v:argv
+If Contains "?"
+Otherwise
+    Text "\(v:argv)?" -> mv:Text
+    SetVariable argv
+End
+ReplaceText a{
+    findText="([^\\?]+)(\\?)(.*)"
+    replaceWith="$1$2__a=1"
+    caseSensitive=false
+    regularExpression=true
+ }
+GetContentsofURL
+GetDictionaryValue key="graphql"
+GetDictionaryValue key="shortcode_media"
+SetVariable v:media
+
+Nothing
+SetVariable v:shortcodes
+GetVariable v:media
+GetDictionaryValue key="edge_media_to_caption.edges"
+GetItemfromList
+GetDictionaryValue key="node.text"
+SetVariable v:caption
+
+GetVariable v:media
+GetDictionaryValue key="edge_sidecar_to_children"
+SetVariable children
+Count Items -> mv:Count
+If input="Is Greater Than" number=0 value=""
+    GetVariable v:children
+    GetDictionaryValue key="edges"
+    RepeatwithEach
+        GetDictionaryValue key="node"
+        AddtoVariable v:nodes
+    End
+Otherwise
+    GetVariable v:media
+    SetVariable v:nodes
+End
+GetVariable v:nodes
+RepeatwithEach
+    GetVariable v:"Repeat Item"
+    GetDictionaryValue key="is_video"
+    If input=Equals value=1
+        GetVariable v:"Repeat Item"
+        GetDictionaryValue key="video_url"
+        GetContentsofURL
+        AddtoVariable v:Media
+    Otherwise
+        GetVariable v:"Repeat Item"
+        GetDictionaryValue key=display_resources
+        GetItemfromList get="Last Item"
+        GetDictionaryValue key=src
+        GetContentsofURL advanced=false
+        AddtoVariable v:Media
+    End
+End
+GetVariable v:Media
+RepeatwithEach
+    GetVariable v:"Repeat Item"
+    SavetoPhotoAlbum "All Photos"
+    AddtoVariable v:Saved
+End
+GetVariable v:Saved
+Count Items -> mv:Count1
+ChoosefromMenu prompt="Downloaded \(mv:Count1) item(s). View?" items=[Yes, No]
+Case
+    GetVariable v:Saved
+    QuickLook
+Case
+End
+ChoosefromMenu prompt="Copy Caption to Clipboard" items=[Yes, No]
+Case
+    GetVariable v:caption
+    CopytoClipboard
+    ShowAlert title=InstaDownload message="Copied!\n--------\n\(v:caption)" showCancelButton=false
+Case
+End
+Comment "*** UpdateKit Section ***"
+Nothing
+GetMyShortcuts -> mv:"Get My Shortcuts"
+If value=UpdateKit
+    Dictionary {
+        "Shortcut Name": mv:meta.Shortcut,
+        "Current Version": mv:meta.Version,
+        "RoutineHub ID": mv:meta."RoutineHub ID"
+    }
+    RunShortcut shortcut="UpdateKit" showWhileRunning=false
+End
