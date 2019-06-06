@@ -8,6 +8,9 @@ This repository contains shortcuts that I have created using [ScPL](https://scpl
   - `helpers` helpful macros
   - `get-dictionary-typename` - get the localized word for `Dictionary`
   - `bootstrap` - Bootstrap&trade; toolkit ported to a dictionary that can be imported to another shortcut
+  - `fallback` - macros to define macros that are not yet supported
+  - `vcard-menu` - utility to display a menu based on vcards
+  - `checkForUpdate` - embeddable update checker
 
 ### Shortcuts
 
@@ -18,3 +21,5 @@ This repository contains shortcuts that I have created using [ScPL](https://scpl
 * [`View Dictionary`](View%20Dictionary.scpl) - display a dictionary/JSON variable as a collapsible/expandable tree
 * [`View Source`](View%20Source.scpl) - display the source code of a webpage
 * [`YouTube iCloud Playlist`](YouTube%20iCloud%20Playlist.scpl) - Download and play videos from your iCloud drive
+* [`AirtableKit`](AirtableKit\AirtableKit.md) - Make the best use of Airtable via Shortcuts. ([rh](https://routinehub.co/shortcut/2828))
+
