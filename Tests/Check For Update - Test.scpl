@@ -1,0 +1,13 @@
+@set ALERT_IF_NO_UPDATES false
+@set debug false
+@set mock false
+@import "../lib/helpers.scpl"
+
+Dictionary {
+    fn      : "checkForUpdate",
+    name    :"Check For Update - Test",
+    id      : 297,
+    version : "2.3.0"
+} -> v:argv
+GetVariable v:argv:fn
+@import "../lib/checkForUpdate.scpl"
