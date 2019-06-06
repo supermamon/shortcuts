@@ -1,10 +1,6 @@
 # load fallback actions
 @import "../lib/fallback.scpl"
 
-@set debug false
-@set mock false
-@import "../lib/helpers.scpl"
-
 @icon "image"
 @color "darkorange"
 @ShowInWidget true
@@ -12,19 +8,23 @@
 
 @set shortcutName "InstaDownload"
 @set shortcutAuthor "@supermamon"
-@set shortcutVersion "2.1.1"
+@set shortcutVersion "2.2.0"
 @set routineHubID 297
 
-SetVariable argv
+SetVariable v:argv
 Comment
 |Download all pictures & videos from an Instagram post. Accepts urls via share sheet or clipboard.
 
 Dictionary {
-    "Shortcut"      : @shortcutName,
-    "Author"        : @shortcutAuthor,
-    "Version"       : @shortcutVersion,
-    "RoutineHub ID" : @routineHubID,
-    "Changes"    : {
+    "shortcut"      : @:shortcutName,
+    "author"        : @:shortcutAuthor,
+    "version"       : @:shortcutVersion,
+    "settings"      : {
+        "updater"       : {
+            "RoutineHubID"  : @:routineHubID
+        }
+    }
+    "changes"    : {
         "v1.0.0": "Initial release",
         "v1.0.1": "fix not downloading when url does not have querystring",
         "v2.0": [
@@ -32,17 +32,25 @@ Dictionary {
             "Renamed to InstaDownload"
         ],
         "v2.1": "Option to copy caption",
-        "v2.1.1": "Fixed downloading same image"
+        "v2.1.1": "Fixed downloading same image",
+        "v2.2.0": [
+            "Removed UpdateKit dependency causing black screen",
+            "Embedded update check",
+            "Moved copy caption before image preview"
+        ]
     }
 } -> mv:meta
+GetVariable mv:meta:settings -> v:opt
+GetVariable mv:meta:shortcut -> v:self
+
 GetVariable v:argv
 GetClipboard
 AddtoVariable v:argv
-GetItemfromList get="First Item" -> mv:"Get Item from List"
+GetItemfromList get="First Item"
 SetVariable v:argv
-If value="https://www.instagram.com/p/"
+If Contains "https://www.instagram.com/p/"
 Otherwise
-    ShowResult "That's not an instagram link."
+    ShowResult "That's not an instagram link. - \(v:argv)"
     ExitShortcut
 End
 GetVariable v:argv
@@ -72,9 +80,9 @@ SetVariable v:caption
 
 GetVariable v:media
 GetDictionaryValue key="edge_sidecar_to_children"
-SetVariable children
-Count Items -> mv:Count
-If input="Is Greater Than" number=0 value=""
+SetVariable v:children
+Count Items
+If "Is Greater Than" 0
     GetVariable v:children
     GetDictionaryValue key="edges"
     RepeatwithEach
@@ -89,16 +97,16 @@ GetVariable v:nodes
 RepeatwithEach
     GetVariable v:"Repeat Item"
     GetDictionaryValue key="is_video"
-    If input=Equals value=1
+    If Equals 1
         GetVariable v:"Repeat Item"
         GetDictionaryValue key="video_url"
         GetContentsofURL
         AddtoVariable v:Media
     Otherwise
         GetVariable v:"Repeat Item"
-        GetDictionaryValue key=display_resources
+        GetDictionaryValue key="display_resources"
         GetItemfromList get="Last Item"
-        GetDictionaryValue key=src
+        GetDictionaryValue key="src"
         GetContentsofURL advanced=false
         AddtoVariable v:Media
     End
@@ -109,6 +117,15 @@ RepeatwithEach
     SavetoPhotoAlbum "All Photos"
     AddtoVariable v:Saved
 End
+
+ChoosefromMenu prompt="Copy Caption to Clipboard" items=[Yes, No]
+Case
+    GetVariable v:caption
+    CopytoClipboard
+    ShowAlert title=InstaDownload message="Copied!\n--------\n\(v:caption)" showCancelButton=false
+Case
+End
+
 GetVariable v:Saved
 Count Items -> mv:Count1
 ChoosefromMenu prompt="Downloaded \(mv:Count1) item(s). View?" items=[Yes, No]
@@ -117,21 +134,6 @@ Case
     QuickLook
 Case
 End
-ChoosefromMenu prompt="Copy Caption to Clipboard" items=[Yes, No]
-Case
-    GetVariable v:caption
-    CopytoClipboard
-    ShowAlert title=InstaDownload message="Copied!\n--------\n\(v:caption)" showCancelButton=false
-Case
-End
-Comment "*** UpdateKit Section ***"
-Nothing
-GetMyShortcuts -> mv:"Get My Shortcuts"
-If value=UpdateKit
-    Dictionary {
-        "Shortcut Name": mv:meta.Shortcut,
-        "Current Version": mv:meta.Version,
-        "RoutineHub ID": mv:meta."RoutineHub ID"
-    }
-    RunShortcut shortcut="UpdateKit" showWhileRunning=false
-End
+
+Text "checkForUpdate"
+@import "../lib/checkForUpdate.scpl"
