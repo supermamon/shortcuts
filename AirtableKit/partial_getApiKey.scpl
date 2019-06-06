@@ -1,0 +1,12 @@
+GetFile a{
+    service="iCloud Drive"
+    showDocumentPicker=false
+    filePath="\(v:opt:"storage.dir")/\(v:opt:"storage.file")"
+    errorIfnotFound=false
+} -> v:pref_file
+Count Items
+If Equals 0
+    Nothing
+Otherwise
+    GetVariable v:pref_file:api_key
+End    

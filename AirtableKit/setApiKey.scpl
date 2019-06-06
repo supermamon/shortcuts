@@ -1,0 +1,23 @@
+If Equals "setApiKey"
+    GetFile a{
+        service="iCloud Drive"
+        showDocumentPicker=false
+        filePath="\(v:opt:"storage.dir")/\(v:opt:"storage.file")"
+        errorIfnotFound=false
+    } -> v:saved_opts
+    askForInput a{
+        question="API key?"
+        defaultAnswer=""
+        inputType="Text"
+    } -> v:api_key
+    GetVariable v:saved_opts
+    SetDictionaryValue key="api_key" value=v:api_key
+    SetName v:opt:"storage.file"
+    SaveFile a{
+        service="iCloud Drive"
+        askwheretosave=false
+        destinationpath="\(v:opt:"storage.dir")/"
+        overwriteiffileexists=true
+    }
+    ExitShortcut
+End

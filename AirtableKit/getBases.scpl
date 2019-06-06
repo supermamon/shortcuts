@@ -1,0 +1,17 @@
+If Equals "getBases"
+    @dbgAlert "Entered getBases"
+    GetFile a{
+        service="iCloud Drive"
+        showDocumentPicker=false
+        filePath="\(v:opt:"storage.dir")/\(v:opt:"storage.base")"
+        errorIfnotFound=false
+    } -> v:bases
+    Count Items
+    If Equals 0
+        Nothing
+    Otherwise
+        GetVariable v:bases
+    End
+    @dbgAlert "Exited getBases"
+    ExitShortcut
+End If

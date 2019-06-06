@@ -1,0 +1,32 @@
+If Equals "listRecords"
+    @dbgAlert "Entered getRecords"
+
+    @call {fn:getBaseId, base:v:argv:base}
+    SetVariable v:base
+    If Equals v:base
+    Otherwise
+        ExitShortcut
+    End
+
+    GetVariable v:argv:table
+    URLEncode mode=Encode -> v:table
+
+    GetVariable v:argv:view
+    URLEncode mode=Encode -> v:view
+
+    GetVariable v:argv:filter -> v:filter
+    URLEncode mode=Encode -> v:filter
+
+    URL "https://api.airtable.com/v0/\(v:base)/\(v:table)?view=\(v:view)&filterByFormula=\(v:filter)&maxRecords=\(v:argv:maxRecords)&pageSize=\(v:argv:pageSize)"
+    GetContentsOfUrl a{
+        advanced=true,
+        headers=true,
+        headers2={
+            "Authorization":"Bearer \(v:api_key)"
+        },
+    } -> v:records
+    
+    # GetDictionaryValue get="Value" key="records"
+    @dbgAlert "Exited listRecords"
+    ExitShortcut
+End

@@ -1,0 +1,118 @@
+If Equals "firstRun"
+    @dbgAlert "Entered firstRun"
+
+    @call {fn:"getSetupState"}
+    SetVariable v:setup
+    GetDictionaryValue get="All Values"
+    CalculateStatistics operation="Sum"
+    If "Is Less Than" 3
+        Text "Configuration for this shortcut is not yet complete.\nThe following steps will guide you through the configuration." -> mv:prompt1
+        ChooseFromMenu prompt=mv:prompt1 items=["Next"]
+        Case "Next"
+        End
+
+        GetVariable v:setup:OptDirExists
+        If Equals 0
+            Text "The [\(v:opt:"storage.dir")/] folder is not yet created. Tap next to create." -> mv:prompt2
+            ChooseFromMenu prompt=mv:prompt2 items=["Next"]
+            Case "Next"
+            End
+
+            CreateFolder service="iCloud Drive" path=v:opt:"storage.dir"
+
+            Text "Folder created. Tap Next." -> mv:prompt3
+            ChooseFromMenu prompt=mv:prompt3 items=["Next"]
+            Case "Next"
+            End
+        End
+
+        GetVariable v:setup:OptFileExists
+        If Equals 0
+            Text "The preference file is not yet created.\nPress next to create it now." -> mv:prompt4
+            ChooseFromMenu prompt=mv:prompt4 items=["Next"]
+            Case "Next"
+            End
+
+            Text
+            |{
+            |  "api_key":""
+            |}
+            SetName v:opt:"storage.file"
+            SaveFile a{
+                service="iCloud Drive"
+                askwheretosave=false
+                destinationpath="\(v:opt:"storage.dir")/"
+                overwriteiffileexists=true
+            }
+            Text "File created. Tap Next." -> mv:prompt4
+            ChooseFromMenu prompt=mv:prompt4 items=["Next"]
+            Case "Next"
+            End
+        End
+        GetVariable v:setup:ApiKeyExists
+        If Equals 0
+
+            Text "The API key is not yet stored. Tap Next to prompt for the key and save." -> mv:prompt5
+            ChooseFromMenu prompt=mv:prompt5 items=["Next"]
+            Case "Next"
+            End
+
+            @call {fn:setApiKey}
+
+            Text "API key is save. Tap Next." -> mv:prompt6
+            ChooseFromMenu prompt=mv:prompt6 items=["Next"]
+            Case "Next"
+            End
+
+        End
+        GetVariable v:setup:BasesExists
+        If Equals 0
+            Text "The required configuration is complete.\nHowever you don't have a list of your bases on your iCloud drive.\nThis is not required but you can have a copy of them downloaded so that their accessible." -> mv:prompt7
+            ChooseFromMenu prompt=mv:prompt7 items=["I want to download the list"]
+            Case "I want to download the list"
+                Text
+                |A local copy of bases is a JSON file
+                |containing just the name of the base and
+                |the identifier assigned by Airtable.
+                |Example: {"Expenses":"appYnfdaKalkrf"}
+                |Having a copy of the list allows you
+                |to use the name of the base when
+                |loading accessing records instead
+                |of the base identifier.
+                |
+                |Tap Next.
+                SetVariable v:text1
+                ChooseFromMenu prompt=v:text1 ["Next"]
+                Case "Next"
+                End
+
+                Text
+                |To download the list, you
+                |will need follow this steps
+                |1. Load airtable.com in Safari
+                |2. Login to your account
+                |3. Make sure you are on the Bases page
+                |4. Tap the Share button and request desktop site
+                |5. Tap the Share button again
+                |6. Share to this shortcut
+                |
+                |Tap OK to return to the main menu.
+                SetVariable v:text1
+                ChooseFromMenu prompt=v:text1 ["OK"]
+                Case "OK"
+                End
+            Case "Skip"
+            End
+        Otherwise
+            ChooseFromMenu prompt="Configuration is complete." ["OK"]
+            Case "OK"
+            End
+        End
+
+
+    End
+
+    @dbgAlert "Exited firstRun"
+    GetVariable v:setup
+    ExitShortcut
+End

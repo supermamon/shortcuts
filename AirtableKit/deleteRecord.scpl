@@ -1,0 +1,28 @@
+If Equals "deleteRecord"
+
+    @dbgAlert "Entered deleteRecord"
+    @call {fn:getBaseId, base:v:argv:base}
+    SetVariable v:base
+    If Equals v:base
+    Otherwise
+        ExitShortcut
+    End
+
+
+    GetVariable v:argv:table -> v:table
+    GetVariable v:argv:record_id -> v:record_id
+
+    URL "https://api.airtable.com/v0/\(v:base)/\(v:table)/\(v:record_id)"
+    GetContentsOfUrl a{
+        advanced=true,
+        headers=true,
+        method="DELETE"
+        headers2={
+            "Authorization":"Bearer \(v:api_key)"
+        },
+    } -> v:record
+
+    @dbgAlert "Exited deleteRecord with \(v:record)"    
+
+    ExitShortcut
+End

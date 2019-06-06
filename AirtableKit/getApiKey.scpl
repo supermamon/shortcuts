@@ -1,0 +1,6 @@
+If Equals "getApiKey"
+    @dbgAlert "Entered getApiKey"
+    @import "partial_getApiKey.scpl"
+    @dbgAlert "Exited getApiKey"
+    ExitShortcut
+End

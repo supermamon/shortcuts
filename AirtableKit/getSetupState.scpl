@@ -1,0 +1,79 @@
+If Equals "getSetupState"
+    @dbgAlert "Entered getSetupsState"
+    Dictionary {
+        OptDirExists    : 0,
+        OptFileExists   : 0,
+        ApiKeyExists    : 0,
+        BasesExists     : 0
+    } -> v:setup
+
+    GetFile a{
+        service="iCloud Drive"
+        showDocumentPicker=false
+        filePath=v:opt:"storage.dir"
+        errorIfnotFound=false
+    }
+    Count Items
+    If Equals 0
+        @dbgAlert "Exited getSetupsState"
+        # Nothing is setup yet
+        GetVariable v:setup
+        ExitShortcut
+    Otherwise
+        GetVariable v:setup
+        SetDictionaryValue key="OptDirExists" value=1
+        SetVariable v:setup
+    End
+
+    GetVariable v:setup:OptDirExists
+    If Equals "1"
+        GetFile a{
+            service="iCloud Drive"
+            showDocumentPicker=false
+            filePath="\(v:opt:"storage.dir")/\(v:opt:"storage.file")"
+            errorIfnotFound=false
+        }
+        Count Items
+        If Equals 0
+            #GetVariable v:setup
+            #ExitShortcut
+        Otherwise
+            GetVariable v:setup
+            SetDictionaryValue key="OptFileExists" value=1
+            SetVariable v:setup
+        End
+    End
+    GetVariable v:setup:OptFileExists
+    If Equals 1
+        GetFile a{
+            service="iCloud Drive"
+            showDocumentPicker=false
+            filePath="\(v:opt:"storage.dir")/\(v:opt:"storage.file")"
+            errorIfnotFound=false
+        }
+        GetDictionaryValue get=Value key="api_key"
+        Count Items
+        If Equals 0
+        Otherwise
+            GetVariable v:setup
+            SetDictionaryValue key="ApiKeyExists" value=1
+            SetVariable v:setup
+        End
+    End
+    GetFile a{
+        service="iCloud Drive"
+        showDocumentPicker=false
+        filePath="\(v:opt:"storage.dir")/\(v:opt:"storage.base")"
+        errorIfnotFound=false
+    }
+    Count Items
+    If Equals 0
+    Otherwise
+        GetVariable v:setup
+        SetDictionaryValue key="BasesExists" value=1
+        SetVariable v:setup
+    End
+    @dbgAlert "Exited getSetupsState"
+    GetVariable v:setup
+    ExitShortcut
+End

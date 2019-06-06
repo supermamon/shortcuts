@@ -1,0 +1,34 @@
+If Equals "updateRecord"
+    @dbgAlert "Entered updateRecord"
+    
+    @call {fn:getBaseId, base:v:argv:base}
+    SetVariable v:base
+    If Equals v:base
+    Otherwise
+        ExitShortcut
+    End
+
+    GetVariable v:argv:table -> v:table
+    GetVariable v:argv:fields -> v:fields
+    GetVariable v:argv:record_id -> v:record_id
+
+    Dictionary {}
+    SetDictionaryValue key="fields" value=v:fields -> v:data
+    
+    URL "https://api.airtable.com/v0/\(v:base)/\(v:table)/\(v:record_id)"
+    GetContentsOfUrl a{
+        advanced=true,
+        headers=true,
+        method="PATCH"
+        headers2={
+            "Content-Type":"application/json",
+            "Authorization":"Bearer \(v:api_key)"
+        },
+        requestBody="File"
+        file=v:data
+    } -> v:record
+
+    @dbgAlert "Exited createRecord with \(v:record)"    
+
+    ExitShortcut
+End

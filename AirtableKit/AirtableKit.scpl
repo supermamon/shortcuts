@@ -1,0 +1,160 @@
+    # load fallback actions
+    @import "../lib/fallback.scpl"
+
+    @set debug false
+    @set mock false
+    @import "../lib/helpers.scpl"
+
+    @icon "server"
+    @color "lightblue"
+    @ShowInWidget true
+    @ShowInSharesheet true
+
+    @set shortcutName "AirtableKit"
+    @set shortcutAuthor "@supermamon"
+    @set shortcutVersion "1.0.0"
+    @set routineHubID 2828
+
+# Shortcut Starts Here
+SetVariable v:argv
+
+Comment
+|..:: Metadata ::..
+Dictionary {
+    shortcut    : @:shortcutName,
+    author      : @:shortcutAuthor,
+    version     : @:shortcutVersion,
+    settings    : {
+        updater : {
+            RoutineHubID : @:routineHubID
+        },
+        storage : {
+            dir : "AirtableKit",
+            file: "airtable.json",
+            base: "base.json"
+        }
+    },
+    changelog   : {
+        "v:1.0.0" : "Initial release"
+    }
+} -> mv:meta
+GetVariable mv:meta:settings -> v:opt
+GetVariable mv:meta:shortcut -> v:self
+
+Comment
+|..:: Language Detection ::..
+Dictionary items={"key":"val"}
+GetType
+SetVariable "lDictionary"
+
+Comment
+|..:: Function Call Detection ::..
+GetVariable v:argv
+GetType
+If input=Equals value=v:lDictionary
+    GetVariable v:argv
+    GetDictionaryValue get="All Keys"
+    If Equals "fn"
+    Otherwise
+        ShowAlert title=v:self message="Invalid function call."
+        ExitShortcut
+    End
+    GetVariable v:argv:fn -> v:function
+    @dbgAlert "function=\(v:function)\n-----\n\(v:argv)"
+
+    #
+Otherwise
+
+    @call {fn:firstRun}
+    SetVariable v:setupState
+
+    # check if there's an input
+    # if there is, see if it's from airtable
+    #   if not, nothing to do.
+    #   either get a dictionary or safari web page
+    #   if it's from airtable
+    #       check if bases are created already
+    #       if not run the javascript
+    #       if exists, prompt to refresh then run the javascript
+    #   if it's not from airtable, discard it
+    GetVariable v:argv
+    Count Items
+    If "Is Greater Than" 0
+        @dbgAlert "Input recveived"
+        GetVariable v:argv
+        GetUrlsFromInput
+        GetItemFromList get="First Item" -> v:url
+        If Equals "https://airtable.com/"
+            Number 1 -> v:do_refresh
+            GetVariable v:setupState:BasesExists
+            @dbgAlert "Bases Exists = \(v:setupState:BasesExists)"
+            If Equals "1"
+                ChooseFromMenu prompt="Bases have been downloaded previously. Refresh?" items=["Yes","No"]
+                Case "Yes"
+                Case "No"
+                    Number 0 -> v:do_refresh
+                End
+            End
+            GetVariable v:do_refresh
+            @dbgAlert "refreh = \(v:do_refresh)"
+            If Equals 1
+                GetVariable v:argv
+                RunJavascriptOnWebPage -> v:js_output
+                |var q=t=>{return document.querySelectorAll(t)}
+                |var r = {}
+                |var tc='hover-container'
+                |var bs=q("."+tc)
+                |for (let b of bs) {
+                | if (b.className == tc) {
+                |  var c=b.children
+                |  var bn=c[1].innerText
+                |  var bu=c[0].children[1].href
+                |  var s=bu.split('/')
+                |  var bi=s[s.length-1]
+                |  r[bn]=bi
+                | }
+                |}
+                |completion(r);
+                #QuickLook
+                ShowAlert title=v:self message="Bases JSON. Save?\n--------------------\n\(v:js_output)" showCancelButton=true
+                GetVariable v:js_output
+                SetName v:opt:"storage.base"
+                SaveFile a{
+                    service="iCloud Drive"
+                    askwheretosave=false
+                    destinationpath="\(v:opt:"storage.dir")/"
+                    overwriteiffileexists=true
+                }
+                ShowAlert title="Bases saved!" message="" showCancelButton=false
+            End
+        End
+
+    End
+
+    @call {fn:main}
+    @dbgAlert "Exiting Shortcut"
+    ExitShortcut
+End
+
+@import "partial_getApiKey.scpl"
+SetVariable v:api_key
+
+GetVariable v:function
+@import "main.scpl"
+@import "firstRun.scpl"
+@import "getSetupState.scpl"
+@import "setApiKey.scpl"
+@import "getBases.scpl"
+@import "getBaseId.scpl"
+@import "getRecord.scpl"
+@import "listRecords.scpl"
+@import "createRecord.scpl"
+@import "updateRecord.scpl"
+@import "deleteRecord.scpl"
+@import "../lib/vcard_menu.scpl"
+@import "../lib/checkForUpdate.scpl"
+#@import "../lib/uploadToFileIO.scpl"
+
+ShowAlert title=v:self message="Invalid function call - \(v:function)"
+Nothing
+ExitShortcut

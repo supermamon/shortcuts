@@ -1,0 +1,138 @@
+If Equals "main"
+    @dbgAlert "Entered main"
+
+    Text -> v:menu
+    |{
+    |   "fn":"chooseFromVcardMenu",
+    |   "caption": "\(mv:meta:shortcut) v\(mv:meta:version)",
+    |   "menu_items":[
+    |   {
+    |     "caption":"List Bases",
+    |     "subtitle":"List cached bases and copy their IDs",
+    |     "value":"list-bases"
+    |   },
+    |   {
+    |     "caption":"API Key",
+    |     "subtitle":"Manage API Key",
+    |     "value":"show-api-key"
+    |   },
+    |   {
+    |     "caption":"Reset",
+    |     "subtitle":"Purge cached AirtableKit data, including the api key.",
+    |     "value":"purge-cache"
+    |   },
+    |   {
+    |     "caption":"Download Demo",
+    |     "subtitle":"Download the demo shortcut",
+    |     "value":"download-demo"
+    |   },
+    |   {
+    |     "caption":"Check for update",
+    |     "subtitle":"Check for AirtableKit updates",
+    |     "value":"check-for-update"
+    |   },
+    |   {
+    |     "caption":"Exit",
+    |     "subtitle":"Quit the shortcut",
+    |     "value":"exit"
+    |   }
+    |   ]
+    |}
+    GetDictionaryFromInput
+    #@dbgQuickLook
+    RunShortcut v:self false
+    GetDictionaryValue get="Value" key="value"
+    If Equals "list-bases"
+        @call {fn:getBases}
+        ChooseFromList prompt="Tap to copy the base id to clipboard"
+        CopyToClipboard
+        ShowAlert v:self message="Base ID copied to clipboard." showCancelButton=false
+        Nothing
+    End
+    If Equals "show-api-key"
+        ChooseFromMenu prompt="Tap key to copy" items=[v:api_key, "Change"]
+        Case
+            GetVariable v:api_key
+            CopyToClipboard
+            ShowAlert title=v:self message="API key copied to clipboard." showCancelButton=false
+        Case
+            AskForInput a{
+                question="API Key"
+                defaultanswer=v:api_key
+                inputtype="Text"
+            } -> v:new_api_key
+            GetFile a{
+                service="iCloud Drive"
+                showDocumentPicker=false
+                filePath="\(v:opt:"storage.dir")/\(v:opt:"storage.file")"
+                errorIfnotFound=false
+            }
+            SetDictionaryValue key="api_key" value=v:new_api_key
+            SetName v:opt:"storage.file"
+            SaveFile a{
+                service="iCloud Drive"
+                askwheretosave=false
+                destinationpath="\(v:opt:"storage.dir")/"
+                overwriteiffileexists=true
+            }
+            ShowAlert title=v:self message="Saved." showCancelButton=false
+        End
+        Nothing
+
+    End
+    If Equals "purge-cache"
+        CreateFolder service="iCloud Drive" path=v:opt:"storage.dir"
+        DeleteFiles confirmBeforeDeleting=true
+        Nothing
+    End
+    If Equals "download-demo"
+        URL "https://routinehub.co/api/v1/shortcuts/2640/versions/latest"
+        GetContentsOfUrl
+        @mockDictionary {
+            "result": "success",
+            "id": 0,
+            "Version": "1.0",
+            "URL": "https://www.icloud.com/shortcuts/be7aef8c42b4430182d7f5b3a376a9ac",
+            "Notes": "Initial release",
+            "Release": "June 6, 2019"
+        }
+        GetDictionaryValue get="Value" key="URL"
+        OpenURLs
+        ExitShortcut
+    End
+    If Equals "check-for-update"
+        @call {fn:checkForUpdate}
+        ExitShortcut
+    End
+/*
+    If Equals "upload-file"
+        @call {fn:uploadToFileIO}
+        @mockDictionary {
+            "success":true,
+            "expiry":"14 days",
+            "key":"hGAECv",
+            "link":"https://file.io/hGAECv"
+        }
+        Quicklook
+    End
+*/
+    If Equals "exit"
+        ExitShortcut
+    End
+
+
+    /*
+    ChooseFromMenu prompt="" ["List Bases","Purge Saved Configuration"]
+    Case
+        @call {fn:getBases}
+        ChooseFromList
+        CopyToClipboard
+        ShowAlert v:self message="Base ID copied to clipboard."
+    Case ""
+        CreateFolder service="iCloud Drive" path=v:opt:"storage.dir"
+        DeleteFiles confirmBeforeDeleting=true
+    End
+    */
+    @dbgAlert "Exited main"
+    ExitShortcut
+End

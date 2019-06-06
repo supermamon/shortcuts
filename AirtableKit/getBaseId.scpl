@@ -1,0 +1,23 @@
+If Equals "getBaseId"
+    @dbgAlert "Entered getBaseId"
+
+    GetVariable v:argv:base -> v:base
+    # check if text starts with app
+    MatchText pattern="^app.+" casesensitive=false -> v:matches
+    Count Items
+    If Equals 0
+        @call {fn:getBases}
+        GetDictionaryValue get="Value" key=v:base
+        SetVariable v:base
+        Count Items
+        If Equals 0
+            ShowAlert title=v:self message="Unrecognized Base name.\nMake sure the iCloud copy of your bases is updated."
+            Nothing
+            @dbgAlert "Exited getBaseId"
+            ExitShortcut
+        End
+    End
+    GetVariable v:base
+    @dbgAlert "Exited getBaseId with \(v:base)"
+    ExitShortcut
+End

@@ -1,0 +1,28 @@
+If Equals "getRecord"
+    @dbgAlert "Entered getRecord"
+
+    @call {fn:getBaseId, base:v:argv:base}
+    SetVariable v:base
+    If Equals v:base
+    Otherwise
+        ExitShortcut
+    End
+
+    GetVariable v:argv:table
+    URLEncode mode=Encode -> v:table
+
+    GetVariable v:argv:record_id
+    URLEncode mode=Encode -> v:record_id
+
+    URL "https://api.airtable.com/v0/\(v:base)/\(v:table)/\(v:record_id)"
+    GetContentsOfUrl a{
+        advanced=true,
+        headers=true,
+        headers2={
+            "Authorization":"Bearer \(v:api_key)"
+        },
+    } -> v:record
+
+    @dbgAlert "Exited getRecord"
+    ExitShortcut
+End
