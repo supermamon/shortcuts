@@ -1,0 +1,78 @@
+@Icon boxoutline
+@Color pink
+@ShowInWidget true
+#ShowInShareSheet true
+#Accepts ["Images","Media"]
+
+ShowResult "The process will now continue in-app."
+ContinueShortcutinApp
+SetVariable v:argv
+Comment
+|Description:
+|Overlay an image onto a square background.
+|
+|Expects an image input from the share sheet. If no image is passed, the photo picker will be prompted.
+
+Dictionary {
+    Shortcut: Squareify,
+    Author: @supermamon,
+    "RoutineHub ID": "95",
+    Version: "2.2",
+    Changes: {
+        "v1.0.0": "Initial release",
+        "v1.1.0": "Add options for saving & viewing",
+        "v1.1.1": "Fixed crash during resize process",
+        "v2.0.0": [
+            "Allow picking photo when not using share sheet",
+            "Add UpdateKit/RoutinHub support"
+        ],
+        "2.1.0": "Use shortcut metadata for UpdateKit",
+        "2.2": "Switch to major.minor versioning"
+    },
+    Settings: "-----------------",
+    bgcolor: black
+} -> v:meta
+
+GetVariable v:argv
+Count Items
+If Equals 0
+    SelectPhotos
+    SetVariable v:argv
+End
+
+GetVariable v:argv
+GetDetailsofImages Width -> mv:width
+SetVariable v:max
+GetVariable v:argv
+GetDetailsofImages Height -> mv:height
+If "Is Greater Than" number=v:max
+    SetVariable v:max
+End -> mv:If
+
+Text
+|<style>* {
+|    background-color:\(v:meta.bgcolor)
+|}
+|</style><body></body>
+MakeRichTextfromHTML
+MakePDF
+ConvertImage format="PNG" preserveMetadata=false
+ResizeImage width=v:max height=v:max -> mv:"Resize Image"
+OverlayImage image=v:argv showImageEditor=false width=mv:width height=mv:height -> mv:"Overlay Image"
+ChoosefromMenu prompt="" items=["Save & Show", "Show Only"]
+Case
+    SavetoPhotoAlbum -> mv:"Save to Photo Album"
+    QuickLook
+Case
+    QuickLook
+End -> mv:"Choose from Menu"
+Nothing
+GetMyShortcuts -> mv:"Get My Shortcuts"
+If value=UpdateKit
+    Dictionary {
+        "Shortcut Name": v:meta.Shortcut,
+        "Current Version": v:meta.Version,
+        "RoutineHub ID": v:meta."RoutineHub ID"
+    }
+    RunShortcut shortcut=UpdateKit showWhileRunning=false
+End
