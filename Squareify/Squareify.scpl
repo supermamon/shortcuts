@@ -4,14 +4,11 @@
 @set mock false
 @import "../lib/helpers.scpl"
 
-@set ALERT_IF_NO_UPDATES false
-
 @Icon boxoutline
 @Color pink
 @ShowInWidget true
 @ShowInShareSheet true
 @Accepts "Images,Media"
-
 
 ShowResult "The process will now continue in-app."
 ContinueShortcutinApp
@@ -25,7 +22,7 @@ Comment
 Dictionary {
     "shortcut"  : "Squareify",
     "author"    : "@supermamon",
-    "version"   : "2.2.0",
+    "version"   : "2.3",
     "settings"  : {
         "updater" : {
             "RoutineHubID": 95
@@ -39,8 +36,9 @@ Dictionary {
             "Allow picking photo when not using share sheet",
             "Add UpdateKit/RoutinHub support"
         ],
-        "2.1.0": "Use shortcut metadata for UpdateKit",
-        "2.2"   : "Switch to major.minor versioning",
+        "v2.1.0": "Use shortcut metadata for UpdateKit",
+        "v2.2"  : "Switch to major.minor versioning",
+        "v2.3"  : "Embedded update checker",
     },
     "options"   : "-----------------",
     "bgcolor"   : "black"
@@ -84,11 +82,9 @@ End -> mv:"Choose from Menu"
 Nothing
 Comment "..:: checkForUpdate Args ::.."
 Dictionary {
-    fn      : "checkForUpdate",
-    name    : v:self,
-    id      : v:opt:"updater.RoutineHubID",
-    version : mv:meta:version
+    name        : v:self,
+    id          : v:opt:"updater.RoutineHubID",
+    version     : mv:meta:version,
+    noUpdAlert  : "hide"
 } -> v:argv
-GetVariable v:argv:fn
-@import "../lib/checkForUpdate.scpl"
-Nothing
+@import "../lib/checkForUpdate-inline.scpl"
