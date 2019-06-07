@@ -1,3 +1,7 @@
 @def @ShowInShareSheet ["bool"] @{
     Comment "@ShowInShareSheet \(@:bool)"
 }
+
+@def @Accepts ["list"] @{
+    Comment "@Accepts [\(@:list)]"
+}
