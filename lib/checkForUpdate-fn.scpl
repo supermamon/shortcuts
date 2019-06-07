@@ -4,14 +4,10 @@
 * `v:argv:id` - routinehub id for shortcut
 * `v:argv:version` - version number of local copy
 * `v:argv:name` - name of shortcut
+* `v:argv:NoUpdAlert` - show|hide
 
 # Required Libraries
-
 * lib/helpers.scpl
-
-# Custom Flags
-
-* ALERT_IF_NO_UPDATES - (true|false) display an alert if there are no updates
 
 */
 Comment
@@ -20,7 +16,8 @@ Comment
 |of the shortcut on routinehub.co
 |
 If Equals "checkForUpdate"
-    @dbgAlert "Entered checkForUpdate"
+    @dbgAlert "Entered checkForUpdate-fn"
+
     GetCurrentIPAddress -> mv:ip
     Count Items
     If "Is Greater Than" 0
@@ -28,9 +25,9 @@ If Equals "checkForUpdate"
             id      : v:argv:id
             version : v:argv:version
         } -> v:local
-        @dbgQuickLook
         URL "https://routinehub.co/api/v1/shortcuts/\(v:local.id)/versions/latest"
         GetContentsOfURL
+        @dbgQuicklook
         @mockDictionary {
             "result": "success",
             "id": 0,
@@ -42,7 +39,10 @@ If Equals "checkForUpdate"
         SetVariable v:remote
         GetVariable v:remote.result
         If Equals "success"
-            Dictionary{local: v:local.version, remote: v:remote.Version} -> mv:versions
+            Dictionary{
+                local: v:local.version,
+                remote: v:remote.Version
+            } -> mv:versions
 
             Text -> mv:versionsHTML
             |<html><head></head><body><script>
@@ -75,11 +75,12 @@ If Equals "checkForUpdate"
             @dbgQuickLook
 
             If Equals "same"
-                @if @:ALERT_IF_NO_UPDATES @{
+                GetVariable v:argv:noUpdAlert
+                If Equals "show"
                     ShowAlert title=v:argv:name message="Your copy of \(v:argv:name) is up-to-date."
-                }
+                End
             Otherwise
-                Text "\(mv:comp) is available: \(v:local.version) → \(v:remote.Version)\nNotes:\n\(v:remote.Notes)" -> mv:prompt
+                Text "\(mv:comp) is available: \(v:local.version) -> \(v:remote.Version)\nNotes:\n\(v:remote.Notes)" -> mv:prompt
                 ChooseFromMenu "\(mv:prompt)"
                 | Get version \(v:remote.Version)
                 | Skip
@@ -89,7 +90,6 @@ If Equals "checkForUpdate"
                 case Skip
                 end
             End
-
         Otherwise
             ShowAlert v:argv:name
             | Could not check for updates:
@@ -97,7 +97,8 @@ If Equals "checkForUpdate"
         End
 
     End
+    @dbgAlert "Exited checkForUpdate-fn"
     ExitShortcut
 End
 Comment
-|..:: End checkForUpdate ::..
+|..:: End Function checkForUpdate ::..
