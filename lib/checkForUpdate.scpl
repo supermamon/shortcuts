@@ -1,3 +1,19 @@
+/*
+# Arguments
+
+* `v:argv:id` - routinehub id for shortcut
+* `v:argv:version` - version number of local copy
+* `v:argv:name` - name of shortcut
+  
+# Required Libraries
+
+* lib/helpers.scpl
+
+# Custom Flags
+
+* ALERT_IF_NO_UPDATES - (true|false) display an alert if there are no updates
+
+*/
 Comment
 |..:: Function checkForUpdate ::..
 |Check if there is an updated version
@@ -9,11 +25,11 @@ If Equals "checkForUpdate"
     Count Items
     If "Is Greater Than" 0
         Dictionary{
-            ID : v:opt:"updater.RoutineHubID"
-            version: mv:meta.version
-        } -> mv:local
+            id      : v:argv:id
+            version : v:argv:version
+        } -> v:local
         @dbgQuickLook
-        URL "https://routinehub.co/api/v1/shortcuts/\(mv:local.ID)/versions/latest"
+        URL "https://routinehub.co/api/v1/shortcuts/\(v:local.id)/versions/latest"
         GetContentsOfURL
         @mockDictionary {
             "result": "success",
@@ -26,7 +42,7 @@ If Equals "checkForUpdate"
         SetVariable v:remote
         GetVariable v:remote.result
         If Equals "success"
-            Dictionary{local: mv:local.version, remote: v:remote.Version} -> mv:versions
+            Dictionary{local: v:local.version, remote: v:remote.Version} -> mv:versions
 
             Text -> mv:versionsHTML
             |<html><head></head><body><script>
@@ -53,9 +69,11 @@ If Equals "checkForUpdate"
             @dbgQuickLook
 
             If Equals "same"
-                ShowAlert title=v:self message="Your copy of \(v:self) is up-to-date."
+                @if @:ALERT_IF_NO_UPDATES @{
+                    ShowAlert title=v:argv:name message="Your copy of \(v:argv:name) is up-to-date."
+                }
             Otherwise
-                Text "\(mv:comp) is available: \(mv:local.version) → \(v:remote.Version)\nNotes:\n\(v:remote.Notes)" -> mv:prompt
+                Text "\(mv:comp) is available: \(v:local.version) → \(v:remote.Version)\nNotes:\n\(v:remote.Notes)" -> mv:prompt
                 ChooseFromMenu "\(mv:prompt)"
                 | Get version \(v:remote.Version)
                 | Skip
@@ -67,7 +85,7 @@ If Equals "checkForUpdate"
             End
 
         Otherwise
-            ShowAlert v:self
+            ShowAlert v:argv:name
             | Could not check for updates:
             | \(v:remote.message)
         End
