@@ -4,7 +4,7 @@
 * `v:argv:id` - routinehub id for shortcut
 * `v:argv:version` - version number of local copy
 * `v:argv:name` - name of shortcut
-  
+
 # Required Libraries
 
 * lib/helpers.scpl
@@ -65,7 +65,13 @@ If Equals "checkForUpdate"
             @dbgQuickLook
 
             URL "data:text/html,\(mv:versionsHTML)"
-            GetContentsOfWebpage -> mv:comp
+            GetContentsOfWebpage
+            ReplaceText a{
+                findtext="(^\\s+)|(\\s+$)"
+                replacewith=""
+                casesensitive=false
+                regularexpression=true
+            } -> mv:comp
             @dbgQuickLook
 
             If Equals "same"
