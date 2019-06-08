@@ -3,7 +3,6 @@
 
 @set debug false
 @set mock false
-@set ALERT_IF_NO_UPDATES false
 @import "../lib/helpers.scpl"
 
 @icon "image"
@@ -13,7 +12,7 @@
 
 @set shortcutName "InstaDownload"
 @set shortcutAuthor "@supermamon"
-@set shortcutVersion "2.4.0"
+@set shortcutVersion "2.4.1"
 @set routineHubID 297
 
 SetVariable v:argv
@@ -45,6 +44,7 @@ Dictionary {
         ],
         "v2.3.0": "Remove no update alert",
         "v2.4.0": "Parameterized checkForUpdate",
+        "v2.4.1": "Minor parameter change",
     }
 } -> mv:meta
 GetVariable mv:meta:settings -> v:opt
@@ -144,10 +144,9 @@ End
 
 Comment "..:: checkForUpdate Args ::.."
 Dictionary {
-    fn      : "checkForUpdate",
-    name    : v:self,
-    id      : v:opt:"updater.RoutineHubID",
-    version : mv:meta:version
+    name        : v:self,
+    id          : v:opt:"updater.RoutineHubID",
+    version     : mv:meta:version,
+    noUpdAlert  : "hide"
 } -> v:argv
-GetVariable v:argv:fn
-@import "../lib/checkForUpdate.scpl"
+@import "../lib/checkForUpdate-inline.scpl"
