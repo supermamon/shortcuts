@@ -14,7 +14,7 @@
 
     @set shortcutName "AirtableKit"
     @set shortcutAuthor "@supermamon"
-    @set shortcutVersion "1.1.0"
+    @set shortcutVersion "1.2.0"
     @set routineHubID 2828
 
 # Shortcut Starts Here
@@ -37,7 +37,12 @@ Dictionary {
         }
     },
     changelog   : {
-        "v:1.0.0" : "Initial release"
+        "v1.0.0" : "Initial release",
+        "v1.1.0" : "Call checkForUpdate with arguments",
+        "v1.2.0" : [
+            "Fix javascript to use an alternate method of getting base info",
+            "Backup `base.json` when refreshing.",
+        ]
     }
 } -> mv:meta
 GetVariable mv:meta:settings -> v:opt
@@ -91,8 +96,28 @@ Otherwise
             GetVariable v:setupState:BasesExists
             @dbgAlert "Bases Exists = \(v:setupState:BasesExists)"
             If Equals "1"
-                ChooseFromMenu prompt="Bases have been downloaded previously. Refresh?" items=["Yes","No"]
+                Text -> mv:refresh_prompt
+                |Bases have been downloaded previously.
+                |Refreshing will create a backup of the existing list.
+                |Continue with refresh?
+                ChooseFromMenu prompt=mv:refresh_prompt items=["Yes","No"]
                 Case "Yes"
+                    Date use="Current Date"
+                    FormatDate dateFormat="Custom" formatstring="yyyyMMddhhmm" -> mv:ts
+                    GetFile a{
+                        service="iCloud Drive"
+                        showDocumentPicker=false
+                        filePath="\(v:opt:"storage.dir")/\(v:opt:"storage.base")"
+                        errorIfnotFound=false
+                    }
+                    SetName "\(mv:ts)_\(v:opt:"storage.base")"
+                    SaveFile a{
+                        service="iCloud Drive"
+                        askwheretosave=false
+                        destinationpath="\(v:opt:"storage.dir")/"
+                        overwriteiffileexists=true
+                    }
+
                 Case "No"
                     Number 0 -> v:do_refresh
                 End
@@ -101,20 +126,34 @@ Otherwise
             @dbgAlert "refreh = \(v:do_refresh)"
             If Equals 1
                 GetVariable v:argv
+
                 RunJavascriptOnWebPage -> v:js_output
                 |var q=t=>{return document.querySelectorAll(t)}
-                |var r = {}
-                |var tc='hover-container'
-                |var bs=q("."+tc)
-                |for (let b of bs) {
-                | if (b.className == tc) {
+                |var r={};
+                |var h=document.head.outerHTML
+                |var re=/(initData = )(.*)(;)/;
+                |var m=re.exec(h);
+                |if (m) {
+                | var j=m[2];
+                | var apps = JSON.parse(j).rawApplications;
+                | Object.keys(apps).forEach(key=>{
+                |  r[apps[key].name] = key
+                | })
+                | //r["imported_from"] = "initData"
+                |} else {
+                | var tc='hover-container'
+                | var bs=q("."+tc)
+                | for (let b of bs) {
+                |  if (b.className == tc) {
                 |  var c=b.children
                 |  var bn=c[1].innerText
                 |  var bu=c[0].children[1].href
                 |  var s=bu.split('/')
                 |  var bi=s[s.length-1]
                 |  r[bn]=bi
-                | }
+                |  } //if
+                | } //for
+                | //r["imported_from"] = "classes"
                 |}
                 |completion(r);
                 #QuickLook
