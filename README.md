@@ -14,7 +14,7 @@ This repository contains shortcuts that I have created using and ported into [Sc
 
 ### Shortcuts
 
-* [`AirtableKit`](AirtableKit\AirtableKit.md) - Make the best use of Airtable via Shortcuts. ([rh](https://routinehub.co/shortcut/2828))
+* [`AirtableKit`](AirtableKit\) - Make the best use of Airtable via Shortcuts. ([rh](https://routinehub.co/shortcut/2828))
 * [`Bootstrap`](Bootstrap.scpl) - same [`lib/bootstrap`](lib/bootstrap) but as a stand-alone shortcut
 * [`Edit Clipboard`](Edit%20Clipboard.scpl) - edit text and images stored on the clipboard ([rh](https://routinehub.co/shortcut/286))
 * [`InstaDownload`](InstaDownload\InstaDownload.scpl) - Download all pictures & videos from an Instagram post. Accepts urls via share sheet or clipboard. ([rh](https://routinehub.co/shortcut/297))
