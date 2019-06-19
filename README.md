@@ -20,6 +20,7 @@ This repository contains shortcuts that I have created using and ported into [Sc
 * [`InstaDownload`](InstaDownload\InstaDownload.scpl) - Download all pictures & videos from an Instagram post. Accepts urls via share sheet or clipboard. ([rh](https://routinehub.co/shortcut/297))
 * [`RoutineHub Stats`](RoutineHub%20Stats.scpl) - Download summary for shortcut publishers on [routinehub.co](https://routinehub.co).
 * [`Show Dictionary Menu`](Show%20Dictionary%20Menu.scpl) - a `Choose from List` action but for Dictionaries.
+* [`Squareify`](Squareify/Squareify.scpl) - Letter box any size into a square
 * [`View Dictionary`](View%20Dictionary.scpl) - display a dictionary/JSON variable as a collapsible/expandable tree
 * [`View Source`](View%20Source.scpl) - display the source code of a webpage ([rh](https://routinehub.co/shortcut/97))
 * [`YouTube iCloud Playlist`](YouTube%20iCloud%20Playlist.scpl) - Download and play videos from your iCloud drive ([rh](https://routinehub.co/shortcut/2611))
