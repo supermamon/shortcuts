@@ -14,15 +14,15 @@ This repository contains shortcuts that I have created using and ported into [Sc
 
 ### Shortcuts
 
-* [`AirtableKit`](AirtableKit\) - Make the best use of Airtable via Shortcuts. ([rh](https://routinehub.co/shortcut/2828))
+* [`AirtableKit`](AirtableKit/) - Make the best use of Airtable via Shortcuts. ([rh](https://routinehub.co/shortcut/2828))
 * [`Bootstrap`](Bootstrap.scpl) - same [`lib/bootstrap`](lib/bootstrap) but as a stand-alone shortcut
 * [`Edit Clipboard`](Edit%20Clipboard.scpl) - edit text and images stored on the clipboard ([rh](https://routinehub.co/shortcut/286))
 * [`InstaDownload`](InstaDownload\InstaDownload.scpl) - Download all pictures & videos from an Instagram post. Accepts urls via share sheet or clipboard. ([rh](https://routinehub.co/shortcut/297))
-* [Reddit Media Downloader](RMD/docs/) - download media from Reddit Posts
+* [`Reddit Media Downloader`](RMD/docs/) - download media from Reddit Posts ([rh](https://routinehub.co/shortcut/2406))
 * [`RoutineHub Stats`](RoutineHub%20Stats.scpl) - Download summary for shortcut publishers on [routinehub.co](https://routinehub.co).
 * [`Show Dictionary Menu`](Show%20Dictionary%20Menu.scpl) - a `Choose from List` action but for Dictionaries.
-* [`Squareify`](Squareify/Squareify.scpl) - Letter box any size into a square
-* [`View Dictionary`](View%20Dictionary.scpl) - display a dictionary/JSON variable as a collapsible/expandable tree
+* [`Squareify`](Squareify/Squareify.scpl) - Letter box any size into a square ([rh](https://routinehub.co/shortcut/95))
+* [`View Dictionary`](View%20Dictionary.scpl) - display a dictionary/JSON variable as a collapsible/expandable tree ([rh](https://routinehub.co/shortcut/307))
 * [`View Source`](View%20Source.scpl) - display the source code of a webpage ([rh](https://routinehub.co/shortcut/97))
 * [`YouTube iCloud Playlist`](YouTube%20iCloud%20Playlist.scpl) - Download and play videos from your iCloud drive ([rh](https://routinehub.co/shortcut/2611))
 
