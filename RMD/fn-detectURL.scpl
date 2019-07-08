@@ -1,0 +1,14 @@
+if Equals "detectURL"
+    @dbgAlert "Entered detectURL with parameter \(v:argv:url)"
+
+    GetVariable v:argv:url
+	MatchText pattern="^https:\\/\\/(www\\.)*reddit\\.com\\/r\\/\\w+\\/comments\\/\\w+\\/\\w+" caseSensitive=false
+	Count Items
+	If "Is Greater Than" 0
+        Text "REDDIT_POST_URL"
+    Otherwise
+        Text "NO_MATCH"
+	End -> mv:url_type
+    @dbgAlert "Exited detectURL with redult \(mv:url_type)"
+    ExitShortcut
+End

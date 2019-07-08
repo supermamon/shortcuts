@@ -1,0 +1,181 @@
+# metadata
+@set shortcutname "Reddit Media Downloader"
+@set author "@supermamon"
+@set version "2.0.0"
+@set routineHubId 2406
+@set cfuFileName "RMD_by_supermamon.json"
+
+# load fallback actions
+@import "../lib/fallback.scpl"
+
+@set debug false
+@set mock false
+@import "../lib/helpers.scpl"
+
+@Icon alien
+@Color red
+
+SetVariable argv
+Dictionary {
+	shortcut: 	@:shortcutname,
+	author: 	@:author,
+	version: 	@:version,
+	Changelog: {
+		"v1.0.0": "Initial release",
+		"v1.0.1": "Fixed for urls with utm parameters",
+		"v1.0.2": "Fix for non-English device language",
+		"v1.0.3": "Revert to usual default settings",
+		"v2.0.0": [
+			"Stability fixes",
+			"Support for reddit videos with audio",
+			"Support for Youtube videos"			
+		]
+	},
+	Settings: {
+		ShowPreview	: 1, # 1
+		AutoSave	: 1, # 1
+		SaveToPhotos: 1, # 1 
+		SaveToFiles	: 0, # 0
+		ConfirmSave	: 1, # 1
+		ShowAlerts	: 1, # 1
+		UpdateKit: {
+			Autocheck: 1, #1
+			RoutineHubID: @:routineHubId
+		},
+		DotReplacement: "•"
+	}
+} -> v:meta
+
+Comment
+|# Supported media domains
+|* reddit.com - images, videos
+|* imgur.com - images, videos, albums
+|* gfycat.com - gifs, videos
+|* streamble.com - videos
+|* youtube.com - videos
+|* direct links to images on any website (giphy, imgur, etc)
+
+Comment "# prep"
+GetVariable v:meta.shortcut -> v:self
+GetVariable v:meta.Settings
+GetDictionaryfromInput
+SetVariable v:opt
+
+GetVariable v:opt.DotReplacement
+SetVariable v:dot
+
+Comment
+|# handlers
+|
+|a reddit post contains a keys called
+|`post_hint` and `domain`. The value of
+|these 2 keys determine how to handle
+|downloading of the corresponding media.
+|
+|I replaced the dots `.` on the domain
+|names with `•`. This is to not confuse
+|Shortcuts that you're not looking for
+|nested keys.
+
+Dictionary {
+	"imgur•com"			: {fn:"downloadFromImgurLink",arg:"URL"},
+	"i•imgur•com"		: {fn:"downloadFromImgurGifv",arg:"URL"},
+	"gfycat•com"		: {fn:"downloadFromGfycat",arg:"URL"},
+	"v•redd•it"			: {fn:"getRedditHostedVideo",arg:"POST"},
+	"streamable•com"	: {fn:"downloadFromStreamable",arg:"URL"},
+	"youtube•com"		: {fn:"downloadFromYoutube",arg:"URL"},
+	"youtu•be"			: {fn:"downloadFromYoutube",arg:"URL"},
+}
+SetVariable v:domain_handlers
+
+
+Comment "# require input"
+GetVariable v:argv
+Count Items
+If Equals 0
+	GetClipboard
+	SetVariable v:argv
+End
+
+GetVariable v:argv
+Count Items
+If Equals 0
+	@call {fn:showMessage, message:"There was no input provided."}
+	@call {fn:checkForUpdates, autocheck:v:opt:"UpdateKit.Autocheck"}
+	ExitShortcut
+Otherwise
+	GetVariable v:argv
+	Count Characters
+	If Equals 0
+		@call {fn:showMessage, message: "There was no input provided."}
+		@call {fn:checkForUpdates, autocheck:v:opt."UpdateKit.Autocheck"}
+		ExitShortcut
+	End
+End
+
+Comment "Localized Type"
+Dictionary {key: value}
+GetType -> v:lDictionary
+List ["One","Two"]
+GetType -> v:lList
+
+
+Comment
+|# input validation
+|
+|if a dictionary is passed, check if
+|it's the expected format (contains `fn`)
+|then assign the appropriate function
+|
+|if a url is passed, assign the call to
+|the `main` function"
+GetVariable v:argv
+GetType
+If Equals v:lDictionary
+	GetVariable v:argv
+	GetDictionaryValue get="All Keys"
+	CombineText
+	If Contains "fn"
+	Otherwise
+		@call {fn:showMessage, message:"Invalid arguments for a function call."}
+		ExitShortcut
+	End
+	GetVariable v:argv.fn
+	SetVariable v:function
+	GetVariable v:argv.args # delete after removing references
+	SetVariable v:args      # delete after removing references
+Otherwise
+	Text "main" -> v:function
+End
+
+@dbgAlert "Calling : \(v:function)\nWith Arguments:\n------------------------\n\(v:argv)"
+
+
+Comment "All that is here are the actual functions."
+
+GetVariable v:function
+@import "./_main.scpl"
+@import "./_fallback.scpl"
+@import "./fn-showMessage.scpl"
+@import "./fn-checkForUpdates.scpl"
+@import "./fn-detectURL.scpl"
+@import "./fn-makeKeySafeValue.scpl"
+@import "./fn-xmlToJson.scpl"
+
+# reddit processors
+@import "./fn-downloadRedditPost.scpl"
+@import "./fn-getRedditDirectImage.scpl"
+@import "./fn-getRedditLink.scpl"
+@import "./fn-getRedditHostedVideo.scpl"
+@import "./fn-getRedditRichVideo.scpl"
+
+# generic downloaders. must accept url only
+@import "./fn-downloadFromDashVideo.scpl"
+@import "./fn-downloadFromImgurLink.scpl"
+@import "./fn-downloadFromImgurGifv.scpl"
+@import "./fn-downloadFromGfycat.scpl"
+@import "./fn-downloadFromStreamable.scpl"
+@import "./fn-downloadFromYoutube.scpl"
+
+ShowAlert title=v:self message="Undeclared function - `\(v:function)`."
+Nothing

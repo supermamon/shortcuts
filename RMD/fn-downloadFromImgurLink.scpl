@@ -1,0 +1,25 @@
+/*
+fn  : downloadImgurLink
+args:
+  - url: url of the imgur post, single
+         image or album
+returns
+  one or more images
+*/
+If Equals "downloadFromImgurLink"
+	@dbgAlert "Entered downloadFromImgurLink with parameter \(v:argv.url)"
+	GetVariable v:argv.url
+	GetContentsofURL
+	SetName name="src.txt"
+	MatchText pattern="(?m)(.*div\\sid=\")(\\w+)(\"\\sclass=\"post-image-container.*)"
+	GetGroupfromMatchedText groupIndex=2
+	SetVariable v:imgur_media_ids
+	RepeatwithEach
+		SetVariable v:imgur_media_id
+		@call {fn:downloadFromImgurGifv, url:"https://i.imgur.com/\(v:imgur_media_id).gifv"}
+		AddtoVariable images
+	End
+	GetVariable v:images
+	@dbgAlert "Exited downloadFromImgurLink"
+	ExitShortcut
+End

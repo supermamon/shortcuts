@@ -1,0 +1,5 @@
+If Equals "makeKeySafeValue"
+    GetVariable v:argv:text
+    ReplaceText findText="." replaceWith=v:dot caseSensitive=false
+    ExitShortcut
+End

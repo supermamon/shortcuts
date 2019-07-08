@@ -1,0 +1,88 @@
+If Equals "downloadFromDashVideo"
+	@dbgAlert "Entered downloadFromDashVideo"
+
+	GetVariable v:argv:url
+	SetVariable v:dash_url
+
+	If "Contains" "DASHPlaylist"
+	Otherwise
+		URL "\(v:dash_url)/DASHPlaylist.mpd"
+		SetVariable v:dash_url
+	End
+
+	# get the base URL
+	GetVariable v:dash_url
+	ReplaceText findText="(.+)\\/DASHPlaylist.mpd$" replaceWith="$1" caseSensitive=false regularExpression=true
+	SetVariable v:base_url
+
+	# download XML
+	GetVariable v:dash_url
+	GetContentsofURL
+	SetName name="data.txt" advanced=false
+	SetVariable v:xml
+
+	# convert to json
+	Dictionary {fn:xmlToJson}
+	SetDictionaryValue key="xml" value=v:xml
+	RunShortcut shortcut=v:self showWhileRunning=false
+
+    SetVariable v:mpd
+    Count Items
+    If "Is Greater Than" 0
+    Otherwise
+        Nothing
+		@dbgAlert "Exiting downloadFromDashVideo, returning Nothing"
+        ExitShortcut
+    End
+
+	GetVariable v:mpd:"MPD.Period.AdaptationSet"
+	SetVariable v:adaptation
+
+	# if it's a list,
+	# will need to check on this later. it might be a video/audio split
+	GetType
+	If Equals v:lList
+		# get the video stream
+		GetVariable v:adaptation
+		GetItemfromList "Last Item" -> v:audio_stream
+		GetVariable v:adaptation
+		GetItemfromList "First Item" -> v:video_stream
+	Otherwise
+		GetVariable v:adaptation -> v:video_stream
+	End
+
+	#
+	GetVariable v:video_stream.Representation
+
+	# find the highest resolution one.
+	# need this because the dictionary may not be ordered
+	SetVariable v:variations
+	GetItemfromList "First Item"
+	SetVariable v:chosen_variation
+
+	GetVariable v:variations
+	RepeatwithEach
+		SetVariable v:variation
+		GetVariable v:variation._height
+		If "Is Greater Than" v:chosen_variation._height
+			GetVariable v:variation
+			SetVariable v:chosen_variation
+		End
+	End
+
+	GetVariable v:chosen_variation
+	URL "\(v:base_url)/\(v:chosen_variation.BaseURL)"
+	GetContentsofURL -> v:video
+
+	GetVariable v:audio_stream
+	Count Items
+	If "Is Greater Than" 0
+		URL "\(v:base_url)/audio"
+		Comment "Find a way to merge audio"
+	End
+
+	GetVariable v:video
+
+	@dbgAlert "Exiting downloadFromDashVideo"
+	ExitShortcut
+End

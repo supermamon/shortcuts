@@ -1,0 +1,77 @@
+If Equals "main"
+	GetVariable v:argv
+	GetURLsFromInput
+	SetVariable v:url
+
+	@call {fn:detectURL url:v:url}
+	SetVariable v:URL_TYPE
+	If Equals "REDDIT_POST_URL"
+	Otherwise
+		@call {fn:showMessage message:"Unsupported input - \(v:url)"}
+		ExitShortcut
+	End
+
+	# call the downloader
+	GetVariable v:URL_TYPE
+	If Equals "REDDIT_POST_URL"
+		@call {fn:downloadRedditPost url:v:url}
+	End
+
+	SetVariable v:downloaded_media
+	Count Items
+	If Equals 0
+		@call {fn:showMessage, message:"Downloader was not able to acquire the requested media."}
+	Otherwise
+		Nothing
+		SetVariable v:return_media
+		GetVariable v:downloaded_media
+		RepeatwithEach
+			SetName name="Media_\(v:"Repeat Index")"
+			AddtoVariable v:return_media
+		End
+		@dbgQuicklook
+
+		GetVariable v:opt.ShowPreview
+		If Equals 1
+			GetVariable v:return_media
+			QuickLook
+		End
+
+		GetVariable v:opt.AutoSave
+		If Equals 1
+
+			GetVariable v:opt.SaveToPhotos
+			If Equals 1
+				GetVariable v:opt.ConfirmSave
+				If Equals 1
+					ChoosefromMenu prompt="Save to Photos" items=[Yes, No]
+					Case
+						GetVariable v:return_media
+						SavetoPhotoAlbum
+					Case
+					End -> mv:"Choose from Menu"
+				Otherwise
+					GetVariable v:return_media
+					SavetoPhotoAlbum
+				End
+			End
+			GetVariable v:opt.SaveToFiles
+			If Equals 1
+				GetVariable v:opt.ConfirmSave
+				If input=Equals value=1
+					ChoosefromMenu prompt="Save to Files" items=[Yes, No]
+					Case
+						GetVariable v:return_media
+						SaveFile askWheretoSave=false
+					Case
+					End
+				Otherwise
+					GetVariable v:return_media
+					SaveFile askWheretoSave=false overwriteIfFileExists=false
+				End
+			End
+		End
+		GetVariable v:return_media
+	End
+	ExitShortcut
+End

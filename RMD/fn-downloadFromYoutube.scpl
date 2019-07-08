@@ -1,0 +1,90 @@
+
+Comment
+|** downloadFromYoutube ***************
+|* Download the video with url specified
+|* on `url`
+|*
+|***************************************
+If input=Equals value="downloadFromYoutube"
+    @dbgAlert "Entered downloadFromYoutube"
+    Comment
+    | https://tyrrrz.me/Blog/Reverse-engineering-YouTube
+
+    GetVariable v:argv:url
+    Expandurl
+    GetComponentOfUrl Query
+    GetDictionaryFromInput -> v:query
+    GetVariable v:query:v
+    SetVariable "video_id"
+    Url "http://youtube.com/get_video_info?video_id=\(v:video_id)&el=detailpage&ps=default&eurl=&gl=US&hl=en"
+    GetContentsOfUrl advanced=false headers=false
+    SetVariable "video_info"
+
+    @dbgViewWithJayson
+
+    GetVariable v:video_info:title
+    ReplaceText findtext="+" replacewith=" "
+    SetVariable "yt_video_title"
+
+    Dictionary {
+        "_order":"38,37,85,96,22,84,95,59,78,83,94,18,82,93,92,132,91,151",
+        "38":"4K",
+        "37":"1080p",
+        "85":"1080p",
+        "96":"1080p",
+        "22":"720p",
+        "84":"720p",
+        "95":"720p",
+        "59":"480p",
+        "78":"480p",
+        "83":"480p",
+        "94":"480p",
+        "18":"360p",
+        "82":"360p",
+        "93":"360p",
+        "92":"240p",
+       "132":"240p",
+        "91":"144p",
+       "151":"144p"
+    }
+    SetVariable "itags"
+    #RunShortcut shortcut="View With Jayson" showwhilerunning=false
+
+    GetVariable v:video_info
+    GetDictionaryValue key="url_encoded_fmt_stream_map"
+    SplitText separator="Custom" custom=","
+    RepeatWithEach
+        GetDictionaryFromInput
+        SetVariable "stream"
+
+        @dbgViewWithJayson
+
+        GetVariable v:itags:"_order"
+        SplitText separator=Custom custom=","
+
+        # If itag is in the list
+        If input="Equals" value=v:stream:itag
+
+            GetVariable v:itags
+            GetDictionaryValue get=Value key=v:stream:itag -> v:quality_name
+
+            GetVariable v:stream:url
+            SetName "\(v:quality_name) (itag_\(v:stream:itag))"
+            AddToVariable v:stream_options
+
+        End
+    End
+    #ShowAlert title=steams message=v:stream_options
+
+    # get highest quality
+    GetVariable v:stream_options
+    GetItemFromList get="First Item"
+
+    GetContentsOfUrl
+    SetName v:yt_video_title
+
+    @dbgAlert "Exited downloadFromYoutube"
+    ExitShortcut
+End
+Comment
+|End downloadFromYoutube

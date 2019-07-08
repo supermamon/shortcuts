@@ -1,0 +1,41 @@
+/*
+fn  : getRedditLink
+args:
+  - post: a JSON object containing the
+          information about the reddit
+		  post
+returns
+  one or more images
+*/
+If Equals "getRedditLink"
+
+	@dbgAlert "Entered getRedditLink"
+
+	# get which domain to download
+	@call {fn:makeKeySafeValue, text:v:argv:"post.domain"}
+	SetVariable v:domain
+
+	# get the domain handler
+	GetVariable v:domain_handlers
+	GetDictionaryValue key=v:domain
+	SetVariable v:handler
+	Count Items
+	If Equals 0
+		@call {fn:showMessage message:"Domain \(v:argv:"post.domain") is not yet supported."}
+		ExitShortcut
+	End
+	@dbgAlert "domain: \(v:argv:"post.domain")\nhandler: \(v:handler)"
+
+	# call the domain handler
+	GetVariable v:handler.arg
+	If Equals "URL"
+		@call {fn:v:handler.fn, url:v:argv:"post.url" } 
+	Otherwise
+		Dictionary {fn:v:handler.fn}
+		SetDictionaryValue key="post" value=v:argv:post 
+		RunShortcut v:self false
+	End
+
+	@dbgAlert "Exited getRedditLink"
+	ExitShortcut
+End

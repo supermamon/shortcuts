@@ -1,0 +1,46 @@
+If Equals "downloadFromImgurGifv"
+	GetVariable v:argv:url
+	# get the id string from the url
+	SetVariable v:imgur_gifv_url
+	ReplaceText a{
+        findText="https:\\/\\/i\\.imgur\\.com\\/(\\w+).gifv"
+        replaceWith="$1"
+        caseSensitive=false
+        regularExpression=true
+    }
+	SetVariable v:imgur_mediaset_id
+
+	# get the source code of the page
+	GetVariable v:imgur_gifv_url
+	GetContentsofURL -> mv:"Get Contents of URL5"
+	SetName name="imgur-\(v:imgur_mediaset_id).txt"
+	SetVariable v:imgur_gifv_url_src
+	Dictionary {
+        "video" : "(?m)(.*contentURL\"\\s+content=\")(.+)(\".*)",
+        "image" : "(?m)(.*img\\s+src=\")(.+)(\"\\salt.+contentURL.*)"
+    } -> mv:Dictionary20
+	GetDictionaryValue get="All Values"
+	RepeatwithEach
+		SetVariable v:pattern
+		GetVariable v:imgur_gifv_url_src
+		MatchText pattern=v:pattern caseSensitive=false
+		SetVariable matches
+		Count Items
+		If "Is Greater Than" 0
+			GetVariable v:matches
+			GetGroupfromMatchedText groupIndex=2
+			SetVariable v:imgur_media_url
+			If Contains "https"
+			Otherwise
+				URL "https:\(v:imgur_media_url)"
+				SetVariable v:imgur_media_url
+			End
+			@dbgAlert "ingur_media_url =\n\(v:imgur_media_url)"
+			GetVariable v:imgur_media_url
+			GetContentsofURL
+			AddtoVariable v:imgur_media
+		End
+	End
+	GetVariable v:imgur_media
+	ExitShortcut
+End

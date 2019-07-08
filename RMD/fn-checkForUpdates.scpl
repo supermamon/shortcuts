@@ -1,0 +1,16 @@
+If Equals "checkForUpdates"
+	GetVariable v:argv:autocheck
+	If Equals 1
+		GetMyShortcuts
+		If Equals "UpdateKit"
+			Dictionary {
+				"Shortcut Name"		: v:self, 
+				"Current Version"	: v:meta.version, 
+				"RoutineHub ID"		: v:opt."UpdateKit.RoutineHubID"
+			}
+			RunShortcut "UpdateKit" false
+		End
+	End
+	Nothing
+	ExitShortcut
+End

@@ -1,0 +1,22 @@
+@def @addAudioToVideo ["video_file", "audio_file"] @{
+    URL "http://www.fileconverto.com/add-music-to-video/"
+    GetContentsOfUrl a{
+        advanced=true
+        method="POST"
+        headers=false
+        requestbody="Form"
+        formvalues={
+            <file> videofile: @:video_file,
+            <file> audiofile: @:audio_file,
+            submitfile: ""
+        }
+    }
+
+}
+
+
+@def @dbgViewWithJayson [] @{
+    @if @:debug @{
+        RunShortcut shortcut="View With Jayson" showwhilerunning=false
+    }
+}

@@ -1,0 +1,12 @@
+If Equals "getRedditDirectImage"
+	@dbgAlert "Entered getDirectImage"
+
+	@dbgAlert "Will download from \(v:argv."post.url")"
+	GetVariable v:argv."post.url"
+	GetContentsofURL
+
+	@dbgQuickLook
+	@dbgAlert "Exited getDirectImage"
+
+	ExitShortcut
+End

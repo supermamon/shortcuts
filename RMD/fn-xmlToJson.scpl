@@ -1,0 +1,54 @@
+If Equals "xmlToJson"
+  @dbgAlert "Entered xmlToJson"
+	GetVariable v:argv:xml
+  SetVariable v:xml
+  @dbgAlert v:xml
+
+	Comment
+  |https://github.com/abdolence/x2js
+
+	Text -> v:script
+    |<html>
+    |<head>
+    | <script type="text/javascript" src="https://cdn.rawgit.com/abdmob/x2js/master/xml2json.js"></script>
+    |</head>
+    |<body>
+    |   <script>
+    |     var _input = `\(v:xml)`;
+    |     var x2js = new X2JS();
+    |     var json = x2js.xml_str2json(_input);
+    |     document.write(JSON.stringify(json))
+    |   </script>
+    |</body>
+    |</html>
+    #|       if(result && (typeof result === 'object' || Array.isArray(result))) {
+    #|         document.write(
+    #|           JSON.stringify(result)
+    #|           .replace(/&/g, '&amp;')
+    #|           .replace(/</g, '&lt;')
+    #|           .replace(/>/g, '&gt;')
+    #|           .replace(/"/g, '&quot;')
+    #|           .replace(/'/g, '&#039;')
+    #|         );
+
+	URL "data:text/html,\(v:script)"
+  GetFileOfType type="com.apple.webarchive" -> mv:webarchive
+  Text "\(mv:webarchive)" -> mv:jstext
+  @dbgAlert "json text=\(mv:jstext)"
+
+	GetDictionaryfromInput -> v:json
+  @dbgAlert "json obj \(v:json)"
+
+	GetType -> mv:jsontype
+  @dbgAlert "type = \(mv:jsontype)"
+
+	If Equals v:lDictionary
+		GetVariable v:json
+	Otherwise
+    ShowAlert title=v:self message="Failed to convert XML to JSON"
+		Nothing
+	End
+	SetVariable v:return
+  @dbgAlert "Exited xmlToJson, returning -> \(v:return)"
+	ExitShortcut
+End
