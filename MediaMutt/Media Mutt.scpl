@@ -35,7 +35,7 @@ Dictionary {
     version     : "1.0.0",
     settings    : {
         updater : {
-            ID: 3232
+            ID: 3184
         },
         storage : {
             dir     : "MediaMutt",

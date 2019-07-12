@@ -2,7 +2,7 @@
 
 *Download Photos and Videos from Anywhere*
 
-Media Mutt is you all-in-one downloader for media pages on the web. It supports the most popular photo and video sharing sites and can support more with the help of addons.
+[Media Mutt](https://routinehub.co/shortcut/3184) is you all-in-one downloader for media pages on the web. It supports the most popular photo and video sharing sites and can support more with the help of addons.
 
 The best feature? It doesn't use third-party websites to download. Everything is done within the shortcut<sup>1</sup>.
 

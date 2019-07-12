@@ -2,7 +2,7 @@
 
 ## Template
 
-Download a copy of the [Media Mutt Addon Template](http://).
+Download a copy of the [Media Mutt Addon Template](https://routinehub.co/shortcut/3185).
 
 ## Naming
 

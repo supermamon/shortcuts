@@ -18,7 +18,7 @@ Dictionary {
     version     : "1.0.0",
     settings    : {
         updater : {
-            ID: 0
+            ID: 3186
         },
     },
     changes     : {
