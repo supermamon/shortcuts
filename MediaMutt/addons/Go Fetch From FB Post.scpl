@@ -16,14 +16,18 @@ Comment "..:: Metadata ::.."
 Dictionary {
     shortcut    : "Go Fetch From FB Post",
     author      : "@supermamon",
-    version     : "1.0.0",
+    version     : "1.0.1",
     settings    : {
         updater : {
             ID: 3187
         },
     },
     changes     : {
-        "v1.0.0": "Initial release"
+        "v1.0.0": "Initial release",
+        "v1.0.1":[
+            "Fix unable to download due to url issue",
+            "Add update checking"
+        ]
     }
 } -> mv:meta
 GetVariable mv:meta:shortcut -> v:self
@@ -45,6 +49,13 @@ End
 # function list
 GetVariable v:function
 If Equals "main"
+    @call {
+        fn          : checkForUpdate,
+        name        : v:self,
+        id          : v:opt:"updater.ID",
+        version     : mv:meta:version,
+        noUpdAlert  : "show",
+    }
     Text -> mv:msg
     |This shortcut is an addon to Media Mutt.
     |Download Media Mutt and register
@@ -86,7 +97,7 @@ If Equals "canProcessURL"
 End
 If Equals "fetchMedia"
     @dbgAlert "Entered fetchMedia with \(v:argv:url)"
-     @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Inspecting url"}
+    @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Inspecting url"}
 
     GetVariable v:argv:url
     GetContentsOfUrl
@@ -122,13 +133,16 @@ If Equals "fetchMedia"
     MatchText pattern="^([^\"]+)" caseSensitive=false -> mv:matched
     @dbgQuicklook
     Text "\(mv:matched)"
-    ReplaceText findText="&amp;" replaceWith="&" caseSensitive=true regularExpression=false
-     @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Download started."}
-    GetContentsOfUrl
+    ReplaceText findText="&amp;" replaceWith="&" caseSensitive=true regularExpression=false -> mv:media_url
+    @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Download started."}
+    GetVariable mv:media_url
+    GetContentsOfUrl -> mv:downloaded_media
     @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Download complete."}
+    GetVariable mv:downloaded_media
     ExitShortcut
 End
 
+@import "../../lib/checkForUpdate-fn.scpl"
 #
 ShowAlert title=v:self message="(\(v:self)) Invalid function call - \(v:function)" showCancelButton=false
 Nothing

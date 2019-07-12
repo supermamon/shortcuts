@@ -94,9 +94,19 @@ If Equals "fetchMedia"
     |this function will also receive the
     |url from Media Mutt
     GetVariable v:argv:url
-    GetContentsOfUrl
+
+    Comment 
+    |Some processing here to find out
+    |the url of the actual media file
+    |Once found, download it
+    GetContentsOfUrl -> mv:downloaded_media
 
     @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Download complete."}
+
+    Comment 
+    |Make sure to return the actual media 
+    |that was downloaded
+    GetVariable mv:downloaded_media
     ExitShortcut
 End
 
