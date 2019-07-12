@@ -22,7 +22,7 @@ Dailymotion • Facebook Post (Photo/Video)
 
 ## Creating Addons
 
-If you are interested in authoring addons, check out the [authoring guide](making-mediamutt-addons.md).
+If you are interested in authoring addons, check out the [authoring guide](making-mediamutt-addons.html).
 
 
 ## Screenshots
