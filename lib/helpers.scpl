@@ -58,3 +58,8 @@
         Dictionary @:args
     }
 }
+@def @dbgViewWithJayson [] @{
+    @if @:debug @{
+        RunShortcut shortcut="View With Jayson" showwhilerunning=false
+    }
+}
