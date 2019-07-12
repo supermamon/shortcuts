@@ -18,8 +18,9 @@ This repository contains shortcuts that I have created using and ported into [Sc
 * [`Bootstrap`](Bootstrap.scpl) - same [`lib/bootstrap`](lib/bootstrap) but as a stand-alone shortcut
 * [`Edit Clipboard`](Edit%20Clipboard.scpl) - edit text and images stored on the clipboard ([rh](https://routinehub.co/shortcut/286))
 * [`InstaDownload`](InstaDownload/docs/) - Download all pictures & videos from an Instagram post. Accepts urls via share sheet or clipboard. ([rh](https://routinehub.co/shortcut/297))
+* [`Media Mutt`](MediaMutt/docs/) - Download Photos and Videos from Anywhere [rh](https://routinehub.co/shortcut/3184)
 * [`Reddit Media Downloader`](RMD/docs/) - download media from Reddit Posts ([rh](https://routinehub.co/shortcut/2406))
-* [`RoutineHub Stats`](RoutineHub%20Stats.scpl) - Download summary for shortcut publishers on [routinehub.co](https://routinehub.co).
+* [`RoutineHub Stats`](RoutineHub%20Stats.scpl) - Download summary for shortcut publishers on [routinehub.co](https://routinehub.co)
 * [`Show Dictionary Menu`](Show%20Dictionary%20Menu.scpl) - a `Choose from List` action but for Dictionaries.
 * [`Squareify`](Squareify/Squareify.scpl) - Letter box any size into a square ([rh](https://routinehub.co/shortcut/95))
 * [`View Dictionary`](View%20Dictionary.scpl) - display a dictionary/JSON variable as a collapsible/expandable tree ([rh](https://routinehub.co/shortcut/307))
