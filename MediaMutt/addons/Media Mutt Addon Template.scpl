@@ -15,14 +15,15 @@ Comment "..:: Metadata ::.."
 Dictionary {
     shortcut    : "Media Mutt Addon Template",
     author      : "@supermamon",
-    version     : "1.0.0",
+    version     : "1.1.0",
     settings    : {
         updater : {
             ID: 3185
         },
     },
     changes     : {
-        "v1.0.0": "Initial release"
+        "v1.0.0": "Initial release",
+        "v1.1.0": "Additional comments"
     }
 } -> mv:meta
 GetVariable mv:meta:shortcut -> v:self
@@ -75,7 +76,7 @@ If Equals "canProcessURL"
     |return 0
     @dbgAlert "Entered canProcessURL with \(v:argv:url)"
     GetVariable v:argv:url
-    MatchText pattern="\.*" caseSensitive=false -> v:matches
+    MatchText pattern=".*" caseSensitive=false -> v:matches
     Count Items
     If "Is Greater Than" 0
     Number 1
