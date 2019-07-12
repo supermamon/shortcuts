@@ -1,0 +1,22 @@
+If Equals "showDownloads"
+    GetFile a{
+        service="iCloud Drive"
+        showDocumentPicker=false
+        filePath="\(v:userOpts.DownloadFolder)/"
+        errorIfNotFound=false
+    } -> v:files
+
+    GetVariable mv:icons.back_arrow
+    SetName "Back to main menu"
+    AddToVariable v:files
+    ChoosefromList prompt="Pick a file to view" -> mv:selected
+    GetName
+    If Equals "Back to main menu"
+        ExitShortcut
+    Otherwise
+        GetVariable mv:selected
+        QuickLook
+        @call {fn:showDownloads}
+    End
+    ExitShortcut
+End

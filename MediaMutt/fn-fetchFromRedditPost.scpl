@@ -1,0 +1,61 @@
+If Equals "fetchFromRedditPost"
+
+  @dbgAlert "Entered fetchFromRedditPost\nParams\n\(v:argv)"
+
+  # handlers based on post_hint, must accept the whole post dictionary as parameter
+  Dictionary {
+    "image"         : "fetchFromRedditDirectImage",
+    "hosted:video"  : "fetchFromRedditHostedVideo",
+    "link"          : "fetchFromRedditLinkedMedia",
+    "rich:video"    : "fetchFromRedditLinkedMedia",
+  } -> v:reddit_handlers
+
+  # get the url parameter
+  GetVariable v:argv:url
+  ExpandUrl
+  SetVariable v:url
+
+  # remove the query parameters
+  SplitText separator=Custom custom="?"
+  GetItemfromList "First Item"
+  SetVariable v:url
+
+  # Download the post data in JSON format
+  URL "\(v:url).json"
+  GetContentsofURL
+
+  # "will return an array of dictionaries. first one is the post, next one are comments"
+  GetItemfromList "First Item"
+  GetDictionaryValue key="data.children.1.data"
+  GetDictionaryfromInput
+  SetVariable v:post
+
+  # detect what kind of attachment it has
+  GetVariable v:post.post_hint -> v:post_hint
+  Count Items
+
+  # if pos_hint is missing, assume `link`
+  If Equals 0
+    Text "link" -> v:post_hint
+  End
+  GetVariable v:reddit_handlers
+  GetDictionaryValue key=v:post_hint
+  SetVariable v:handler
+
+  @dbgAlert "post_hint: \(v:post_hint)\nhandler: \(v:handler)"
+
+  Count Items
+  If Equals 0
+    @call {fn:showMessage message:"This type of post is not yet handled.\nDetails:\n\npost_hint : \(v:post_hint)"}
+    Nothing
+    ExitShortcut
+  End
+
+  # Call the handler
+  Dictionary {fn:v:handler}
+  SetDictionaryValue key=post value=v:post
+  RunShortcut shortcut=v:self showWhileRunning=false
+
+  @dbgAlert "Exited fetchFromRedditPost"
+  ExitShortcut
+End

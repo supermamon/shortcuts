@@ -1,0 +1,95 @@
+If Equals "detectInput"
+    @dbgAlert "Entered detectInput\nargs\n\(v:argv:url)"
+
+    Dictionary {
+        "DIRECT_MEDIA_URL" : [
+            "^https:\\/\\/[iv]\\.redd\\.it\\/[a-z0-9]+\\.[a-z]{3,}",
+
+        ],
+        "REDDIT_POST": [
+            "^https:\\/\\/(www\\.)*reddit\\.com\\/r\\/\\w+\\/comments\\/\\w+\\/\\w+",
+            "^https:\\/\\/v\\.reddit\\.com\\/[a-z0-9]+",
+            "^https:\\/\\/v\\.redd\\.it\\/[a-z0-9]+",
+
+            ],
+        "INSTAGRAM_POST": [
+            ".+(www\\.)*instagram\\.com[\\w\\.\\\\/-]*\\/p\\/",
+            ],
+        "INSTAGRAM_PROFILE": [
+            "^http\\:\\/\\/(www-)*instagram-com\\/[\\w-]{2,}\\/*\\?*.*$" ,
+            ],
+        "OVERCAST_LINK": [
+            ".+overcast\\.fm.+"
+            ],
+        "YOUTUBE_VIDEO" : [
+            ".+youtu\\.be\\/[a-zA-Z0-9]+",
+            ".+youtube\\.com\\/watch\\?v=[a-zA-Z0-9-]+.*"
+            ],
+        "GFYCAT_VIDEO" : [
+            "^https:\\/\\/gfycat\\.com\\/[\\w]{3,}[\\w-]*"
+            ],
+        "IMGUR_GIFV" : [
+            "^http(s*):\\/\\/i\\.imgur\\.com\\/[a-zA-Z0-9]+\\.gifv(\\?*.*)$"
+            ],
+        "IMGUR_DIRECT" : [
+            "^https:\\/\\/i\\.imgur\\.com\\/[a-zA-Z0-9]+\\.(?!gifv)[a-zA-Z0-9]+(\\?*.*)$"
+            "^https:\\/\\/imgur\\.com\\/[a-zA-Z0-9]+\\.(?!gifv)[a-zA-Z0-9]+(\\?*.*)$",
+            ],
+        "IMGUR_POST" : [
+            "^http(s*):\\/\\/imgur\\.com\\/(a\\/)*[0-9a-zA-Z]+(\\?*.*)$"
+            ],
+        "STREAMABLE_POST" : [
+            "^https:\\/\\/streamable\\.com\\/[a-z0-9]{5,}(\\?*.*)$"
+            ],
+        "TUMBLR_POST" : [
+            "^https:\\/\\/[\\w-]+\\.tumblr\\.com\\/post\\/.+"
+            ]
+    } -> mv:detection_list
+    GetDictionaryValue get="All Keys"
+    RepeatWithEach
+        SetVariable v:input_type
+        GetVariable mv:detection_list
+        GetDictionaryValue get="Value" key=v:input_type
+        RepeatWithEach
+            SetVariable v:pattern
+            GetVariable v:argv:url
+            MatchText pattern=v:pattern casesensitive=false
+            Count Items
+            If "Is Greater Than" 0
+                @dbgAlert "Exiting detectInput\nreturn\n\(v:input_type)"
+                GetVariable v:input_type
+                ExitShortcut
+            End
+        End
+    End
+
+    # addons here
+    @call {fn:getAddonsList}
+    SetVariable v:addons
+    RepeatwithEach
+        @callExt v:"Repeat Item" {fn:canProcessURL, url:v:argv:url}
+        If Equals 1
+            GetVariable v:"Repeat Item"
+            AddToVariable v:ext_addons
+        End
+    End
+    GetVariable v:ext_addons
+    Count Items
+    If "Is Greater Than" 1
+        GetVariable v:ext_addons
+        ChoosefromList prompt="Fetch using" selectMultiple=false -> mv:chosen_addon
+        @dbgAlert "Exiting detectInput\nreturn\n\(mv:chosen_addon)"
+        Text "EXT_\(mv:chosen_addon)"
+        ExitShortcut
+    Otherwise
+        If Equals 1
+            GetVariable v:ext_addons
+            @dbgAlert "Exiting detectInput\nreturn\n\(v:ext_addons)"
+            Text "EXT_\(v:ext_addons)"
+            ExitShortcut
+        End
+    End
+    @dbgAlert "Exiting detectInput\nreturn\nUNSUPPORTED"
+    Text "UNSUPPORTED"
+    ExitShortcut
+End

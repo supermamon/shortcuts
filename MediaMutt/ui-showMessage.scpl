@@ -1,0 +1,12 @@
+If Equals "showMessage"
+	Text "\(v:argv:message)"
+	SetVariable v:message
+	GetVariable v:userOpts.ShowAlerts
+	If input=Equals value=1
+		ShowAlert title=v:self message=v:message showCancelButton=false
+	Otherwise
+		ShowNotification title=v:self body=v:message
+	End
+	Nothing
+	ExitShortcut
+End

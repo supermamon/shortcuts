@@ -1,0 +1,135 @@
+
+# load fallback actions
+@import "../../lib/fallback.scpl"
+
+@icon "crowd"
+@color "blue"
+@ShowInShareSheet true
+
+SetVariable v:argv
+
+@set debug false
+@set mock false
+@import "../../lib/helpers.scpl"
+
+Comment "..:: Metadata ::.."
+Dictionary {
+    shortcut    : "Go Fetch From FB Post",
+    author      : "@supermamon",
+    version     : "1.0.0",
+    settings    : {
+        updater : {
+            ID: 0
+        },
+    },
+    changes     : {
+        "v1.0.0": "Initial release"
+    }
+} -> mv:meta
+GetVariable mv:meta:shortcut -> v:self
+GetVariable mv:meta:settings -> v:opt
+
+Dictionary items={"key":"val"}
+GetType -> v:lDictionary
+
+#  function detection
+GetVariable v:argv
+GetType
+If Equals v:lDictionary
+    GetVariable v:argv:fn -> v:function
+Otherwise
+    @call {fn:main}
+    ExitShortcut
+End
+
+# function list
+GetVariable v:function
+If Equals "main"
+    Text -> mv:msg
+    |This shortcut is an addon to Media Mutt.
+    |Download Media Mutt and register
+    |this addon.
+    ShowAlert title=v:self message=mv:msg
+    ExitShortcut
+End
+If Equals "register"
+    GetVariable v:self
+    ExitShortcut
+End
+If Equals "canProcessURL"
+    @dbgAlert "Entered [Go Fetch From FB Post] canProcessURL with \(v:argv:url)"
+
+    List
+    |^https:\\/\\/www.facebook.com\\/\\d+\\/posts\\/\\d+
+    |^https:\\/\\/www\\.facebook\\.com\\/[\\w\\.-]+\\/(photos|videos)\\/[\\w\\.-]+
+    RepeatwithEach
+        @dbgAlert "matching \(v:"Repeat Item")"
+        GetVariable v:argv:url
+        MatchText pattern=v:"Repeat Item" caseSensitive=false -> v:matches
+        Comment "Return 1 if addon can handle the url, 0 otherwise"
+        Count Items
+        If "Is Greater Than" 0
+            Number 1
+        Otherwise
+            Number 0
+        End -> mv:this_match
+        @dbgAlert "matched? \(mv:this_match)"
+    End
+    CalculateStatistics "Sum"
+    If "Is Greater Than" 0
+        Number 1
+    Otherwise
+        Number 0
+    End -> mv:supported
+    @dbgAlert "Exiting [Go Fetch From FB Post] canProcessURL returning \(mv:supported)"
+    ExitShortcut
+End
+If Equals "fetchMedia"
+    @dbgAlert "Entered fetchMedia with \(v:argv:url)"
+     @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Inspecting url"}
+
+    GetVariable v:argv:url
+    GetContentsOfUrl
+    SetName "src.txt" -> mv:src
+    @dbgQuicklook
+
+    GetVariable mv:src
+    SplitText separator="Custom" custom="data-ploi=\"" -> v:split
+    @dbgQuicklook
+    Count Items
+    If Equals 1
+        # Not a photo post, try hd_video
+        GetVariable mv:src
+        SplitText separator="Custom" custom="hd_src:\"" -> v:split
+        Count Items
+        If Equals 1
+            # Not a hd_video, try sd_video
+            GetVariable mv:src
+            SplitText separator="Custom" custom="sd_src:\"" -> v:split
+            Count Items
+            If Equals 1
+                # boo
+                @callExt "Media Mutt" {fn:showMessage, message:"Nothing to download. Not a photo/video post."}
+                Nothing
+                ExitShortcut
+            End
+        End
+    End
+
+    GetVariable v:split
+    GetItemFromList "Last Item"
+    @dbgQuicklook
+    MatchText pattern="^([^\"]+)" caseSensitive=false -> mv:matched
+    @dbgQuicklook
+    Text "\(mv:matched)"
+    ReplaceText findText="&amp;" replaceWith="&" caseSensitive=true regularExpression=false
+     @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Download started."}
+    GetContentsOfUrl
+    @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Download complete."}
+    ExitShortcut
+End
+
+#
+ShowAlert title=v:self message="(\(v:self)) Invalid function call - \(v:function)" showCancelButton=false
+Nothing
+ExitShortcut

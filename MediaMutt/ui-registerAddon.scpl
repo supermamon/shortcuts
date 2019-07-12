@@ -1,0 +1,33 @@
+If Equals "registerAddon"
+    AskforInput question="Find addons containing" defaultAnswer="Fetch" inputType="Text" -> mv:pattern
+    GetMyShortcuts
+    FilterFiles :filter{name contains mv:pattern} sortBy="Name" order="Ascending"
+    ChooseFromList prompt="Choose addon to register" -> mv:addon
+
+    @callExt mv:addon {fn:register}
+    SetVariable v:addon
+
+    @call {fn:getAddonsFile}
+    SetVariable v:addon_file
+    GetDictionaryValue get=Value key="addons" -> v:addon_list
+    If Contains mv:addon
+        ShowAlert title=v:self message="[\(mv:addon)] is already registered."
+    Otherwise
+        GetVariable mv:addon
+        AddToVariable v:addon_list
+        SetVariable v:addon_list
+        Text "DEL_ME"
+        AddToVariable v:addon_list
+        SetVariable v:addon_list
+
+        GetVariable v:addon_file
+        SetDictionaryValue key="addons" value=v:addon_list -> mv:new_file
+        @dbgQuicklook
+        ReplaceText findText=",\"DEL_ME\"" replaceWith="" caseSensitive=true regularExpression=false
+        ReplaceText findText="\"DEL_ME\"" replaceWith="" caseSensitive=true regularExpression=false
+        @dbgQuicklook
+        SaveFile service="iCloud Drive" askWheretoSave=false destinationPath="\(v:opt:"storage.dir")/\(v:opt:"storage.addons")" overwriteIfFileExists=true
+        ShowAlert title=v:self message="[\(mv:addon)] is now registered." showCancelButton=false
+    End
+    ExitShortcut
+End

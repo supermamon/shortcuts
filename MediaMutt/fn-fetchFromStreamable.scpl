@@ -1,0 +1,18 @@
+If Equals "fetchFromStreamable"
+  GetVariable v:argv:url
+  GetContentsofURL
+  SetName name="src.txt"
+  SplitText separator=Custom custom="twitter:card"
+  GetItemfromList "First Item"
+  MatchText pattern="(?m)(.*og:video:url.*content=\")(https.+)(\".+)" caseSensitive=false
+  GetGroupfromMatchedText groupIndex=2
+  ReplaceText findText="&amp;" replaceWith="&"
+  SetVariable v:streamable_media_url
+
+  @dbgAlert "streamable_media_url = \(v:streamable_media_url)"
+
+  GetVariable v:streamable_media_url
+  GetContentsofURL
+
+  ExitShortcut
+End

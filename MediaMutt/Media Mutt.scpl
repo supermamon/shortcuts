@@ -1,0 +1,167 @@
+@import "../lib/fallback.scpl"
+
+@icon "dog"
+@color "red"
+@ShowInShareSheet true
+@ShowInWidget true
+
+SetVariable v:argv
+Count Items
+If Equals 0
+    GetClipboard -> v:argv
+    # Assume it was run in the widget
+    # in case it's not run in the widget
+    # it's okay because that means
+    # the user is already in the app
+    # so this won't have any effect.
+    # if it was run from the share sheet
+    # it won't even go here.
+    # this is done because it's such a
+    # large shortcut, it needs to be run
+    # either in the app or as a share
+    # extension to prevent crashing due
+    # to the limited memory allocated in
+    # the widget.
+    ContinueShortcutinApp
+End
+
+@set debug false
+@set mock false
+@import "../lib/helpers.scpl"
+
+Dictionary {
+    shortcut    : "Media Mutt",
+    author      : "@supermamon",
+    version     : "1.0.0",
+    settings    : {
+        updater : {
+            ID: 3232
+        },
+        storage : {
+            dir     : "MediaMutt",
+            file    : "media_mutt.json",
+            addons  : "addons.json"
+        },
+        <bool> TestMode : false,
+    },
+    changes     : {
+        "v1.0.0": "Initial release"
+    }
+} -> mv:meta
+GetVariable mv:meta:shortcut -> v:self
+GetVariable mv:meta:settings -> v:opt
+
+# load user options
+GetFile a{
+    service="iCloud Drive"
+    showDocumentPicker=false
+    filePath="\(v:opt:"storage.dir")/\(v:opt:"storage.file")"
+    errorIfnotFound=false
+} -> v:userOpts
+Count Items
+If Equals 0
+    Dictionary {
+        <bool> ShowAlerts           : true,
+        <bool> DownloadImmediately  : false,
+        <bool> ViewBeforeSave       : true,
+        <bool> AlwaysSaveToFiles    : false,
+        DownloadFolder : "\(v:opt:"storage.dir")/downloads"
+    } -> v:userOpts
+End
+
+@import "./_icons.scpl"
+
+Dictionary items={"key":"val"}
+GetType
+SetVariable v:lDictionary
+
+#  function detection
+GetVariable v:argv
+GetType
+If Equals v:lDictionary
+    GetVariable v:argv:fn -> v:function
+    Count Items
+    If Equals 0
+        # it's a dictionary but not a function call
+        #@call {fn:showMessage, message:"Not a valid function call."}
+        ExitShortcut
+    Otherwise
+        GetVariable v:function
+        Count Characters
+        If Equals 0
+            ExitShortcut
+        End
+    End
+
+    #If Equals "getUserOpts"
+    #Otherwise
+    #    @call {fn:getUserOpts}
+    #    SetVariable v:userOpts
+    #End
+
+Otherwise
+    @dbgAlert "Not a dictionary, \(v:argv) "
+    @call {fn:firstRun}
+    SetVariable v:setup
+
+    GetVariable v:setup.SetupComplete
+    If "Is Less Than" 2
+        ShowAlert title=v:self message="Configuration is not yet completed. Please re-run this shortcut to configure."
+        ExitShortcut
+    End
+
+    Text "\(v:argv)"
+    GetURLsFromInput -> v:url
+    #@call {fn:main, url:v:argv}
+
+    Dictionary {
+      fn:main,
+      url:v:url
+    } -> v:argv
+    GetVariable v:argv:fn -> v:function
+
+    #ExitShortcut
+End
+
+
+
+@dbgAlert "Calling: \(v:function)\n-----------\nWith Parameters:\n\(v:argv)"
+
+GetVariable v:function
+@import "./_main.scpl"
+@import "./_detectInput.scpl"
+@import "./_firstRun.scpl"
+
+@import "./fn-fetchMedia.scpl"
+@import "./fn-fetchFromDirectLink.scpl"
+@import "./fn-fetchFromYoutube.scpl"
+@import "./fn-fetchFromInstagramPost.scpl"
+@import "./fn-fetchFromGfycat.scpl"
+@import "./fn-fetchFromImgurGifV.scpl"
+@import "./fn-fetchFromImgurPost.scpl"
+@import "./fn-fetchFromStreamable.scpl"
+@import "./fn-fetchFromRedditPost.scpl"
+@import "./fn-fetchFromRedditDirectImage.scpl"
+@import "./fn-fetchFromRedditHostedVideo.scpl"
+@import "./fn-fetchFromRedditLinkedMedia.scpl"
+@import "./fn-getKeySafeValue.scpl"
+@import "./fn-fetchFromTumblr.scpl"
+
+@import "./ui-showMessage.scpl"
+@import "./ui-showSettings.scpl"
+@import "./ui-getSetupState.scpl"
+#@import "./ui-getUserOpts.scpl"
+@import "./ui-getAddonsFile.scpl"
+@import "./ui-getAddonsList.scpl"
+@import "./ui-manageAddons.scpl"
+@import "./ui-registerAddon.scpl"
+@import "./ui-removeAddon.scpl"
+@import "./ui-moveFiles.scpl"
+@import "./ui-showDownloads.scpl"
+
+@import "../lib/vcard_menu.scpl"
+@import "../lib/checkForUpdate-fn.scpl"
+
+#
+ShowAlert title=v:self message="Invalid function call - \(v:function)" showCancelButton=false
+ExitShortcut

@@ -1,0 +1,106 @@
+# load fallback actions
+@import "../../lib/fallback.scpl"
+
+@icon "dog"
+@color "red"
+@ShowInShareSheet true
+
+SetVariable v:argv
+
+@set debug false
+@set mock false
+@import "../../lib/helpers.scpl"
+
+Comment "..:: Metadata ::.."
+Dictionary {
+    shortcut    : "Media Mutt Addon Template",
+    author      : "@supermamon",
+    version     : "1.0.0",
+    settings    : {
+        updater : {
+            ID: 0
+        },
+    },
+    changes     : {
+        "v1.0.0": "Initial release"
+    }
+} -> mv:meta
+GetVariable mv:meta:shortcut -> v:self
+GetVariable mv:meta:settings -> v:opt
+
+Dictionary items={"key":"val"}
+GetType -> v:lDictionary
+
+#  function detection
+GetVariable v:argv
+GetType
+If Equals v:lDictionary
+    GetVariable v:argv:fn -> v:function
+Otherwise
+    @call {fn:main}
+    ExitShortcut
+End
+
+# function list
+GetVariable v:function
+If Equals "main"
+    Comment
+    |This is where it lands when this
+    |addon is ran by itself. You can
+    |add your own initialization or
+    |setup here.
+
+    Text -> mv:msg
+    |This shortcut is an addon to Media Mutt.
+    |Download Media Mutt and register
+    |this addon.
+    ShowAlert title=v:self message=mv:msg
+    ExitShortcut
+End
+If Equals "register"
+    Comment
+    |Media Mutt calls this part to
+    |load addon information. At this
+    |time, only the name of the addon
+    |is required to be returned.
+    GetVariable v:self
+    ExitShortcut
+End
+If Equals "canProcessURL"
+    Comment
+    |A url will be passed here and will
+    |be accessible via the `argv` dictionary
+    |In here, return 1 is the addon can
+    |download from the passed url, else
+    |return 0
+    @dbgAlert "Entered canProcessURL with \(v:argv:url)"
+    GetVariable v:argv:url
+    MatchText pattern="\.*" caseSensitive=false -> v:matches
+    Count Items
+    If "Is Greater Than" 0
+    Number 1
+    Otherwise
+        Number 0
+    End
+    ExitShortcut
+End
+If Equals "fetchMedia"
+    @dbgAlert "Entered fetchMedia with \(v:argv:url)"
+    @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Download started."}
+
+    Comment
+    |Put your downloading logic here.
+    |Similar to `canProcessURL, the
+    |this function will also receive the
+    |url from Media Mutt
+    GetVariable v:argv:url
+    GetContentsOfUrl
+
+    @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Download complete."}
+    ExitShortcut
+End
+
+#
+ShowAlert title=v:self message="(addon) Invalid function call - \(v:function)" showCancelButton=false
+Nothing
+ExitShortcut

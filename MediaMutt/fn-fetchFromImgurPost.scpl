@@ -1,0 +1,19 @@
+If Equals "fetchFromImgurPost"
+  @dbgAlert "Entered fetchFromImgurPost with parameter \(v:argv.url)"
+
+  GetVariable v:argv.url
+  GetContentsofURL
+  SetName name="src.txt"
+  MatchText pattern="(?m)(.*div\\sid=\")(\\w+)(\"\\sclass=\"post-image-container.*)"
+  GetGroupfromMatchedText groupIndex=2
+  SetVariable v:imgur_media_ids
+  RepeatwithEach
+    SetVariable v:imgur_media_id
+    @call {fn:fetchFromImgurGifV, url:"https://i.imgur.com/\(v:imgur_media_id).gifv"}
+    AddtoVariable v:downloaded_media
+  End
+  GetVariable v:downloaded_media
+
+  @dbgAlert "Exited fetchFromImgurPost"
+  ExitShortcut
+End

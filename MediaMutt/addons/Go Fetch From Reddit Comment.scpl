@@ -1,0 +1,93 @@
+# load fallback actions
+@import "../../lib/fallback.scpl"
+
+@icon "alien"
+@color "blue"
+@ShowInShareSheet true
+
+SetVariable v:argv
+
+@set debug false
+@set mock false
+@import "../../lib/helpers.scpl"
+
+Comment "..:: Metadata ::.."
+Dictionary {
+    shortcut    : "Go Fetch From Reddit Comment",
+    author      : "@supermamon",
+    version     : "1.0.0",
+    settings    : {
+        updater : {
+            ID: 0
+        },
+    },
+    changes     : {
+        "v1.0.0": "Initial release"
+    }
+} -> mv:meta
+GetVariable mv:meta:shortcut -> v:self
+GetVariable mv:meta:settings -> v:opt
+
+Dictionary items={"key":"val"}
+GetType -> v:lDictionary
+
+#  function detection
+GetVariable v:argv
+GetType
+If Equals v:lDictionary
+    GetVariable v:argv:fn -> v:function
+Otherwise
+    @call {fn:main}
+    ExitShortcut
+End
+
+# function list
+GetVariable v:function
+If Equals "main"
+    Text -> mv:msg
+    |This shortcut is an addon to Media Mutt.
+    |Download Media Mutt and register
+    |this addon.
+    ShowAlert title=v:self message=mv:msg
+    ExitShortcut
+End
+If Equals "register"
+    GetVariable v:self
+    ExitShortcut
+End
+If Equals "canProcessURL"
+    @dbgAlert "Entered canProcessURL with \(v:argv:url)"
+    GetVariable v:argv:url
+    MatchText pattern="^https:\\/\\/(?:www\\.)*reddit\\.com\\/r\\/\\w+\\/comments\\/\\w+\\/\\w+\\/[\\w]+" caseSensitive=false -> v:matches
+    Count Items
+    If "Is Greater Than" 0
+        Number 1
+    Otherwise
+        Number 0
+    End
+    ExitShortcut
+End
+If Equals "fetchMedia"
+    @dbgAlert "Entered fetchMedia with \(v:argv:url)"
+    @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Download started."}
+
+    GetVariable v:argv:url
+    MatchText pattern="^https:\\/\\/(?:www\\.)*reddit\\.com\\/r\\/\\w+\\/comments\\/\\w+\\/\\w+\\/[\\w]+" caseSensitive=false -> v:matches
+    URL "\(v:matches).json"
+    GetContentsOfUrl
+    GetItemFromList "Last Item"
+    GetDictionaryValue get="Value" key="data.children.1.data.body"
+    GetURLsfromInput
+    RepeatwithEach
+      RunShortcut "Media Mutt" false
+      AddToVariable v:downloaded_media
+    End
+    GetVariable v:downloaded_media
+    @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Download complete."}
+    ExitShortcut
+End
+
+#
+ShowAlert title=v:self message="(addon) Invalid function call - \(v:function)" showCancelButton=false
+Nothing
+ExitShortcut

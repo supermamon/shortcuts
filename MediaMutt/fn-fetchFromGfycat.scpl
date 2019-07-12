@@ -1,0 +1,34 @@
+If Equals "fetchFromGfycat"
+
+  @dbgAlert "Entered downloadFromGfycat, with param \(v:argv:url)"
+
+  GetVariable v:argv:url
+  SplitText separator=Custom custom="/"
+  GetItemfromList get="Last Item"
+  SplitText separator=Custom custom="-"
+  GetItemfromList get="First Item"
+  SetVariable v:gfycat_media_id
+
+  @dbgAlert "gfycat_media_id = \(v:gfycat_media_id)"
+
+  GetVariable v:argv:url
+  GetContentsofURL
+  SetName name="source.txt"
+  SplitText separator=Custom custom="video-player-container"
+  GetItemfromList get="Last Item"
+  @dbgQuicklook
+  SplitText separator=Custom custom="player-bottom"
+  GetItemfromList "First Item"
+  @dbgQuicklook
+  MatchText pattern="(?m)([^\"]\")(https:\\/\\/\\w+\\.gfycat\\.com\\/\(v:gfycat_media_id)\\.mp4)(\")" caseSensitive=false
+  @dbgQuicklook
+  GetGroupfromMatchedText groupIndex=2
+  SetVariable v:gfycat_media_url
+
+  @dbgAlert "gfycat_media_url = \(v:gfycat_media_url)"
+
+  GetVariable v:gfycat_media_url
+  GetContentsofURL
+  @dbgAlert "Exited fetchFromGfycat"
+  ExitShortcut
+End

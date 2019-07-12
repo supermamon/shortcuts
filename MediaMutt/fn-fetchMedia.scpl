@@ -1,0 +1,98 @@
+If Equals "fetchMedia"
+  @dbgAlert "Entered fetchMedia\nargs\ntype=\(v:argv:type)\nurl = \(v:argv:url)"
+
+  #ShowAlert "Downloading \(v:argv:type) from \(v:argv:url)."
+
+  Dictionary {
+    "DIRECT_MEDIA_URL": "fetchFromDirectLink",
+    "YOUTUBE_VIDEO"   : "fetchFromYoutube",
+    "INSTAGRAM_POST"  : "fetchFromInstagramPost",
+    "GFYCAT_VIDEO"    : "fetchFromGfycat",
+    "IMGUR_DIRECT"    : "fetchFromDirectLink",
+    "IMGUR_GIFV"      : "fetchFromImgurGifV",
+    "IMGUR_POST"      : "fetchFromImgurPost",
+    "STREAMABLE_POST" : "fetchFromStreamable",
+    "REDDIT_POST"     : "fetchFromRedditPost",
+    "TUMBLR_POST"     : "fetchFromTumblr"
+
+  } -> v:url_type_handlers
+
+  GetVariable v:argv:type
+  If Contains "EXT_"
+    ReplaceText findText="EXT_" replaceWith="" caseSensitive=true regularExpression=false -> v:addon
+    @callExt v:addon {fn:fetchMedia, url:v:argv:url}
+  Otherwise
+    GetVariable v:url_type_handlers
+    GetDictionaryValue get="Value" key=v:argv:type -> v:handler
+    Count Items
+    If Equals 0
+      ShowAlert title=v:self message="No handler for this type of url - \(v:argv:type) \(v:argv:url)" showCancelButton=false
+      Nothing
+      ExitShortcut
+    End
+
+    @dbgAlert "type: \(v:argv:type)\nhandler: \(v:handler)"
+
+    @call {fn:v:handler, url:v:argv:url}
+  End
+  SetVariable v:downloaded_media
+  Count Items
+  If Equals 0
+    Text
+    |Type: \(v:argv:type)
+    |Url : \(v:argv:url)
+    CopytoClipboard
+    @call {fn:showMessage, message:"Nothing was downloaded."}
+    Nothing
+  Otherwise
+
+    GetVariable v:opt:TestMode
+    If Equals 1
+      GetVariable v:downloaded_media
+      ExitShortcut
+    End
+
+    GetVariable v:userOpts.ViewBeforeSave
+    If Equals 1
+      GetVariable v:downloaded_media
+      Quicklook
+    End
+
+    GetVariable v:userOpts.AlwaysSaveToFiles
+    If Equals 1
+
+      GetVariable v:downloaded_media
+      SaveFile a{
+          service="iCloud Drive"
+          askwheretosave=false
+          destinationpath="\(v:userOpts.DownloadFolder)/"
+          overwriteiffileexists=false
+      }
+      @call {fn:showMessage, message:"Saved in /Shortcuts/\(v:userOpts.DownloadFolder)/"}
+
+    Otherwise
+
+      ChooseFromMenu prompt="Save" items=["Save to Files", "Save to Photo Album", "Discard"]
+      Case
+        GetVariable v:downloaded_media
+        SaveFile a{
+            service="iCloud Drive"
+            askwheretosave=false
+            destinationpath="\(v:userOpts.DownloadFolder)/"
+            overwriteiffileexists=false
+        }
+        @call {fn:showMessage, message:"Saved in /Shortcuts/\(v:userOpts.DownloadFolder)/"}
+      Case
+        GetVariable v:downloaded_media
+        SaveToPhotoAlbum album="All Photos"
+        @call {fn:showMessage, message:"Saved."}
+      Case
+        Nothing
+      End
+
+    End
+
+  End
+  ExitShortcut
+
+End

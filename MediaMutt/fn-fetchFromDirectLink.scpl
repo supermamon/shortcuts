@@ -1,0 +1,5 @@
+If Equals "fetchFromDirectLink"
+    GetVariable v:argv:url
+    GetContentsOfURL
+    ExitShortcut
+End

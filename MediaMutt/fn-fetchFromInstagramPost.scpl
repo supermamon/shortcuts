@@ -1,0 +1,44 @@
+If Equals "fetchFromInstagramPost"
+
+    GetVariable v:argv:url -> v:url
+    If Contains "?"
+    Otherwise
+        Text "\(v:argv:url)?" -> v:url
+    End
+    ReplaceText findtext="([^\\?]+)(\\?)(.*)" replaceWith="$1$2__a=1" casesensitive=false regularexpression=true
+    GetContentsOfURL
+    GetDictionaryValue get=Value key="graphql.shortcode_media" -> v:post_info
+
+    GetDictionaryValue get=Value key="edge_sidecar_to_children" -> v:children
+    Count Items
+    If "Is Greater Than" number=0
+        GetVariable v:children:edges
+        RepeatWithEach
+            GetDictionaryValue get=Value key="node"
+            AddToVariable v:nodes
+        End
+    Otherwise
+        GetVariable v:post_info
+        SetVariable v:nodes
+    End
+    GetVariable v:nodes
+    RepeatWithEach
+        GetDictionaryValue get=Value key="is_video"
+        If Equals 1
+            GetVariable v:"Repeat Item"
+            GetDictionaryValue get=Value key="video_url"
+            GetContentsOfURL
+            AddToVariable v:downloaded_media
+        Otherwise
+            GetVariable v:"Repeat Item"
+            GetDictionaryValue get=Value key="display_resources"
+            GetItemFromList "Last Item"
+            GetDictionaryValue get=Value key="src"
+            GetContentsOfURL
+            AddToVariable v:downloaded_media
+        End
+    End
+    GetVariable v:downloaded_media
+
+    ExitShortcut
+End

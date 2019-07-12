@@ -1,0 +1,9 @@
+If Equals "fetchFromRedditDirectImage"
+  @dbgAlert "Entered fetchFromRedditDirectImage"
+
+  @dbgAlert "Will download from \(v:argv."post.url")"
+  @call {fn:fetchFromDirectLink, url:v:argv."post.url"}
+
+  @dbgAlert "Exited fetchFromRedditDirectImage"
+  ExitShortcut
+End

@@ -1,0 +1,34 @@
+If Equals "fetchFromTumblr"
+    @dbgAlert "Entered fetchFromTumblr with \(v:argv:url)"
+    Dictionary {
+        "photo"     : "og:image\"\\scontent=\"([^\"]+)",
+        "photoset"  : "og:image\"\\scontent=\"([^\"]+)",
+        "video"     : "og:video\"\\scontent=\"([^\"]+)",
+    } -> mv:type_dict
+
+    GetVariable v:argv:url
+    GetContentsOfUrl
+    SetName "src.txt" -> mv:src
+    MatchText pattern="og:type\"\\scontent=\"([^\"]+)"
+    GetGroupfromMatchedText get="Group At Index" groupIndex=1 -> mv:type
+
+    GetVariable mv:type_dict
+    GetDictionaryValue get=Value key=mv:type -> mv:pattern
+
+    GetVariable mv:src
+    MatchText pattern=mv:pattern
+    RepeatWithEach
+        GetGroupfromMatchedText get="Group At Index" groupIndex=1 -> mv:media_url
+        @dbgAlert "url=[\(mv:media_url)]"
+        If Contains "tumblr.com"
+            GetVariable mv:media_url
+            GetContentsOfUrl
+        Otherwise
+            GetVariable mv:media_url
+            RunShortcut v:self false
+        End
+        AddToVariable v:downloaded_media
+    End
+    GetVariable v:downloaded_media
+    ExitShortcut
+End

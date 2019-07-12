@@ -1,0 +1,138 @@
+If Equals "main"
+  @dbgAlert "Entered main"
+  GetVariable v:argv:url
+  Count Characters -> mv:char_count
+  @dbgAlert "url character count = \(mv:char_count)"
+  If "Is Greater Than" 0
+    @call {fn:detectInput, url:v:argv:url}
+    SetVariable v:input_type
+    If Equals "UNSUPPORTED"
+      Text "" -> v:dl_menu_item
+      GetVariable v:opt.TestMode
+      If Equals 1
+        Nothing
+        ExitShortcut
+      End
+    Otherwise
+      GetVariable v:opt.TestMode
+      If Equals 1
+        @call {fn:fetchMedia, type:v:input_type, url:v:argv:url}
+        ExitShortcut
+      End
+
+      GetVariable v:userOpts.DownloadImmediately
+      If Equals 1
+        @call {fn:fetchMedia, type:v:input_type, url:v:argv:url}
+        ExitShortcut
+      End
+
+      Text -> v:dl_menu_item
+      | { "caption":"Download", "subtitle":"\(v:argv:url)", "value":"do-fetch", "icon":"\(mv:icons.download)" },
+
+    End
+  Otherwise
+    # Exit immediately on testmode if no input
+    GetVariable v:opt.TestMode
+    If Equals 1
+      Nothing
+      ExitShortcut
+    End
+
+  End
+
+
+  Text -> mv:menu_txt
+  |{
+  |"fn": "chooseFromVcardMenu",
+  |"caption": "\(v:self) v\(mv:meta.version)",
+  |"menu_items": [
+  | \(v:dl_menu_item)
+  | { "caption":"Downloads", "subtitle":"Show downloaded items", "value":"show-downloads", "icon":"\(mv:icons.folder)" },
+  | { "caption":"Settings", "subtitle":"Manage settings", "value":"show-settings", "icon":"\(mv:icons.cog)" },
+  | { "caption":"Addons", "subtitle":"Manage addons", "value":"manage-addons", "icon":"\(mv:icons.extension)" },
+  | { "caption":"Check for Updates", "subtitle":"Check for new versions", "value":"do-cfu", "icon":"\(mv:icons.update)"},
+  | { "caption":"About", "subtitle":"About \(v:self)", "value":"do-about", "icon":"\(mv:icons.info)"},
+  | { "caption":"Exit", "subtitle":"Exit shortcut", "value":"do-exit", "icon":"\(mv:icons.back_arrow)"}
+  | ]
+  |}
+  /*
+  Text -> mv:menu_txt
+  |{
+  |"fn": "chooseFromVcardMenu",
+  |"menu_items": [
+  | \(v:dl_menu_item)
+  | { "caption":"Settings", "subtitle":"Manage settings", "value":"show-settings" },
+  | { "caption":"Addons", "subtitle":"Manage addons", "value":"manage-addons" },
+  | { "caption":"Check for Updates", "subtitle":"Check for new versions", "value":"do-cfu"},
+  | { "caption":"Exit", "subtitle":"Exit shortcut", "value":"do-exit"}
+  | ]
+  |}
+  */
+  @dbgAlert " menu_txt \n \(mv:menu_txt)"
+  #@dbgViewWithJayson
+  GetDictionaryFromInput -> mv:menu
+  @dbgAlert " menu_dict \n \(mv:menu)"
+
+  RunShortcut shortcut=v:self false -> mv:chosen_item
+
+  GetVariable mv:chosen_item:value
+  If Equals "do-fetch"
+    @call {fn:fetchMedia, type:v:input_type, url:v:argv:url}
+    #@call{fn:main}
+    ExitShortcut
+  End
+  If Equals "do-exit"
+    ExitShortcut
+  End
+  If Equals "do-cfu"
+    @call {
+        fn          : checkForUpdate,
+        name        : v:self,
+        id          : v:opt:"updater.ID",
+        version     : mv:meta:version,
+        noUpdAlert  : "show",
+    }
+    Nothing
+  End
+  If Equals "show-settings"
+    @call{fn:showSettings}
+    @call{fn:main}
+    Nothing
+  End
+  If Equals "manage-addons"
+    @call{fn:manageAddons }
+    @call{fn:main}
+    Nothing
+  End
+  If Equals "show-downloads"
+    @call{fn:showDownloads }
+    @call{fn:main}
+    Nothing
+  End
+  If Equals "do-about"
+    Text -> mv:about
+    |\(v:self) \(mv:meta:version)
+    |Created by: \(mv:meta:author)
+    |_____________________
+    |
+    | Youtube • Instagram • Reddit
+    | Tumblr • Imgur • Gfycat
+    | Streamable • More!
+    |_____________________
+    |
+    |Credits
+    |
+    |** https://scpl.dev **
+    |
+    |Icons by: http://fa2png.io/
+    |
+    |Youtube Download: https://tyrrrz.me/Blog/Reverse-engineering-YouTube
+    |
+    |Audio/Video merging: http://www.fileconverto.com/add-music-to-video/
+    ShowAlert title="" message=mv:about showCancelButton=false
+    @call{fn:main}
+    Nothing
+  End
+  @dbgAlert "Exited main"
+  ExitShortcut
+End

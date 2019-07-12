@@ -1,0 +1,204 @@
+If Equals "showSettings"
+    #ShowAlert title="Settings here" message=""
+
+    Dictionary {
+        ShowAlerts: {
+            type        : "toggle",
+            icon        : "toggle",
+            caption     : "Show Alerts",
+            description : "Messages as alerts instead of notifications.",
+        },
+        ViewBeforeSave: {
+            type        : "toggle",
+            icon        : "toggle",
+            caption     : "Preview Before Saving",
+            description : "Display the downloaded media before saving.",
+        },
+        DownloadImmediately: {
+            type        : "toggle",
+            icon        : "toggle",
+            caption     : "Download Immediately",
+            description : "Don't show menu when downloading.",
+        },
+        DownloadFolder: {
+            type        : "text",
+            icon        : "folder",
+            caption     : "Download Location",
+            description : v:userOpts:DownloadFolder,
+        },
+        AlwaysSaveToFiles: {
+            type        : "toggle",
+            icon        : "toggle",
+            caption     : "Always Save To Files",
+            description : "Save to Download Location. Not to Photo Album.",
+        },
+    } -> v:opt_map
+
+
+    GetVariable v:userOpts
+    GetDictionaryValue get="All Keys"
+    RepeatwithEach
+
+        GetVariable v:opt_map
+        GetDictionaryValue get="Value" key=v:"Repeat Item" -> mv:opt_item
+
+        GetVariable mv:opt_item.type
+        If Equals "toggle"
+
+            # get current value, translate to on/off
+            GetVariable v:userOpts
+            GetDictionaryValue get="Value" key=v:"Repeat Item"
+            If Equals 1
+                Text "on"
+            Otherwise
+                Text "off"
+            End -> v:optState
+
+            GetVariable mv:icons
+            GetDictionaryValue get="Value" key=v:optState -> v:optIcon
+
+            Getvariable mv:opt_item.description -> v:optSubtitle
+            Nothing
+        End
+        If Equals "text"
+            Getvariable mv:opt_item.description -> v:optSubtitle
+            Getvariable mv:opt_item.description -> v:optState
+
+            GetVariable mv:icons
+            GetDictionaryValue get="Value" key=mv:opt_item.icon -> v:optIcon
+
+            Nothing
+        End
+
+        Dictionary {
+            "caption" : mv:opt_item.caption,
+            "subtitle": v:optSubtitle,
+            "icon"    : v:optIcon,
+            "value"   : {
+                option: v:"Repeat Item",
+                state : v:optState,
+                type  : mv:opt_item.type,
+            }
+        }
+        AddToVariable v:options_list
+    End
+
+    Dictionary {
+        "caption" : "Reset Settings",
+        "subtitle": "Reset settings to default.",
+        "icon"    : mv:icons:restore,
+        "value"   : {
+            option: "reset",
+            type  : "reset"
+        },
+    }
+    AddToVariable v:options_list
+
+
+    Dictionary {
+        "caption" : "Done",
+        "subtitle": "Go back to the main menu",
+        "icon"    : mv:icons:back_arrow,
+        "value"   : {
+            option: "done",
+            type  : "exit"
+        },
+    }
+    AddToVariable v:options_list
+    Dictionary {
+        fn:"chooseFromVcardMenu",
+        caption: "Tap the option to change."
+    }
+    SetDictionaryValue key="menu_items" value=v:options_list
+    RunShortcut shortcut=v:self false -> mv:chosen_item
+
+    Dictionary {
+        <bool> on   :false,
+        <bool> off  :true,
+    } -> mv:switcher
+
+
+    GetVariable mv:chosen_item.value
+    GetDictionaryfromInput -> mv:value
+
+    GetVariable mv:value.type
+    If Equals "toggle"
+
+        GetVariable mv:switcher
+        GetDictionaryValue get="Value" key=mv:value.state -> v:newState
+
+        GetVariable v:userOpts
+        SetDictionaryValue key=mv:value.option value=v:newState
+        SetName v:opt:"storage.file"
+        SaveFile a{
+            service="iCloud Drive"
+            askwheretosave=false
+            destinationpath="\(v:opt:"storage.dir")/"
+            overwriteiffileexists=true
+        }
+        Nothing
+
+    End
+    If Equals "text"
+        AskforInput question=mv:chosen_item.caption defaultAnswer=mv:value.state inputType="Text" -> v:newState
+
+        GetVariable v:userOpts
+        SetDictionaryValue key=mv:value.option value=v:newState
+        SetName v:opt:"storage.file"
+        SaveFile a{
+            service="iCloud Drive"
+            askwheretosave=false
+            destinationpath="\(v:opt:"storage.dir")/"
+            overwriteiffileexists=true
+        }
+
+        GetVariable mv:value.option
+        If Equals "DownloadFolder"
+            GetVariable v:newState
+            If Equals v:userOpts.DownloadFolder
+            Otherwise
+                @call {fn:moveFiles, from:v:userOpts.DownloadFolder, to:v:newState}
+                @call {fn:showMessage, message:"Downloaded files have been moved to /Shortcuts/\(v:newState)/."}
+            End
+
+        End
+
+        Nothing
+
+    End
+    If Equals "reset"
+        ChooseFromMenu prompt="This will revert all your settings to default and delete all of the downloaded media." items=["Reset & Remove Media","Stay as is"]
+        Case #Proceed
+            CreateFolder service="iCloud Drive" path="\(v:userOpts.DownloadFolder)/"
+            DeleteFiles false
+
+            Dictionary {
+                <bool> ShowAlerts           : true,
+                <bool> DownloadImmediately  : false,
+                <bool> ViewBeforeSave       : true,
+                <bool> AlwaysSaveToFiles    : false,
+                DownloadFolder : "\(v:opt:"storage.dir")/downloads",
+            } -> v:userOpts
+            SetName v:opt:"storage.file"
+            SaveFile a{
+                service="iCloud Drive"
+                askwheretosave=false
+                destinationpath="\(v:opt:"storage.dir")/"
+                overwriteiffileexists=true
+            }
+            CreateFolder service="iCloud Drive" path="\(v:userOpts.DownloadFolder)/"
+            @call {fn:showMessage, message:"All settings have been reset."}
+
+        Case #Stay
+            Nothing
+        End
+        Nothing
+    End
+    If Equals "exit"
+        Nothing
+    Otherwise
+        @call {fn:showSettings}
+    End
+
+    ExitShortcut
+End

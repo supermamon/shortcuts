@@ -1,0 +1,10 @@
+If Equals "getAddonsList"
+    GetFile a{
+        service="iCloud Drive"
+        showDocumentPicker=false
+        filePath="\(v:opt:"storage.dir")/\(v:opt:"storage.addons")"
+        errorIfnotFound=false
+    }
+    GetDictionaryValue get=Value key="addons"
+    ExitShortcut
+End

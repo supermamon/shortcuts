@@ -1,0 +1,21 @@
+If Equals "manageAddons"
+  Text -> v:menu
+  |{
+  |"fn": "chooseFromVcardMenu",
+  |"menu_items": [
+  | { "caption":"Register Addon", "subtitle":"Add support for more sites", "value":"registerAddon" },
+  | { "caption":"Remove Addon", "subtitle":"Remove registered addon", "value":"removeAddon" },
+  | { "caption":"Back", "subtitle":"Back to main menu", "value":"do-exit"}
+  | ]
+  |}
+  GetDictionaryFromInput
+  RunShortcut shortcut=v:self false -> mv:chosen_item
+  GetVariable mv:chosen_item:value
+  If Equals "do-exit"
+    ExitShortcut
+  Otherwise
+    @call {fn:mv:chosen_item.value}
+    @call {fn:manageAddons}
+  End
+  ExitShortcut
+End

@@ -1,0 +1,145 @@
+# load fallback actions
+@import "../../lib/fallback.scpl"
+
+@icon "film"
+@color "lightblue"
+@ShowInShareSheet true
+
+SetVariable v:argv
+
+@set debug false
+@set mock false
+@import "../../lib/helpers.scpl"
+
+Comment "..:: Metadata ::.."
+Dictionary {
+    shortcut    : "Go Fetch From Dailymotion",
+    author      : "@supermamon",
+    version     : "1.0.0",
+    settings    : {
+        updater : {
+            ID: 0
+        },
+    },
+    changes     : {
+        "v1.0.0": "Initial release"
+    }
+} -> mv:meta
+GetVariable mv:meta:shortcut -> v:self
+GetVariable mv:meta:settings -> v:opt
+
+Dictionary items={"key":"val"}
+GetType -> v:lDictionary
+
+
+#  function detection
+GetVariable v:argv
+GetType
+If Equals v:lDictionary
+    GetVariable v:argv:fn -> v:function
+Otherwise
+    @call {fn:main}
+    ExitShortcut
+End
+
+# function list
+GetVariable v:function
+If Equals "main"
+    Text -> mv:msg
+    |This shortcut is an addon to Media Mutt.
+    |Download Media Mutt and register
+    |this addon.
+    ShowAlert title=v:self message=mv:msg
+    ExitShortcut
+End
+If Equals "register"
+    GetVariable v:self
+    ExitShortcut
+End
+If Equals "canProcessURL"
+    @dbgAlert "Entered canProcessURL with \(v:argv:url)"
+    GetVariable v:argv:url
+    MatchText pattern="https:\\/\\/www\\.dailymotion\\.com\\/video\\/([a-z0-9]+)" caseSensitive=false -> v:matches
+    Count Items
+    If "Is Greater Than" 0
+        Number 1
+    Otherwise
+        Number 0
+    End
+    ExitShortcut
+End
+If Equals "fetchMedia"
+    @dbgAlert "Entered fetchMedia with \(v:argv:url)"
+
+    # get the __PLAYER_CONFIG__ json
+    # get context.metadata_template_url
+    # replace videoId
+    # get contents JSON
+    # get qualities
+    # get url
+    # download video
+    @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Inspecting url"}
+
+    GetVariable v:argv:url
+    MatchText pattern="https:\\/\\/www\\.dailymotion\\.com\\/video\\/([a-z0-9]+)" caseSensitive=false -> v:matches
+    GetGroupfromMatchedText get="Group At Index" groupIndex=1 -> mv:videoId
+    @dbgAlert mv:videoId
+    GetVariable v:argv:url
+    GetContentsOfUrl
+    SetName "src.txt"
+    @dbgQuicklook
+    SplitText separator="Custom" custom="__PLAYER_CONFIG__ = "
+    #@dbgQuicklook
+    GetItemFromList "Last Item"
+    SplitText separator="Custom" custom="</script>"
+    #@dbgQuicklook
+    GetItemFromList "First Item"
+    @dbgQuicklook
+    ReplaceText findText="[;\\s\\n]+$" replaceWith="" caseSensitive=false regularExpression=true
+    #@dbgQuicklook
+    GetDictionaryfromInput
+    @dbgViewWithJayson
+    GetDictionaryValue get=Value key="context.metadata_template_url"
+    ReplaceText findText=":videoId" replaceWith=mv:videoId caseSensitive=true regularExpression=false
+    GetContentsOfUrl
+    SetName "src.txt"
+    GetDictionaryfromInput
+    @dbgViewWithJayson
+    GetDictionaryValue get=Value key="qualities" -> mv:qualities
+    @dbgViewWithJayson
+
+    Number 0 -> v:best_quality_found
+    List [1080,720,480,380,240,144]
+    RepeatwithEach
+        GetVariable v:best_quality_found
+        If Equals 0
+            GetVariable mv:qualities
+            GetDictionaryValue get="Value" key=v:"Repeat Item"
+            Count Items
+            If "Is Greater Than" 0
+                Text v:"Repeat Item" -> v:best_quality
+                Number 1 -> v:best_quality_found
+            End
+        End
+    End
+
+    GetVariable mv:qualities
+    GetDictionaryValue get="Value" key=v:best_quality -> mv:best_video
+    @dbgAlert mv:best_video
+    GetItemFromList "Last Item"
+    GetDictionaryValue get="Value" key="url" -> mv:media_url
+    @dbgAlert mv:media_url
+
+    @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Download started."}
+    GetContentsOfUrl
+    @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Download complete."}
+
+
+
+    ExitShortcut
+End
+
+#
+ShowAlert title=v:self message="(addon) Invalid function call - \(v:function)" showCancelButton=false
+Nothing
+ExitShortcut

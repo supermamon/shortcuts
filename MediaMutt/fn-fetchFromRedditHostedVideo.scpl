@@ -1,0 +1,70 @@
+If Equals "fetchFromRedditHostedVideo"
+	@dbgAlert "Entered fetchFromRedditHostedVideo"
+
+	Comment
+	|Took some ideas from u/back1n7ime's Reddit Video Downloader
+	|specially adding audio stream to the video
+
+	GetVariable v:argv:post -> v:ref_post
+
+	GetVariable v:argv:"post.secure_media"
+	Count Items
+	If Equals 0
+		GetVariable v:argv:"post.crosspost_parent_list" -> mv:cross_posts
+		Count Items
+		If Equals 0
+			Nothing
+			@dbgAlert "Exited fetchFromRedditHostedVideo, returning Nothing"
+		End
+		@dbgAlert "It's a cross-post"
+		GetVariable mv:cross_posts
+		GetItemFromList "First Item" -> v:ref_post
+	End
+
+	GetVariable v:ref_post
+	@dbgAlert "getting video url"
+	GetDictionaryValue key="secure_media.reddit_video" -> v:video
+	@dbgAlert "video url = \(v:video.fallback_url)"
+	GetVariable v:video.fallback_url
+	GetContentsOfURL
+	SetName "video_file.mp4" -> v:video_file
+	SetVariable v:return
+
+	GetVariable v:video.is_gif
+	If Equals 1
+	Otherwise
+		URL "\(v:ref_post.url)/audio" -> mv:audio_url
+		@dbgAlert "audio url = \(mv:audio_url)"
+		GetHeadersOfURL
+		GetDictionaryValue get="Value" key="Content-Type"
+		If Equals "video/mp4"
+			@dbgAlert "Downloading audio"
+			GetVariable mv:audio_url
+			GetContentsOfURL
+			SetName "audio_file.mp3" -> v:audio_file
+
+			#@addAudioToVideo v:video_file v:audio_file
+			URL "http://www.fileconverto.com/add-music-to-video/"
+			GetContentsOfUrl a{
+				advanced=true
+				method="POST"
+				headers=false
+				requestbody="Form"
+				formvalues={
+					<file> videofile: v:video_file,
+					<file> audiofile: v:audio_file,
+					submitfile: ""
+				}
+			}
+
+			SetName "src.txt"
+			@dbgQuickLook
+			MatchText pattern="[^\"]+(fileconverto\\.com\\/download\\.php)([^\"]+)?" caseSensitive=false -> mv:media_url
+			@dbgAlert mv:media_url
+			GetContentsOfURL -> v:return
+		End
+	End
+	GetVariable v:return
+	@dbgAlert "Exited fetchFromRedditHostedVideo"
+	ExitShortcut
+End
