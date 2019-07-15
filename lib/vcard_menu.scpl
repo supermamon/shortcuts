@@ -42,24 +42,21 @@ If Equals "chooseFromVcardMenu"
     End
 
     GetVariable v:menu_txt
+    SetName name="menu.vcf" -> mv:menu
+    #SetVariable v:menu
 
-    SetName name="menu.vcf"
-    GetContactsFromInput
-    SetVariable -> v:contacts
+    GetVariable mv:menu{as:Contact}
+    ChooseFromList prompt="\(v:argv:caption)" -> mv:chosen
 
-    GetVariable v:contacts
-    ChooseFromList prompt="\(v:argv:caption)" -> v:chosen
-
-    GetVariable v:chosen{as:Contact,get:Notes}
-    Base64Encode mode="Decode"
-    SetVariable v:menu_value
+    GetVariable mv:chosen{as:Contact,get:Notes}
+    Base64Encode mode="Decode" -> mv:menu_value
 
     Dictionary {
-        caption:v:chosen{as:Contact,get:Name}
-        subtitle:v:chosen{as:Contact,get:Company}
+        caption:mv:chosen{as:Contact,get:Name}
+        subtitle:mv:chosen{as:Contact,get:Company}
     }
-    SetDictionaryValue key="value" value=v:menu_value -> v:selected
-    @dbgAlert "Exited chooseFromVcardMenu with\n\(v:selected)"
+    SetDictionaryValue key="value" value=mv:menu_value -> mv:selected
+    @dbgAlert "Exited chooseFromVcardMenu with\n\(mv:selected)"
     ExitShortcut
 End
 Comment
