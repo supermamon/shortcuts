@@ -1,0 +1,64 @@
+If Equals "normalizeFields"
+
+  GetVariable v:argv:fields -> v:fields
+
+  Dictionary {} -> v:fields_new
+  GetVariable v:fields
+  GetDictionaryValue get="All Keys"
+  RepeatwithEach
+    SetVariable v:field_key
+
+    GetVariable v:fields
+    GetDictionaryValue get="Value" key=v:field_key -> v:field_value
+
+    GetVariable v:field_key
+    MatchText pattern="([\\w\\s]+)\\.linked$" caseSensitive=false -> mv:matched
+    Count Items
+    If "Is Greater Than" 0
+      #has linked
+      GetVariable mv:matched
+      GetGroupfromMatchedText get="Group At Index" groupIndex=1 -> mv:fieldname
+
+      Nothing -> v:record_ids
+
+      GetVariable v:field_value
+      GetDictionaryValue get="Value" key="filters"
+      CombineText separator="Custom" custom="," -> mv:filters
+      Text "AND(\(mv:filters))" -> mv:all_filters
+      Dictionary {
+          fn:listRecords,
+          base:v:argv.base,
+          table:v:field_value.table,
+          filter:mv:all_filters
+      }
+      RunShortcut shortcut=v:self showWhileRunning=false
+      GetDictionaryValue get="Value" key="records"
+      RepeatwithEach
+        GetDictionaryValue get="Value" key="id"
+        AddToVariable v:record_ids
+      end
+
+      Comment "Trick to keep the value as an array"
+      Text "DEL_ME"
+      AddToVariable v:record_ids
+      Text "DEL_ME"
+      AddToVariable v:record_ids
+      SetVariable v:record_ids
+
+      GetVariable v:fields_new
+      SetDictionaryValue key=mv:fieldname value=v:record_ids
+      ReplaceText findText=",\"DEL_ME\"" replaceWith="" caseSensitive=true regularExpression=false
+      ReplaceText findText="\"DEL_ME\"" replaceWith="" caseSensitive=true regularExpression=false
+      SetVariable v:fields_new
+
+    Otherwise
+      GetVariable v:fields_new
+      SetDictionaryValue key=v:field_key value=v:field_value
+      SetVariable v:fields_new
+
+    End
+  end
+
+  GetVariable v:fields_new
+  ExitShortcut 
+End

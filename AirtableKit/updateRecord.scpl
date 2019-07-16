@@ -12,8 +12,11 @@ If Equals "updateRecord"
     GetVariable v:argv:fields -> v:fields
     GetVariable v:argv:record_id -> v:record_id
 
+    @call {fn:normalizeFields, base:v:base, fields:v:fields{as:Dictionary}}
+    SetVariable v:fields
+
     Dictionary {}
-    SetDictionaryValue key="fields" value=v:fields -> v:data
+    SetDictionaryValue key="fields" value=v:fields{as:Dictionary} -> v:data
     
     URL "https://api.airtable.com/v0/\(v:base)/\(v:table)/\(v:record_id)"
     GetContentsOfUrl a{

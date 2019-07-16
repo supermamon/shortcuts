@@ -42,7 +42,8 @@ Dictionary {
         "v1.2.0" : [
             "Fix javascript to use an alternate method of getting base info",
             "Backup `base.json` when refreshing.",
-        ]
+        ],
+        "v1.3.0" : "Add a feature to add a linked record/s when creating/updating records"
     }
 } -> mv:meta
 GetVariable mv:meta:settings -> v:opt
@@ -192,6 +193,7 @@ GetVariable v:function
 @import "createRecord.scpl"
 @import "updateRecord.scpl"
 @import "deleteRecord.scpl"
+@import "normalizeFields.scpl"
 @import "../lib/vcard_menu.scpl"
 @import "../lib/checkForUpdate.scpl"
 #@import "../lib/uploadToFileIO.scpl"
