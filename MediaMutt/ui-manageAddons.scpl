@@ -5,6 +5,7 @@ If Equals "manageAddons"
   |"menu_items": [
   | { "caption":"Register Addon", "subtitle":"Add support for more sites", "value":"registerAddon" },
   | { "caption":"Remove Addon", "subtitle":"Remove registered addon", "value":"removeAddon" },
+  | { "caption":"Find Addons", "subtitle":"Search for Addons on RoutineHub", "value":"findAddonsRH" },
   | { "caption":"Back", "subtitle":"Back to main menu", "value":"do-exit"}
   | ]
   |}

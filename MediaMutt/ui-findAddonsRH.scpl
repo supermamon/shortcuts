@@ -1,0 +1,5 @@
+If Equals "findAddonsRH"
+    URL "https://routinehub.co/search/?q=%22go+fetch%22"
+    OpenURLs
+    ExitShortcut
+End
