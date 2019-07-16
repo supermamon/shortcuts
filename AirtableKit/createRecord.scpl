@@ -10,9 +10,84 @@ If Equals "createRecord"
     GetVariable v:argv:table -> v:table
     GetVariable v:argv:fields -> v:fields
 
+    # inspect field. if the name is suffixed with .linked, process it
+    # expected format
+    #
+    # {
+    #    "LinkedData.linked": {
+    #        "table": "tablename",
+    #        "filters": [
+    #           "filterExpression1",
+    #           "filterExpression2",
+    #        ]
+    #    }
+    #}
+    Dictionary {} -> v:fields_new
+    GetVariable v:fields
+    GetDictionaryValue get="All Keys"
+    RepeatwithEach
+      SetVariable v:field_key
+
+      GetVariable v:fields
+      GetDictionaryValue get="Value" key=v:field_key -> v:field_value
+
+      GetVariable v:field_key
+      MatchText pattern="(\\w\\s)+\\.linked$" caseSensitive=false -> mv:matched
+      Count Items
+      If "Is Greater Than" 0
+        #has linked
+        GetVariable mv:matched
+        GetGroupfromMatchedText get="Group At Index" groupIndex=1 -> mv:fieldname
+
+        Nothing -> v:record_ids
+
+        GetVariable v:field_value
+        GetDictionaryValue get="Value" key="filters"
+        CombineText separator="Custom" custom="," -> mv:filters
+        Text "AND(\(mv:filters))" -> mv:all_filter
+        Dictionary {
+            fn:listRecords,
+            base:v:base,
+            table:v:table,
+            filter:mv:all_filter
+        }
+        RunShortcut shortcut=v:self showWhileRunning=false
+        GetDictionaryValue get="Value" key="records"
+        RepeatwithEach
+          GetVariable v:"Repeat Item".id
+        end
+        AddToVariable v:record_ids
+
+        Text "DEL_ME"
+        AddToVariable v:record_ids
+        SetVariable v:record_ids
+        Text "DEL_ME"
+        AddToVariable v:record_ids
+        SetVariable v:record_ids
+        ReplaceText findText=",\"DEL_ME\"" replaceWith="" caseSensitive=true regularExpression=false
+        ReplaceText findText="\"DEL_ME\"" replaceWith="" caseSensitive=true regularExpression=false
+        SetVariable v:record_ids
+
+        GetVariable v:fields_new
+        SetDictionaryValue key=mv:fieldname value=v:record_ids
+
+      Otherwise
+        GetVariable v:fields_new
+        SetDictionaryValue key=v:field_key value=v:field_value
+        SetVariable v:fields_new
+
+      End
+    end
+
+    GetVariable v:fields_new
+    @dbgViewWithJayson
+
+
+
+
     Dictionary {}
-    SetDictionaryValue key="fields" value=v:fields -> v:data
-    
+    SetDictionaryValue key="fields" value=v:fields_new -> v:data
+
     URL "https://api.airtable.com/v0/\(v:base)/\(v:table)"
     GetContentsOfUrl a{
         advanced=true,

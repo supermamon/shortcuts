@@ -14,7 +14,7 @@
 
     @set shortcutName "AirtableKit"
     @set shortcutAuthor "@supermamon"
-    @set shortcutVersion "1.2.0"
+    @set shortcutVersion "1.3.0"
     @set routineHubID 2828
 
 # Shortcut Starts Here
