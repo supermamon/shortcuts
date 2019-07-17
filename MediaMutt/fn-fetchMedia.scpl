@@ -91,6 +91,9 @@ If Equals "fetchMedia"
       End
 
     End
+    Nothing
+    CopytoClipboard localOnly=false
+    
 
   End
   ExitShortcut

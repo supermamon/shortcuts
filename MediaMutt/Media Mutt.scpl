@@ -32,7 +32,7 @@ End
 Dictionary {
     shortcut    : "Media Mutt",
     author      : "@supermamon",
-    version     : "1.1.0",
+    version     : "1.2.1",
     settings    : {
         updater : {
             ID: 3184
@@ -43,11 +43,6 @@ Dictionary {
             addons  : "addons.json"
         },
         <bool> TestMode : false,
-    },
-    changes     : {
-        "v1.0.0": "Initial release",
-        "v1.0.1": "Removed Contacts access requirement",
-        "v1.1.0": "Add `Find Addons` item under Addons",
     }
 } -> mv:meta
 GetVariable mv:meta:shortcut -> v:self
@@ -164,7 +159,6 @@ GetVariable v:function
 
 @import "../lib/vcard_menu.scpl"
 @import "../lib/checkForUpdate-fn.scpl"
-
 #
 ShowAlert title=v:self message="Invalid function call - \(v:function)" showCancelButton=false
 ExitShortcut

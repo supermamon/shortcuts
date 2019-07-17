@@ -1,5 +1,8 @@
 # Media Mutt Changelog
 
+* 1.2.1
+  - Clear clipboard after downloading to prevent repeated downloads when the `DownloadImmediately` setting is set to true.
+  
 * 1.2.0
   - Add a `getUserOpts` function. This can be used by addons to read user preferences
   - Removed Instagram User Profile url detection as it's not being handled
