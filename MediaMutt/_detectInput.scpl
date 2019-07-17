@@ -15,9 +15,6 @@ If Equals "detectInput"
         "INSTAGRAM_POST": [
             ".+(www\\.)*instagram\\.com[\\w\\.\\\\/-]*\\/p\\/",
             ],
-        "INSTAGRAM_PROFILE": [
-            "^http\\:\\/\\/(www-)*instagram-com\\/[\\w-]{2,}\\/*\\?*.*$" ,
-            ],
         "OVERCAST_LINK": [
             ".+overcast\\.fm.+"
             ],

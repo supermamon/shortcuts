@@ -79,7 +79,7 @@ If Equals "fetchMedia"
             service="iCloud Drive"
             askwheretosave=false
             destinationpath="\(v:userOpts.DownloadFolder)/"
-            overwriteiffileexists=false
+            overwriteiffileexists=true
         }
         @call {fn:showMessage, message:"Saved in /Shortcuts/\(v:userOpts.DownloadFolder)/"}
       Case

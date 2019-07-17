@@ -152,7 +152,7 @@ GetVariable v:function
 @import "./ui-showMessage.scpl"
 @import "./ui-showSettings.scpl"
 @import "./ui-getSetupState.scpl"
-#@import "./ui-getUserOpts.scpl"
+@import "./ui-getUserOpts.scpl"
 @import "./ui-getAddonsFile.scpl"
 @import "./ui-getAddonsList.scpl"
 @import "./ui-manageAddons.scpl"
