@@ -1,0 +1,310 @@
+# load fallback actions
+@import "../../lib/fallback.scpl"
+
+@icon "camera"
+@color "darkorange"
+@ShowInShareSheet true
+
+SetVariable v:argv
+
+@set debug false
+@set mock false
+@import "../../lib/helpers.scpl"
+
+Comment "..:: Metadata ::.."
+Dictionary {
+    shortcut    : "Go Fetch From Instagram Profile",
+    author      : "@supermamon",
+    version     : "1.0.0",
+    settings    : {
+        updater : {
+            ID: 3213
+        },
+    },
+    changes     : {
+        "v1.0.0": "Initial release"
+    }
+} -> mv:meta
+GetVariable mv:meta:shortcut -> v:self
+GetVariable mv:meta:settings -> v:opt
+
+Dictionary items={"key":"val"}
+GetType -> v:lDictionary
+
+#  function detection
+GetVariable v:argv
+GetType
+If Equals v:lDictionary
+    GetVariable v:argv:fn -> v:function
+Otherwise
+    @call {fn:main}
+    ExitShortcut
+End
+
+# function list
+GetVariable v:function
+If Equals "main"
+    @call {
+        fn          : checkForUpdate,
+        name        : v:self,
+        id          : v:opt:"updater.ID",
+        version     : mv:meta:version,
+        noUpdAlert  : "show",
+    }
+    Text -> mv:msg
+    |This shortcut is an addon to Media Mutt.
+    |Download Media Mutt and register
+    |this addon.
+    ShowAlert title=v:self message=mv:msg
+    ExitShortcut
+End
+If Equals "register"
+    GetVariable v:self
+    ExitShortcut
+End
+If Equals "canProcessURL"
+    @dbgAlert "Entered canProcessURL with \(v:argv:url)"
+    GetVariable v:argv:url
+
+
+    List
+    |^https:\\/\\/(?:www\\.){0,1}instagram\\.com\\/[\\w\\.]{2,}$
+    |^https:\\/\\/(?:www\\.){0,1}instagram\\.com\\/[\\w\\.]{2,}\\/{0,1}$
+    |^https:\\/\\/(?:www\\.){0,1}instagram\\.com\\/[\\w\\.]{2,}\\/{0,1}\\?.+$
+    RepeatwithEach
+      @dbgAlert "matching \(v:"Repeat Item")"
+      GetVariable v:argv:url
+      MatchText pattern=v:"Repeat Item" caseSensitive=false -> v:matches
+      Count Items
+      If "Is Greater Than" 0
+          Number 1
+      Otherwise
+          Number 0
+      End -> mv:this_match
+      @dbgAlert "matched?\nurl=\(v:argv:url)\npattern=\(v:"Repeat Item")\nmatch result=\(v:matches)\nismatched=\(mv:this_match)"
+    End
+    CalculateStatistics "Sum"
+    If "Is Greater Than" 0
+      Number 1
+    Otherwise
+      Number 0
+    End
+    ExitShortcut
+End
+If Equals "fetchMedia"
+    @dbgAlert "Entered fetchMedia with \(v:argv:url)"
+
+    ChooseFromMenu items=["Download Profile Picture", "Download All Posts"]
+    Case
+      @call {fn:fetchIGProfilePicture, url:v:argv:url}
+    Case
+      @call {fn:fetchIGProfileAllPosts, url:v:argv:url}
+    End -> mv:downloaded_media
+
+    GetVariable mv:downloaded_media
+    ExitShortcut
+End
+If Equals "fetchIGProfilePicture"
+
+  @call {fn:getProfileInfo url:v:argv:url}
+  SetVariable v:profile
+  GetDictionaryValue get="Value" key="graphql.user.profile_pic_url_hd" -> v:media_url
+  Count Items
+  If Equals 0
+    GetDictionaryValue get="Value" key="profile_pic_url" -> v:media_url
+  End
+  @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Download started."}
+  GetVariable v:media_url
+  GetContentsOfUrl -> mv:downloaded_media
+  @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Download complete."}
+
+  GetVariable mv:downloaded_media
+  SetName "\(v:profile:"graphql.user.username")_profile_pic"
+  ExitShortcut 
+End
+If Equals "fetchIGProfileAllPosts"
+
+  Text -> mv:prompt
+  |This process may take a while depending on the number of posts the use has.
+  |
+  |If you're on a mobile/cellular data connection or a limited/metered connection, be advised that this will incurr a large amount of data usage.
+  ChooseFromMenu prompt=mv:prompt items=["Continue","Stop"]
+  Case
+  Case
+    @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Downloading aborted."}
+    ExitShortcut 
+  End
+
+
+  @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Analyzing profile."}
+  @call {fn:getProfileInfo url:v:argv:url}
+  SetVariable v:profile
+  GetVariable v:profile:"graphql.user.username" -> v:username
+
+  # find the query hash
+
+  #step 1: get the source code of the profile page
+  URL "https://www.instagram.com/\(v:username)"
+  GetContentsOfURL
+  SetName "src.txt" -> mv:src
+
+  #step 2: find the path of the compiled ProfilePageContainer.js file
+  GetVariable mv:src
+  SplitText separator="Custom" custom="ProfilePageContainer.js" -> mv:pc
+  GetItemFromList "First Item"
+  MatchText pattern="href=\"([\\w\\/]+)$" casesensitive=false
+  GetGroupFromMatchedText get="Group At Index" groupindex=1 -> mv:matched_path
+
+  GetVariable mv:pc
+  GetItemFromList get="Item At Index" index=2
+  MatchText pattern="^([\\/a-z0-9]+\\.js)" casesensitive=false -> mv:matched_file
+
+  # step 3 get the contents of ProfilePageContainer.js
+  URL "http://www.instagram.com\(mv:matched_path)ProfilePageContainer.js\(mv:matched_file)" -> mv:pc_url
+  #@dbgAlert mv:pc_url
+  GetContentsOfURL
+
+  #step 4, get the value of 4th queryId
+  SplitText separator=Custom custom="queryId:\""
+  GetItemFromList get="Item At Index" index=4
+  MatchText pattern="^[a-z0-9]+" casesensitive=false -> v:query_hash
+
+  # Get the total number of posts
+  GetVariable v:profile:"graphql.user.edge_owner_to_timeline_media.count" -> v:post_count
+  If Equals 0
+    #nothing to download
+    Nothing
+    ExitShortcut 
+  End
+  # Calulate the number of repeats needed if we are to query 50 at a time
+  Calculate operation="÷" operand=50
+  RoundNumber round="Right of Decimal" mode="Always Round Up" wfrounddecimalplaces=0 -> mv:repeats
+
+  GetVariable v:profile:"graphql.user.id" -> v:instagram_id
+
+  Number 1 -> v:has_next_page
+  Text "" -> v:end_cursor
+  Repeat wfrepeatcount=mv:repeats
+      GetVariable v:has_next_page
+      If Equals 1
+          Dictionary {
+              id      : v:instagram_id,
+              first   : 50,
+              after   : v:end_cursor
+          }
+          URLEncode mode="Encode" -> v:variables
+          URL "https://www.instagram.com/graphql/query/?query_hash=\(v:query_hash)&variables=\(v:variables)"
+          GetContentsOfURL
+          GetDictionaryValue get=Value key="data.user.edge_owner_to_timeline_media" -> v:timeline
+          GetVariable v:timeline.edges
+          AddToVariable v:all_posts
+          GetVariable v:timeline."page_info.end_cursor" -> v:end_cursor
+          GetVariable v:timeline."page_info.has_next_page"
+          #@dbgAlert "timeline has next page = \(v:timeline."page_info.has_next_page")"
+          If Equals 1
+              Number 1 -> v:has_next_page
+          End
+          ShowNotification title=v:self body="Analyzed Page \(v:"Repeat Index") of \(mv:repeats)" playsound=true
+      End
+  End  
+
+  @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Download started."}
+  GetVariable v:all_posts
+  RepeatWithEach
+    SetVariable v:post_graph
+    GetDictionaryValue get="Value" key="node"
+    SetVariable v:post
+
+    GetVariable v:post:"edge_sidecar_to_children"
+    Count Items
+    If Equals 0
+        # if not, set the current post as a node
+        GetVariable v:post_graph
+        SetVariable v:nodes
+    Otherwise
+        # get the edges
+        GetVariable v:post:"edge_sidecar_to_children.edges" -> v:nodes
+    End
+
+    GetVariable v:nodes
+    RepeatWithEach
+        GetDictionaryValue get=Value key="node"
+        SetVariable v:node
+        GetVariable v:node:is_video
+        If Equals 1
+            GetVariable v:node:video_url
+        Otherwise
+            GetVariable v:node:"display_resources"
+            # get highest resolution
+            GetItemFromList "Last Item"
+            GetDictionaryValue get="Value" key="src"
+        End -> mv:src
+
+        # generate name
+        # username _ postid _ media number
+        @call {fn:padLeft, text:v:"Repeat Index 2", withChar:"0" length=2 }
+        SetVariable -> v:media_no
+        Text "\(v:username)_\(v:post:id)_\(v:media_no)" -> mv:media_name
+
+        # find the downloads folder
+        @callExt "Media Mutt" {fn:getUserOpts}
+        SetVariable v:userOpts
+
+        # check if the file exists
+        GetFile a{
+            service="iCloud Drive"
+            showDocumentPicker=false
+            filePath="\(v:userOpts.DownloadFolder)/\(mv:media_name).*"
+            errorIfNotFound=false
+        } 
+        Count Items
+        If Equals 0
+          # if not exits, download and save
+          GetVariable mv:src
+          GetContentsOfUrl
+          SetName mv:media_name
+          SaveFile a{
+            service="iCloud Drive"
+            askwheretosave=false
+            destinationpath="\(v:userOpts.DownloadFolder)/"
+            overwriteiffileexists=true
+          } -> v:downloaded_media
+
+        End
+    End
+
+  End
+
+  @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Download complete."}
+  GetVariable v:downloaded_media
+  ExitShortcut 
+End
+If Equals "getProfileInfo"
+  GetVariable v:argv:url
+  SplitText separator="Custom" custom="?"
+  GetItemFromList "First Item" -> mv:profile_url
+  URL "\(mv:profile_url)?__a=1"
+  GetContentsOfUrl
+  ExitShortcut 
+End
+If Equals "padLeft"
+    Text "\(v:argv:text)" -> v:result
+    Repeat wfrepeatcount=v:argv:length
+        Text "\(v:argv:withChar)\(v:result)" -> v:result
+    End
+    GetVariable v:result
+    Count "Characters" -> v:endRange
+    Calculate operation="-" operand=v:argv:length
+    Calculate operation="+" operand=1 -> v:startRange
+    GetVariable v:result
+    SplitText separator="Every Character"
+    GetItemFromList get="Items in Range" getItemsFromIndex=v:startRange toIndex=v:endRange
+    #getitemfromlist get=("First Item" | "Last Item" | "Random Item" | "Item At Index" | "Items in Range") index=number getitemsfromindex=number toindex=number
+    CombineText separator="Custom" custom=""
+    ExitShortcut
+End
+@import "../../lib/checkForUpdate-fn.scpl"
+#
+ShowAlert title=v:self message="(addon) Invalid function call - \(v:function)" showCancelButton=false
+Nothing
+ExitShortcut
