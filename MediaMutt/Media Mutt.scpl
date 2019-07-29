@@ -1,9 +1,34 @@
+Comment `REMOVE THIS
+Set ShowInShareSheet to on
+Accepts
+- Safari Web Pages
+- URLs
+- Text
+`
+
 @import "../lib/fallback.scpl"
 
 @icon "dog"
 @color "red"
 @ShowInShareSheet true
 @ShowInWidget true
+
+Comment `
+                    ..:: Media Mutt ::..
+
+                   by @supermamon
+`
+Comment `Media Mutt is you all-in-one
+downloader for media pages on the web.
+It supports the most popular photo and
+video sharing sites and can support more
+with the help of addons.
+`
+Comment `The best feature? It doesn't use
+third-party websites to download that
+may track urls that you send to them.
+Everything is done within the shortcut.
+`
 
 SetVariable v:argv
 Count Items
@@ -32,7 +57,7 @@ End
 Dictionary {
     shortcut    : "Media Mutt",
     author      : "@supermamon",
-    version     : "1.2.1",
+    version     : "1.3.0",
     settings    : {
         updater : {
             ID: 3184
@@ -49,29 +74,58 @@ GetVariable mv:meta:shortcut -> v:self
 GetVariable mv:meta:settings -> v:opt
 
 # load user options
+Comment `..:: Default Settings ::..
+`
+Dictionary {
+    <bool> ShowAlerts           : true,
+    <bool> DownloadImmediately  : false,
+    <bool> ViewBeforeSave       : true,
+    SaveTo                      : "Always Ask",
+    DownloadFolder              : "\(v:opt:"storage.dir")/downloads"
+} -> v:defaultOpts
+SetVariable v:userOpts
+
+Comment `..:: Load User Saved Settings ::..
+If exists, override the default settings
+`
 GetFile a{
     service="iCloud Drive"
     showDocumentPicker=false
     filePath="\(v:opt:"storage.dir")/\(v:opt:"storage.file")"
     errorIfnotFound=false
-} -> v:userOpts
+} -> mv:savedOpts
 Count Items
-If Equals 0
-    Dictionary {
-        <bool> ShowAlerts           : true,
-        <bool> DownloadImmediately  : false,
-        <bool> ViewBeforeSave       : true,
-        <bool> AlwaysSaveToFiles    : false,
-        DownloadFolder : "\(v:opt:"storage.dir")/downloads"
-    } -> v:userOpts
+If "Is Greater Than" 0
+    GetVariable v:userOpts
+    GetDictionaryValue get="All Keys"
+    RepeatwithEach
+        GetVariable mv:savedOpts
+        GetDictionaryValue get="Value" key=v:"Repeat Item" -> mv:value
+        Count Items
+        If "Is Greater Than" 0
+            GetVariable v:userOpts
+            SetDictionaryValue key=v:"Repeat Item" value=mv:value
+            SetVariable v:userOpts
+        End
+
+    End
 End
 
+Comment `..:: Settings Icons ::..
+`
 @import "./_icons.scpl"
 
+Comment `..:: Localized Types ::..
+`
 Dictionary items={"key":"val"}
 GetType
 SetVariable v:lDictionary
+Text "Text"
+GetType -> v:lText
 
+Comment `
+..:: Function Call Detection
+`
 #  function detection
 GetVariable v:argv
 GetType
@@ -89,12 +143,6 @@ If Equals v:lDictionary
             ExitShortcut
         End
     End
-
-    #If Equals "getUserOpts"
-    #Otherwise
-    #    @call {fn:getUserOpts}
-    #    SetVariable v:userOpts
-    #End
 
 Otherwise
     @dbgAlert "Not a dictionary, \(v:argv) "
@@ -121,7 +169,6 @@ Otherwise
 End
 
 
-
 @dbgAlert "Calling: \(v:function)\n-----------\nWith Parameters:\n\(v:argv)"
 
 GetVariable v:function
@@ -133,6 +180,7 @@ GetVariable v:function
 @import "./fn-fetchFromDirectLink.scpl"
 @import "./fn-fetchFromYoutube.scpl"
 @import "./fn-fetchFromInstagramPost.scpl"
+//@import "./fn-getIGProfileInfo.scpl"
 @import "./fn-fetchFromGfycat.scpl"
 @import "./fn-fetchFromImgurGifV.scpl"
 @import "./fn-fetchFromImgurPost.scpl"
@@ -143,6 +191,7 @@ GetVariable v:function
 @import "./fn-fetchFromRedditLinkedMedia.scpl"
 @import "./fn-getKeySafeValue.scpl"
 @import "./fn-fetchFromTumblr.scpl"
+
 
 @import "./ui-showMessage.scpl"
 @import "./ui-showSettings.scpl"

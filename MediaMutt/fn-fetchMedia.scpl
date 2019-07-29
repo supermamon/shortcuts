@@ -1,3 +1,4 @@
+Comment "..:: fetchMedia ::.."
 If Equals "fetchMedia"
   @dbgAlert "Entered fetchMedia\nargs\ntype=\(v:argv:type)\nurl = \(v:argv:url)"
 
@@ -46,6 +47,24 @@ If Equals "fetchMedia"
     Nothing
   Otherwise
 
+    Comment `Addons can override saving
+    and just return "SAVED_BY_ADDON".
+    `
+    GetVariable v:downloaded_media
+    GetType
+    If Equals v:lText
+      GetVariable v:downloaded_media
+      If Equals "SAVED_BY_ADDON"
+        //@call {fn:showMessage, message:"Downloaded media was saved by addon."}
+        Nothing
+        ExitShortcut
+      End
+      @call {fn:showMessage, message:"Not saved. Unexpected media type."}
+      Nothing
+      ExitShortcut
+    End
+
+    # if test mode, just send back the media
     GetVariable v:opt:TestMode
     If Equals 1
       GetVariable v:downloaded_media
@@ -58,8 +77,20 @@ If Equals "fetchMedia"
       Quicklook
     End
 
-    GetVariable v:userOpts.AlwaysSaveToFiles
-    If Equals 1
+    GetVariable v:userOpts.SaveTo
+    If Equals "Always Ask"
+      ChooseFromMenu prompt="Save" items=["Save to Files", "Save to Photo Album", "Discard"]
+      Case
+        Text "Files"
+      Case
+        Text "Photo Album"
+      Case
+        Nothing
+      End
+    End
+    If Equals "Files"
+    //GetVariable v:userOpts.AlwaysSaveToFiles
+    //If Equals 1
 
       GetVariable v:downloaded_media
       SaveFile a{
@@ -68,34 +99,20 @@ If Equals "fetchMedia"
           destinationpath="\(v:userOpts.DownloadFolder)/"
           overwriteiffileexists=false
       }
-      @call {fn:showMessage, message:"Saved in /Shortcuts/\(v:userOpts.DownloadFolder)/"}
-
-    Otherwise
-
-      ChooseFromMenu prompt="Save" items=["Save to Files", "Save to Photo Album", "Discard"]
-      Case
-        GetVariable v:downloaded_media
-        SaveFile a{
-            service="iCloud Drive"
-            askwheretosave=false
-            destinationpath="\(v:userOpts.DownloadFolder)/"
-            overwriteiffileexists=true
-        }
-        @call {fn:showMessage, message:"Saved in /Shortcuts/\(v:userOpts.DownloadFolder)/"}
-      Case
-        GetVariable v:downloaded_media
-        SaveToPhotoAlbum album="All Photos"
-        @call {fn:showMessage, message:"Saved."}
-      Case
-        Nothing
-      End
+      GetName -> mv:media_name
+      @call {fn:showMessage, message:"Saved in /Shortcuts/\(v:userOpts.DownloadFolder)/\(mv:media_name)"}
 
     End
-    Nothing
-    CopytoClipboard localOnly=false
-    
+    If Equals "Photo Album"
+        GetVariable v:downloaded_media
+        SaveToPhotoAlbum album="All Photos"
+        @call {fn:showMessage, message:"Saved in Photo Album."}
+    End
 
   End
+  # clear clipboard
+  Nothing
+  CopytoClipboard localOnly=false
   ExitShortcut
 
 End

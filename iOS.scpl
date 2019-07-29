@@ -1,0 +1,29 @@
+Dictionary {} -> v:devices
+SetVariable v:device_types
+URL "https://api.ipsw.me/v4/devices"
+GetContentsofURL (
+    advanced=false
+) -> mv:devices
+RepeatwithEach
+    GetDictionaryValue get="Value" key="identifier"
+    MatchText pattern="^[a-zA-Z]+" caseSensitive=false -> mv:matches
+    Text "\(mv:matches)" -> mv:device_type
+
+    GetVariable v:device_types
+    SetDictionaryValue key=mv:device_type value=mv:device_type
+    SetVariable v:device_types
+
+    GetVariable v:"Repeat Item"
+    SetDictionaryValue key="device_type" value=mv:device_type -> mv:device_details
+
+
+    GetVariable v:devices
+    SetDictionaryValue key=v:"Repeat Item":name value=mv:device_details{as:Dictionary}
+    SetVariable v:devices
+End
+GetVariable v:device_types
+GetDictionaryValue get="All Keys"
+ChoosefromList (
+    prompt="Which Device?",
+    selectMultiple=false
+)

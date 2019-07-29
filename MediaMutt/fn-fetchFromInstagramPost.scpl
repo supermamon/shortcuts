@@ -1,3 +1,8 @@
+Comment `..:: fetchFromInstagramPost ::..
+Download media from Instagram post
+
+Expects: Post URL
+`
 If Equals "fetchFromInstagramPost"
 
     GetVariable v:argv:url -> v:url
@@ -6,7 +11,17 @@ If Equals "fetchFromInstagramPost"
         Text "\(v:argv:url)?" -> v:url
     End
     ReplaceText findtext="([^\\?]+)(\\?)(.*)" replaceWith="$1$2__a=1" casesensitive=false regularexpression=true
-    GetContentsOfURL
+    GetContentsOfURL -> mv:source
+    GetDictionaryfromInput -> mv:post_dict
+    GetType
+    If Equals v:lDictionary
+    Otherwise
+        @call {fn:showMessage, message:"Unable to download private post."}
+        Nothing
+        ExitShortcut
+    End
+
+    GetVariable mv:post_dict
     GetDictionaryValue get=Value key="graphql.shortcode_media" -> v:post_info
 
     GetDictionaryValue get=Value key="edge_sidecar_to_children" -> v:children

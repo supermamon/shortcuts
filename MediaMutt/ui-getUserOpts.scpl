@@ -1,20 +1,4 @@
 If Equals "getUserOpts"
-  GetFile a{
-      service="iCloud Drive"
-      showDocumentPicker=false
-      filePath="\(v:opt:"storage.dir")/\(v:opt:"storage.file")"
-      errorIfnotFound=false
-  } -> v:userOpts
-  Count Items
-  If Equals 0
-      Dictionary {
-          <bool> ShowAlerts           : true,
-          <bool> DownloadImmediately  : false,
-          <bool> ViewBeforeSave       : true,
-          <bool> AlwaysSaveToFiles    : false,
-          DownloadFolder : "\(v:opt:"storage.dir")/downloads"
-      } -> v:userOpts
-  End
   GetVariable v:userOpts
-  ExitShortcut 
+  ExitShortcut
 End

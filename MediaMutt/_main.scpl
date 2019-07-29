@@ -1,3 +1,6 @@
+Comment `
+..:: main function ::..
+`
 If Equals "main"
   @dbgAlert "Entered main"
   GetVariable v:argv:url
@@ -47,7 +50,7 @@ If Equals "main"
   |"caption": "\(v:self) v\(mv:meta.version)",
   |"menu_items": [
   | \(v:dl_menu_item)
-  | { "caption":"Downloads", "subtitle":"Show downloaded items", "value":"show-downloads", "icon":"\(mv:icons.folder)" },
+  | { "caption":"Downloads", "subtitle":"Downloaded items in Files", "value":"show-downloads", "icon":"\(mv:icons.folder)" },
   | { "caption":"Settings", "subtitle":"Manage settings", "value":"show-settings", "icon":"\(mv:icons.cog)" },
   | { "caption":"Addons", "subtitle":"Manage addons", "value":"manage-addons", "icon":"\(mv:icons.extension)" },
   | { "caption":"Check for Updates", "subtitle":"Check for new versions", "value":"do-cfu", "icon":"\(mv:icons.update)"},
@@ -55,21 +58,7 @@ If Equals "main"
   | { "caption":"Exit", "subtitle":"Exit shortcut", "value":"do-exit", "icon":"\(mv:icons.back_arrow)"}
   | ]
   |}
-  /*
-  Text -> mv:menu_txt
-  |{
-  |"fn": "chooseFromVcardMenu",
-  |"menu_items": [
-  | \(v:dl_menu_item)
-  | { "caption":"Settings", "subtitle":"Manage settings", "value":"show-settings" },
-  | { "caption":"Addons", "subtitle":"Manage addons", "value":"manage-addons" },
-  | { "caption":"Check for Updates", "subtitle":"Check for new versions", "value":"do-cfu"},
-  | { "caption":"Exit", "subtitle":"Exit shortcut", "value":"do-exit"}
-  | ]
-  |}
-  */
   @dbgAlert " menu_txt \n \(mv:menu_txt)"
-  #@dbgViewWithJayson
   GetDictionaryFromInput -> mv:menu
   @dbgAlert " menu_dict \n \(mv:menu)"
 
@@ -124,7 +113,7 @@ If Equals "main"
     |
     |** https://scpl.dev **
     |
-    |Icons by: http://fa2png.io/
+    |Icons by: https://fa2png.io/
     |
     |Youtube Download: https://tyrrrz.me/Blog/Reverse-engineering-YouTube
     |

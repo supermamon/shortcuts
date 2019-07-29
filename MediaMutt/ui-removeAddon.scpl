@@ -9,13 +9,21 @@ If Equals "removeAddon"
   End
 
   GetVariable v:addon_list
+  Text "Back"
+  AddToVariable v:addon_list
   ChooseFromList prompt="Choose addon to remove" -> mv:addon
+  If Equals "Back"
+    ExitShortcut
+  End
 
   GetVariable v:addon_list
   RepeatwithEach
     If Equals mv:addon
     Otherwise
-      AddToVariable v:new_list
+      If Equals "Back"
+      Otherwise
+        AddToVariable v:new_list
+      End
     End
   End
 

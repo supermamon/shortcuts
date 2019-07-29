@@ -1,3 +1,7 @@
+Comment `..:: fetchFromGfycat ::..
+
+Dowload media from a gfycat url
+`
 If Equals "fetchFromGfycat"
 
   @dbgAlert "Entered downloadFromGfycat, with param \(v:argv:url)"

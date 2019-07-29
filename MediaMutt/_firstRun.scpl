@@ -18,13 +18,7 @@ If Equals "firstRun"
             Case "Next"
             End
 
-            Dictionary {
-                <bool> ShowAlerts           : true,
-                <bool> DownloadImmediately  : false,
-                <bool> ViewBeforeSave       : true,
-                <bool> AlwaysSaveToFiles    : false,
-                DownloadFolder : "\(v:opt:"storage.dir")/downloads",
-            }
+            GetVariable v:userOpts
             SetName v:opt:"storage.file"
             SaveFile a{
                 service="iCloud Drive"

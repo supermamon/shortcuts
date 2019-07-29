@@ -1,3 +1,4 @@
+Comment "..:: fetchFromImgurGifV ::.."
 If Equals "fetchFromImgurGifV"
   GetVariable v:argv:url
   # get the id string from the url

@@ -23,14 +23,15 @@ If Equals "showSettings"
         DownloadFolder: {
             type        : "text",
             icon        : "folder",
-            caption     : "Download Location",
+            caption     : "iCloud Drive Download Location",
             description : v:userOpts:DownloadFolder,
         },
-        AlwaysSaveToFiles: {
-            type        : "toggle",
-            icon        : "toggle",
-            caption     : "Always Save To Files",
-            description : "Save to Download Location. Not to Photo Album.",
+        SaveTo: {
+            type        : "list",
+            icon        : "download",
+            list        : ["Always Ask", "Files", "Photo Album"]
+            caption     : "Save To",
+            description : v:userOpts:SaveTo,,
         },
     } -> v:opt_map
 
@@ -38,49 +39,62 @@ If Equals "showSettings"
     GetVariable v:userOpts
     GetDictionaryValue get="All Keys"
     RepeatwithEach
-
+        SetVariable v:option_name
         GetVariable v:opt_map
-        GetDictionaryValue get="Value" key=v:"Repeat Item" -> mv:opt_item
+        GetDictionaryValue get="Value" key=v:option_name -> mv:mapped_item
+        Count Items
+        # if mapping is defined
+        If "Is Greater Than" 0
+            GetVariable mv:mapped_item.type
+            If Equals "toggle"
 
-        GetVariable mv:opt_item.type
-        If Equals "toggle"
+                # get current value, translate to on/off
+                GetVariable v:userOpts
+                GetDictionaryValue get="Value" key=v:option_name
+                If Equals 1
+                    Text "on"
+                Otherwise
+                    Text "off"
+                End -> v:optState
 
-            # get current value, translate to on/off
-            GetVariable v:userOpts
-            GetDictionaryValue get="Value" key=v:"Repeat Item"
-            If Equals 1
-                Text "on"
-            Otherwise
-                Text "off"
-            End -> v:optState
+                GetVariable mv:icons
+                GetDictionaryValue get="Value" key=v:optState -> v:optIcon
 
-            GetVariable mv:icons
-            GetDictionaryValue get="Value" key=v:optState -> v:optIcon
+                Getvariable mv:mapped_item.description -> v:optSubtitle
+                Nothing
+            End
+            If Equals "text"
+                Getvariable mv:mapped_item.description -> v:optSubtitle
+                Getvariable mv:mapped_item.description -> v:optState
 
-            Getvariable mv:opt_item.description -> v:optSubtitle
-            Nothing
-        End
-        If Equals "text"
-            Getvariable mv:opt_item.description -> v:optSubtitle
-            Getvariable mv:opt_item.description -> v:optState
+                GetVariable mv:icons
+                GetDictionaryValue get="Value" key=mv:mapped_item.icon -> v:optIcon
 
-            GetVariable mv:icons
-            GetDictionaryValue get="Value" key=mv:opt_item.icon -> v:optIcon
+                Nothing
+            End
+            If Equals "list"
+                Getvariable mv:mapped_item.description -> v:optSubtitle
+                Getvariable mv:mapped_item.description -> v:optState
 
-            Nothing
-        End
+                GetVariable mv:icons
+                GetDictionaryValue get="Value" key=mv:mapped_item.icon -> v:optIcon
 
-        Dictionary {
-            "caption" : mv:opt_item.caption,
-            "subtitle": v:optSubtitle,
-            "icon"    : v:optIcon,
-            "value"   : {
-                option: v:"Repeat Item",
-                state : v:optState,
-                type  : mv:opt_item.type,
+                Nothing
+            End
+
+            Dictionary {
+                "caption" : mv:mapped_item.caption,
+                "subtitle": v:optSubtitle,
+                "icon"    : v:optIcon,
+                "value"   : {
+                    option: v:option_name,
+                    state : v:optState,
+                    type  : mv:mapped_item.type,
+                    list  : mv:mapped_item.list
+                }
             }
-        }
-        AddToVariable v:options_list
+            AddToVariable v:options_list
+        End
     End
 
     Dictionary {
@@ -120,6 +134,7 @@ If Equals "showSettings"
 
     GetVariable mv:chosen_item.value
     GetDictionaryfromInput -> mv:value
+    @dbgViewWithJayson
 
     GetVariable mv:value.type
     If Equals "toggle"
@@ -166,19 +181,35 @@ If Equals "showSettings"
         Nothing
 
     End
+    If Equals "list"
+
+        GetVariable mv:value.list
+        SplitText separator="New Lines"
+        ChoosefromList (
+            prompt="\(mv:chosen_item.caption)",
+            selectMultiple=false,
+        ) -> v:newState
+
+        GetVariable v:userOpts
+        SetDictionaryValue key=mv:value.option value=v:newState
+        SetName v:opt:"storage.file"
+        SaveFile a{
+            service="iCloud Drive"
+            askwheretosave=false
+            destinationpath="\(v:opt:"storage.dir")/"
+            overwriteiffileexists=true
+        }
+
+        Nothing
+
+    End
     If Equals "reset"
         ChooseFromMenu prompt="This will revert all your settings to default and delete all of the downloaded media." items=["Reset & Remove Media","Stay as is"]
         Case #Proceed
             CreateFolder service="iCloud Drive" path="\(v:userOpts.DownloadFolder)/"
             DeleteFiles false
 
-            Dictionary {
-                <bool> ShowAlerts           : true,
-                <bool> DownloadImmediately  : false,
-                <bool> ViewBeforeSave       : true,
-                <bool> AlwaysSaveToFiles    : false,
-                DownloadFolder : "\(v:opt:"storage.dir")/downloads",
-            } -> v:userOpts
+            GetVariable v:defaultOpts
             SetName v:opt:"storage.file"
             SaveFile a{
                 service="iCloud Drive"

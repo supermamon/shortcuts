@@ -1,3 +1,4 @@
+Comment "..:: fetchFromTumblr ::.."
 If Equals "fetchFromTumblr"
     @dbgAlert "Entered fetchFromTumblr with \(v:argv:url)"
     Dictionary {

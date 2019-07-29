@@ -15,14 +15,19 @@ Comment "..:: Metadata ::.."
 Dictionary {
     shortcut    : "Go Fetch From Instagram Profile",
     author      : "@supermamon",
-    version     : "1.0.0",
+    version     : "1.1.0",
     settings    : {
         updater : {
             ID: 3213
         },
     },
     changes     : {
-        "v1.0.0": "Initial release"
+        "v1.0.0": "Initial release",
+        "v1.1.0": [
+          "Use new SaveTo setting from Media Mutt 1.3.0",
+          "Private profile detection",
+          "Previous download detection when Save To Files is on"
+        ]
     }
 } -> mv:meta
 GetVariable mv:meta:shortcut -> v:self
@@ -66,13 +71,12 @@ If Equals "canProcessURL"
     @dbgAlert "Entered canProcessURL with \(v:argv:url)"
     GetVariable v:argv:url
 
-
-    List
-    |^https:\\/\\/(?:www\\.){0,1}instagram\\.com\\/[\\w\\.]{2,}$
-    |^https:\\/\\/(?:www\\.){0,1}instagram\\.com\\/[\\w\\.]{2,}\\/{0,1}$
-    |^https:\\/\\/(?:www\\.){0,1}instagram\\.com\\/[\\w\\.]{2,}\\/{0,1}\\?.+$
+    List [
+      "^https:\\/\\/(?:www\\.){0,1}instagram\\.com\\/[\\w\\.]{2,}\\/{0,1}$",
+      "^https:\\/\\/(?:www\\.){0,1}instagram\\.com\\/[\\w\\.]{2,}\\/{0,1}\\?.+$"
+    ]
     RepeatwithEach
-      @dbgAlert "matching \(v:"Repeat Item")"
+      //@dbgAlert "matching [\(v:"Repeat Item")]"
       GetVariable v:argv:url
       MatchText pattern=v:"Repeat Item" caseSensitive=false -> v:matches
       Count Items
@@ -81,7 +85,7 @@ If Equals "canProcessURL"
       Otherwise
           Number 0
       End -> mv:this_match
-      @dbgAlert "matched?\nurl=\(v:argv:url)\npattern=\(v:"Repeat Item")\nmatch result=\(v:matches)\nismatched=\(mv:this_match)"
+      @dbgAlert "matched?\nurl=<\(v:argv:url)>\npattern=<\(v:"Repeat Item")>\nmatch result=\(v:matches)\nismatched=\(mv:this_match)"
     End
     CalculateStatistics "Sum"
     If "Is Greater Than" 0
@@ -120,9 +124,24 @@ If Equals "fetchIGProfilePicture"
 
   GetVariable mv:downloaded_media
   SetName "\(v:profile:"graphql.user.username")_profile_pic"
-  ExitShortcut 
+  ExitShortcut
 End
+Comment `..:: fetchIGProfileAllPosts ::..
+
+Download all post from public a profile
+
+`
 If Equals "fetchIGProfileAllPosts"
+
+  @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Analyzing profile."}
+  @call {fn:getProfileInfo url:v:argv:url}
+  SetVariable v:profile
+  GetVariable v:profile:"graphql.user.is_private"
+  If Equals 1
+    @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Unable to download posts from private profiles."}
+    Nothing
+    ExitShortcut
+  End
 
   Text -> mv:prompt
   |This process may take a while depending on the number of posts the use has.
@@ -132,13 +151,47 @@ If Equals "fetchIGProfileAllPosts"
   Case
   Case
     @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Downloading aborted."}
-    ExitShortcut 
+    ExitShortcut
   End
 
 
-  @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Analyzing profile."}
-  @call {fn:getProfileInfo url:v:argv:url}
-  SetVariable v:profile
+  # find the downloads folder
+  @callExt "Media Mutt" {fn:getUserOpts}
+  SetVariable v:userOpts
+
+  GetVariable v:userOpts.ViewBeforeSave -> v:viewBeforeSave
+  If Equals 1
+    Text `
+    You have currently have Preview Before Saving set to On.
+    Off is recommended
+    ` -> v:prompt
+    ChooseFromMenu prompt=v:prompt items=["Turn off temporarily", "Keep it on"]
+    Case
+      Number 0 -> v:viewBeforeSave
+    Case
+      Number 1 -> v:viewBeforeSave
+    End
+  End
+
+  GetVariable v:userOpts.SaveTo -> v:saveTo
+  If Equals "Always Ask"
+    Text `
+    You have currently have "Save To" option to "Always Ask".
+    Recommended to be set to Photo Album or Files
+    Temporarily change it?
+    ` -> v:prompt
+    List
+    |Photo Album
+    |Files
+    ChoosefromList (
+      prompt=v:prompt,
+      selectMultiple=false
+    ) -> v:saveTo
+  End
+
+  //@callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Analyzing profile."}
+  //@call {fn:getProfileInfo url:v:argv:url}
+  //SetVariable v:profile
   GetVariable v:profile:"graphql.user.username" -> v:username
 
   # find the query hash
@@ -173,8 +226,9 @@ If Equals "fetchIGProfileAllPosts"
   GetVariable v:profile:"graphql.user.edge_owner_to_timeline_media.count" -> v:post_count
   If Equals 0
     #nothing to download
+    @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] User does not have any posts."}
     Nothing
-    ExitShortcut 
+    ExitShortcut
   End
   # Calulate the number of repeats needed if we are to query 50 at a time
   Calculate operation="÷" operand=50
@@ -206,7 +260,7 @@ If Equals "fetchIGProfileAllPosts"
           End
           ShowNotification title=v:self body="Analyzed Page \(v:"Repeat Index") of \(mv:repeats)" playsound=true
       End
-  End  
+  End
 
   @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Download started."}
   GetVariable v:all_posts
@@ -246,38 +300,70 @@ If Equals "fetchIGProfileAllPosts"
         SetVariable -> v:media_no
         Text "\(v:username)_\(v:post:id)_\(v:media_no)" -> mv:media_name
 
-        # find the downloads folder
-        @callExt "Media Mutt" {fn:getUserOpts}
-        SetVariable v:userOpts
+        # check where the media should be saved
+        GetVariable v:saveTo
+        If Equals "Photo Album"
 
-        # check if the file exists
-        GetFile a{
-            service="iCloud Drive"
-            showDocumentPicker=false
-            filePath="\(v:userOpts.DownloadFolder)/\(mv:media_name).*"
-            errorIfNotFound=false
-        } 
-        Count Items
-        If Equals 0
-          # if not exits, download and save
           GetVariable mv:src
-          GetContentsOfUrl
+          GetContentsOfUrl -> v:downloaded_media
+
+          # view before save setting
+          GetVariable v:viewBeforeSave
+          If Equals 1
+            GetVariable v:downloaded_media
+            SetName mv:media_name
+            QuickLook
+          End
+          GetVariable v:downloaded_media
           SetName mv:media_name
-          SaveFile a{
-            service="iCloud Drive"
-            askwheretosave=false
-            destinationpath="\(v:userOpts.DownloadFolder)/"
-            overwriteiffileexists=true
-          } -> v:downloaded_media
+          SaveToPhotoAlbum album="All Photos"
+
+        Otherwise
+
+          # check if file exists
+          GetFile (
+            service="iCloud Drive",
+            showDocumentPicker=false,
+            filePath="\(v:userOpts.DownloadFolder)/",
+            errorIfNotFound=false
+          )
+          FilterFiles (
+            filter=:filter{Name contains mv:media_name},
+            limit=false,
+          ) -> v:downloaded_media
+          Count Items
+          If Equals 0
+            GetVariable mv:src
+            GetContentsOfUrl -> v:downloaded_media
+            GetVariable v:viewBeforeSave
+            If Equals 1
+              GetVariable v:downloaded_media
+              SetName mv:media_name
+              QuickLook
+            End
+
+            GetVariable v:downloaded_media
+            SetName mv:media_name
+            SaveFile a{
+              service="iCloud Drive"
+              askwheretosave=false
+              destinationpath="\(v:userOpts.DownloadFolder)/"
+              overwriteiffileexists=false
+            }
+          Otherwise
+            Comment "Already downloaded."
+            //@callExt "Media Mutt" {fn:showMessage message="[\(v:self)] File exists - \(mv:media_name)"}
+          End
 
         End
+
     End
 
   End
 
   @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Download complete."}
-  GetVariable v:downloaded_media
-  ExitShortcut 
+  Text "SAVED_BY_ADDON"
+  ExitShortcut
 End
 If Equals "getProfileInfo"
   GetVariable v:argv:url
@@ -285,7 +371,8 @@ If Equals "getProfileInfo"
   GetItemFromList "First Item" -> mv:profile_url
   URL "\(mv:profile_url)?__a=1"
   GetContentsOfUrl
-  ExitShortcut 
+  @dbgViewWithJayson
+  ExitShortcut
 End
 If Equals "padLeft"
     Text "\(v:argv:text)" -> v:result
