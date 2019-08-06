@@ -26,7 +26,9 @@ If input=Equals value="fetchFromYoutube"
 
     @dbgViewWithJayson
 
-    GetVariable v:video_info:title
+    GetVariable v:video_info.player_response
+    GetDictionaryfromInput -> mv:player_response
+    GetDictionaryValue get="Value" key="videoDetails.title"
     ReplaceText findtext="+" replacewith=" "
     SetVariable "yt_video_title"
 

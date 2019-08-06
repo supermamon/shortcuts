@@ -1,5 +1,8 @@
 # Media Mutt Changelog
 
+* Media Mutt 1.3.1
+  - Fix filename for Youtube downloads
+
 * Go Fetch From Instagram Profile 1.1.0
   - Use new SaveTo setting from Media Mutt 1.3.0
   - Private profile detection
