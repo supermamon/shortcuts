@@ -1,8 +1,17 @@
 If Equals "registerAddon"
-    AskforInput question="Find addons containing" defaultAnswer="Fetch" inputType="Text" -> mv:pattern
+    AskforInput question="Find addons containing" defaultAnswer="Go Fetch" inputType="Text" -> mv:pattern
     GetMyShortcuts
-    FilterFiles :filter{name contains mv:pattern} sortBy="Name" order="Ascending"
+    FilterFiles :filter{name contains mv:pattern} sortBy="Name" order="Ascending" -> v:available_addons
+
+    GetVariable mv:icons."sc-back"
+    SetName "Back.shortcut"
+
+    AddtoVariable v:available_addons
     ChooseFromList prompt="Choose addon to register" -> mv:addon
+    GetName
+    If Equals "Back"
+        ExitShortcut
+    End
 
     @callExt mv:addon {fn:register}
     SetVariable v:addon
