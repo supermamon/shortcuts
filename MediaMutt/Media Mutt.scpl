@@ -1,4 +1,4 @@
-Comment `REMOVE THIS
+Comment `BEFORE SHARING
 Set ShowInShareSheet to on
 Accepts
 - Safari Web Pages
@@ -6,11 +6,8 @@ Accepts
 - Text
 `
 
-@import "../lib/fallback.scpl"
-
 @icon "dog"
 @color "red"
-@ShowInShareSheet true
 @ShowInWidget true
 
 Comment `
@@ -57,7 +54,7 @@ End
 Dictionary {
     shortcut    : "Media Mutt",
     author      : "@supermamon",
-    version     : "1.3.1",
+    version     : "1.4.0",
     settings    : {
         updater : {
             ID: 3184
@@ -75,13 +72,24 @@ GetVariable mv:meta:settings -> v:opt
 
 # load user options
 Comment `..:: Default Settings ::..
+             Do not change
 `
 Dictionary {
+    sysOrder                    : [
+        "ShowAlerts",
+        "ViewBeforeSave",
+        "DownloadImmediately",
+        "SaveTo",
+        "DownloadFolder",
+        "UpdateInterval",
+    ],
+    sysLastUpdateCheck          : "2019-01-01 00:00",
     <bool> ShowAlerts           : true,
     <bool> DownloadImmediately  : false,
     <bool> ViewBeforeSave       : true,
     SaveTo                      : "Always Ask",
-    DownloadFolder              : "\(v:opt:"storage.dir")/downloads"
+    DownloadFolder              : "\(v:opt:"storage.dir")/downloads",
+    UpdateInterval              : 12,
 } -> v:defaultOpts
 SetVariable v:userOpts
 
@@ -113,7 +121,7 @@ End
 
 Comment `..:: Settings Icons ::..
 `
-@import "./_icons.scpl"
+@import "./_fontawesome.scpl"
 
 Comment `..:: Localized Types ::..
 `
@@ -206,8 +214,13 @@ GetVariable v:function
 @import "./ui-moveFiles.scpl"
 @import "./ui-showDownloads.scpl"
 
+@import "./fn-getUpdates.scpl"
+@import "./fn-checkForUpdate.scpl"
+@import "./fn-updateSetting.scpl"
+
 @import "../lib/vcard_menu.scpl"
-@import "../lib/checkForUpdate-fn.scpl"
+
+
 #
 ShowAlert title=v:self message="Invalid function call - \(v:function)" showCancelButton=false
 ExitShortcut

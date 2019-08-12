@@ -3,10 +3,10 @@ If Equals "manageAddons"
   |{
   |"fn": "chooseFromVcardMenu",
   |"menu_items": [
-  | { "caption":"Register Addon", "subtitle":"Add support for more sites", "value":"registerAddon" },
-  | { "caption":"Remove Addon", "subtitle":"Remove registered addon", "value":"removeAddon" },
-  | { "caption":"Find Addons", "subtitle":"Search for Addons on RoutineHub", "value":"findAddonsRH" },
-  | { "caption":"Back", "subtitle":"Back to main menu", "value":"do-exit"}
+  | { "caption":"Register Addon", "subtitle":"Add support for more sites", "value":"registerAddon", "icon":"\(mv:icons."plus-circle")" },
+  | { "caption":"Remove Addon", "subtitle":"Remove registered addon", "value":"removeAddon", "icon":"\(mv:icons."minus-circle")" },
+  | { "caption":"Find Addons", "subtitle":"Search for Addons on RoutineHub", "value":"findAddonsRH", "icon":"\(mv:icons."search")" },
+  | { "caption":"Back", "subtitle":"Back to main menu", "value":"do-exit", "icon":"\(mv:icons."arrow-alt-circle-left")"}
   | ]
   |}
   GetDictionaryFromInput

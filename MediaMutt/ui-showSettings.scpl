@@ -28,22 +28,28 @@ If Equals "showSettings"
         },
         SaveTo: {
             type        : "list",
-            icon        : "download",
+            icon        : "save",
             list        : ["Always Ask", "Files", "Photo Album"]
             caption     : "Save To",
-            description : v:userOpts:SaveTo,,
+            description : v:userOpts:SaveTo,
+        },
+        UpdateInterval: {
+            type        : "number",
+            icon        : "clock",
+            caption     : "Update Check Frequency",
+            description : "How often (in hours) to check for updates",
         },
     } -> v:opt_map
 
 
-    GetVariable v:userOpts
-    GetDictionaryValue get="All Keys"
+    GetVariable v:userOpts.sysOrder
+    #GetDictionaryValue get="All Keys"
     RepeatwithEach
         SetVariable v:option_name
         GetVariable v:opt_map
         GetDictionaryValue get="Value" key=v:option_name -> mv:mapped_item
         Count Items
-        # if mapping is defined
+        # show only if mapping is defined
         If "Is Greater Than" 0
             GetVariable mv:mapped_item.type
             If Equals "toggle"
@@ -58,7 +64,7 @@ If Equals "showSettings"
                 End -> v:optState
 
                 GetVariable mv:icons
-                GetDictionaryValue get="Value" key=v:optState -> v:optIcon
+                GetDictionaryValue get="Value" key="toggle-\(v:optState)" -> v:optIcon
 
                 Getvariable mv:mapped_item.description -> v:optSubtitle
                 Nothing
@@ -66,6 +72,17 @@ If Equals "showSettings"
             If Equals "text"
                 Getvariable mv:mapped_item.description -> v:optSubtitle
                 Getvariable mv:mapped_item.description -> v:optState
+
+                GetVariable mv:icons
+                GetDictionaryValue get="Value" key=mv:mapped_item.icon -> v:optIcon
+
+                Nothing
+            End
+            If Equals "number"
+                Getvariable mv:mapped_item.description -> v:optSubtitle
+
+                GetVariable v:userOpts
+                GetDictionaryValue get="Value" key=v:option_name -> v:optState
 
                 GetVariable mv:icons
                 GetDictionaryValue get="Value" key=mv:mapped_item.icon -> v:optIcon
@@ -100,7 +117,7 @@ If Equals "showSettings"
     Dictionary {
         "caption" : "Reset Settings",
         "subtitle": "Reset settings to default.",
-        "icon"    : mv:icons:restore,
+        "icon"    : mv:icons:history,
         "value"   : {
             option: "reset",
             type  : "reset"
@@ -112,7 +129,7 @@ If Equals "showSettings"
     Dictionary {
         "caption" : "Done",
         "subtitle": "Go back to the main menu",
-        "icon"    : mv:icons:back_arrow,
+        "icon"    : mv:icons:"arrow-alt-circle-left",
         "value"   : {
             option: "done",
             type  : "exit"
@@ -189,6 +206,22 @@ If Equals "showSettings"
             prompt="\(mv:chosen_item.caption)",
             selectMultiple=false,
         ) -> v:newState
+
+        GetVariable v:userOpts
+        SetDictionaryValue key=mv:value.option value=v:newState
+        SetName v:opt:"storage.file"
+        SaveFile a{
+            service="iCloud Drive"
+            askwheretosave=false
+            destinationpath="\(v:opt:"storage.dir")/"
+            overwriteiffileexists=true
+        }
+
+        Nothing
+
+    End
+    If Equals "number"
+        AskforInput question=mv:chosen_item.caption defaultAnswer=mv:value.state inputType="Number" -> v:newState
 
         GetVariable v:userOpts
         SetDictionaryValue key=mv:value.option value=v:newState

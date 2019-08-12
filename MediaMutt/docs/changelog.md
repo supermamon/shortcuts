@@ -1,5 +1,13 @@
 # Media Mutt Changelog
 
+* Media Mutt 1.4.0
+  - (new) Customizable update frequency
+  - (new) Adaptive menu when update is available
+  - (new) Settings menu items are now in a fixed order
+  - (new) Add Back option to Downloads and Remove adddons
+  - (update) Icons for all menus
+  - (fix) not able to find media file on gfycat
+
 * Media Mutt 1.3.1
   - Fix filename for Youtube downloads
 
