@@ -1,0 +1,15 @@
+GetVariable v:function
+If Equals "updateSetting"
+
+    GetVariable v:userOpts
+    SetDictionaryValue key=v:argv:option value=v:argv:newValue
+    SetName v:opt:"storage.file"
+    SaveFile a{
+        service="iCloud Drive"
+        askwheretosave=false
+        destinationpath="\(v:opt:"storage.dir")/"
+        overwriteiffileexists=true
+    }
+
+    ExitShortcut
+End

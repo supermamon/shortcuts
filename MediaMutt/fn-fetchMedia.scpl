@@ -1,4 +1,5 @@
 Comment "..:: fetchMedia ::.."
+GetVariable v:function
 If Equals "fetchMedia"
   @dbgAlert "Entered fetchMedia\nargs\ntype=\(v:argv:type)\nurl = \(v:argv:url)"
 
@@ -100,6 +101,7 @@ If Equals "fetchMedia"
           overwriteiffileexists=false
       }
       GetName -> mv:media_name
+      GetVariable v:downloaded_media
       @call {fn:showMessage, message:"Saved in /Shortcuts/\(v:userOpts.DownloadFolder)/\(mv:media_name)"}
 
     End

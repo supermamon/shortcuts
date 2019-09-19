@@ -1,3 +1,4 @@
+GetVariable v:function
 If Equals "removeAddon"
   @call {fn:getAddonsFile}
   SetVariable v:addon_file
@@ -8,10 +9,23 @@ If Equals "removeAddon"
     ExitShortcut
   End
 
+  GetMyShortcuts -> mv:myshortcuts
+
   GetVariable v:addon_list
-  Text "Back"
-  AddToVariable v:addon_list
-  ChooseFromList prompt="Choose addon to remove" -> mv:addon
+  RepeatwithEach
+    GetVariable mv:myshortcuts
+    FilterFiles (
+      filter=:filter{Name is v:"Repeat Item"}
+    )
+    AddtoVariable v:addons
+  End
+
+  GetVariable mv:icons."sc-back"
+  SetName "Back.shortcut"
+  AddtoVariable v:addons
+
+  ChooseFromList prompt="Choose addon to remove"
+  GetName -> mv:addon
   If Equals "Back"
     ExitShortcut
   End

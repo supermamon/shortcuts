@@ -2,6 +2,7 @@ Comment `..:: fetchFromDirectLink ::..
 Download media directly from the provided
 link.
 `
+GetVariable v:function
 If Equals "fetchFromDirectLink"
     GetVariable v:argv:url
     GetContentsOfURL

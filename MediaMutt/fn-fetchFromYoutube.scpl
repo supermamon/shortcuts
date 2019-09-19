@@ -7,8 +7,8 @@ Comment
 |notes:
 | accepts both youtube.com and yutu.be
 | links
-
-If input=Equals value="fetchFromYoutube"
+GetVariable v:function
+If Equals "fetchFromYoutube"
     @dbgAlert "Entered fetchFromYoutube\nargs\nurl = \(v:argv:url)"
 
     Comment

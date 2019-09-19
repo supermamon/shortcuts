@@ -1,4 +1,5 @@
 Comment "..:: fetchFromRedditPost ::.."
+GetVariable v:function
 If Equals "fetchFromRedditPost"
 
   @dbgAlert "Entered fetchFromRedditPost\nParams\n\(v:argv)"

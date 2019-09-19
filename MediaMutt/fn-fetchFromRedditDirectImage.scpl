@@ -1,4 +1,5 @@
 Comment "..:: fetchFromRedditDirectImage ::.."
+GetVariable v:function
 If Equals "fetchFromRedditDirectImage"
   @dbgAlert "Entered fetchFromRedditDirectImage"
 

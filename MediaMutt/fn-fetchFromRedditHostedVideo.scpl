@@ -1,4 +1,5 @@
 Comment "..:: fetchFromRedditHostedVideo ::.."
+GetVariable v:function
 If Equals "fetchFromRedditHostedVideo"
 	@dbgAlert "Entered fetchFromRedditHostedVideo"
 

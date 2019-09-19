@@ -1,3 +1,4 @@
+GetVariable v:function
 If Equals "moveFiles"
 
     CreateFolder service="iCloud Drive" path="\(v:argv.to)/"

@@ -1,4 +1,5 @@
 Comment "..:: fetchFromTumblr ::.."
+GetVariable v:function
 If Equals "fetchFromTumblr"
     @dbgAlert "Entered fetchFromTumblr with \(v:argv:url)"
     Dictionary {

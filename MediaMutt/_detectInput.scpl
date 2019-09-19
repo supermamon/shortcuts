@@ -1,3 +1,7 @@
+Comment `
+..:: detectInput ::..
+`
+GetVariable v:function
 If Equals "detectInput"
     @dbgAlert "Entered detectInput\nargs\n\(v:argv:url)"
 

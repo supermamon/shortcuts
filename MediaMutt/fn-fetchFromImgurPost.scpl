@@ -1,4 +1,5 @@
 Comment "..:: fetchFromImgurPost ::.."
+GetVariable v:function
 If Equals "fetchFromImgurPost"
   @dbgAlert "Entered fetchFromImgurPost with parameter \(v:argv.url)"
 

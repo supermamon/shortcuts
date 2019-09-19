@@ -1,3 +1,4 @@
+GetVariable v:function
 If Equals "firstRun"
     @dbgAlert "Entered firstRun"
     @call {fn:getSetupState}

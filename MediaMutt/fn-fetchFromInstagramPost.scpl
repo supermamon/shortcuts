@@ -3,6 +3,7 @@ Download media from Instagram post
 
 Expects: Post URL
 `
+GetVariable v:function
 If Equals "fetchFromInstagramPost"
 
     GetVariable v:argv:url -> v:url

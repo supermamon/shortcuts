@@ -1,3 +1,4 @@
+GetVariable v:function
 If Equals "getIGProfileInfo"
   GetVariable v:argv:url
   SplitText separator="Custom" custom="?"

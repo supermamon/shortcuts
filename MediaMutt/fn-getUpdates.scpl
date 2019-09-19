@@ -1,0 +1,153 @@
+/*
+# Arguments
+
+* `v:argv:id` - routinehub id for shortcut
+* `v:argv:version` - version number of local copy
+* `v:argv:name` - name of shortcut
+* `v:argv:NoUpdAlert` - show|hide
+
+# Required Libraries
+* lib/helpers.scpl
+
+*/
+Comment
+|..:: Function getUpdates ::..
+|Check if there is an updated version
+|of the shortcut on routinehub.co
+|
+|Parameters:
+|  id           : RoutineHub shortcut id
+|  version      : Currently installed version
+|  interval     : Update check frequency in hours
+|  lastupdate   :
+GetVariable v:function
+If Equals "getUpdates"
+    @dbgAlert "Entered getUpdates"
+
+    GetCurrentIPAddress -> mv:ip
+    Count Items
+    If Equals 0
+        # exit if no internet connection
+        Dictionary {
+            hasUpdate : "no"
+        }
+        ExitShortcut
+    End
+
+    GetVariable v:argv:interval
+    Count Items
+    If Equals 0
+        # just proceed.
+    Otherwise
+        # get the last update date
+        GetVariable v:argv:lastupdate
+        Count Items
+        If Equals 0
+            # just proceed
+        Otherwise
+            Date use="Current Date"
+            GetTimeBetweenDates (
+                getTimeFrom="Other",
+                otherDate=v:argv:lastupdate,
+                in="Hours"
+            )
+            If "Is Less Than" v:argv:interval
+                Dictionary {
+                    hasUpdate : "no"
+                }
+                # too early to update
+                ExitShortcut
+            End
+        End
+
+    End
+
+    Dictionary{
+        id      : v:argv:id
+        version : v:argv:version
+    } -> v:local
+    URL "https://routinehub.co/api/v1/shortcuts/\(v:local.id)/versions/latest"
+    GetContentsOfURL
+    @dbgQuicklook
+    @mockDictionary {
+        "result": "success",
+        "id": 0,
+        "Version": "2.0.0",
+        "URL": "https://www.icloud.com/shortcuts/be7aef8c42b4430182d7f5b3a376a9ac",
+        "Notes": "Fixes",
+        "Release": "June 6, 2019"
+    }
+    SetVariable v:remote
+    GetVariable v:remote.result
+    If Equals "success"
+        Dictionary{
+            local: v:local.version,
+            remote: v:remote.Version
+        } -> mv:versions
+
+        Text -> mv:versionsHTML
+        |<html><head></head><body><script>
+        | function comp(a, b) {
+        |  var re0=/(\\.0+)+$/;
+        |  var segA=a.replace(re0,'').split('.');
+        |  var segB=b.replace(re0,'').split('.');
+        |  var l=Math.min(segA.length, segB.length);
+        |  for (var i=0;i<l;i++) {
+        |   var d=parseInt(segA[i],10)-parseInt(segB[i],10);
+        |   if (d) return d;
+        |  }
+        |  return segA.length-segB.length;
+        | };
+        | var v=\(mv:versions)
+        | var m=comp(v.local, v.remote)
+        | m=m==0?'same':(m>0?'A rollback':'An update');
+        | document.write(m);
+        | </script></body></html>
+        @dbgQuickLook
+
+        URL "data:text/html,\(mv:versionsHTML)"
+        GetContentsOfWebpage
+        ReplaceText a{
+            findtext="(^\\s+)|(\\s+$)"
+            replacewith=""
+            casesensitive=false
+            regularexpression=true
+        } -> mv:comp
+        @dbgQuickLook
+
+        If Equals "same"
+            Dictionary {
+                hasUpdate : "no"
+            }
+        Otherwise
+            Dictionary {
+                hasUpdate: "yes",
+                localVersion: v:local.version,
+                latestVersion: v:remote.Version,
+                updateMessage: "\(mv:comp) is available",
+                releaseNotes: v:remote.Notes,
+                downloadID: v:remote.id,
+                downloadURL: "https://routinehub.co/download/\(v:remote.id)",
+            }
+        End -> mv:update
+        # update lastcheck
+        Date use="Current Date"
+        FormatDate (
+            dateFormat="Custom",
+            formatString="YYYY-MM-DD HH:mm"
+        ) -> mv:newLastUpdate
+        @call {fn:updateSetting, option:"sysLastUpdateCheck", newValue:mv:newLastUpdate}
+
+        GetVariable mv:update
+
+        ExitShortcut
+    Otherwise
+        Dictionary {
+            hasUpdate : "no"
+        }
+    End
+    @dbgAlert "Exited getUpdates"
+    ExitShortcut
+End
+Comment
+|..:: End Function checkForUpdate ::..

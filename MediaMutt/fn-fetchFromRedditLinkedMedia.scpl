@@ -1,4 +1,5 @@
 Comment "..:: fetchFromRedditLinkedMedia ::.."
+GetVariable v:function
 If Equals "fetchFromRedditLinkedMedia"
 	@dbgAlert "Entered fetchFromRedditLinkedMedia"
 

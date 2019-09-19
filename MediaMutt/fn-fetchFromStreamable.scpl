@@ -1,4 +1,5 @@
 Comment "..:: fetchFromRedfetchFromStreamableditPost ::.."
+GetVariable v:function
 If Equals "fetchFromStreamable"
   GetVariable v:argv:url
   GetContentsofURL
