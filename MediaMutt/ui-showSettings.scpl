@@ -70,7 +70,10 @@ If Equals "showSettings"
                 Getvariable mv:mapped_item.description -> v:optSubtitle
                 Nothing
             End
+<<<<<<< HEAD
             GetVariable mv:mapped_item.type
+=======
+>>>>>>> c6982331eb9cb7d1e6cf6dec234adb0281cb2784
             If Equals "text"
                 Getvariable mv:mapped_item.description -> v:optSubtitle
                 Getvariable mv:mapped_item.description -> v:optState
@@ -80,7 +83,10 @@ If Equals "showSettings"
 
                 Nothing
             End
+<<<<<<< HEAD
             GetVariable mv:mapped_item.type
+=======
+>>>>>>> c6982331eb9cb7d1e6cf6dec234adb0281cb2784
             If Equals "number"
                 Getvariable mv:mapped_item.description -> v:optSubtitle
 
@@ -92,7 +98,10 @@ If Equals "showSettings"
 
                 Nothing
             End
+<<<<<<< HEAD
             GetVariable mv:mapped_item.type
+=======
+>>>>>>> c6982331eb9cb7d1e6cf6dec234adb0281cb2784
             If Equals "list"
                 Getvariable mv:mapped_item.description -> v:optSubtitle
                 Getvariable mv:mapped_item.description -> v:optState
@@ -175,7 +184,10 @@ If Equals "showSettings"
         Nothing
 
     End
+<<<<<<< HEAD
     GetVariable mv:value.type
+=======
+>>>>>>> c6982331eb9cb7d1e6cf6dec234adb0281cb2784
     If Equals "text"
         AskforInput question=mv:chosen_item.caption defaultAnswer=mv:value.state inputType="Text" -> v:newState
 
@@ -203,7 +215,10 @@ If Equals "showSettings"
         Nothing
 
     End
+<<<<<<< HEAD
     GetVariable mv:value.type
+=======
+>>>>>>> c6982331eb9cb7d1e6cf6dec234adb0281cb2784
     If Equals "list"
 
         GetVariable mv:value.list
@@ -226,7 +241,10 @@ If Equals "showSettings"
         Nothing
 
     End
+<<<<<<< HEAD
     GetVariable mv:value.type
+=======
+>>>>>>> c6982331eb9cb7d1e6cf6dec234adb0281cb2784
     If Equals "number"
         AskforInput question=mv:chosen_item.caption defaultAnswer=mv:value.state inputType="Number" -> v:newState
 
@@ -243,7 +261,10 @@ If Equals "showSettings"
         Nothing
 
     End
+<<<<<<< HEAD
     GetVariable mv:value.type
+=======
+>>>>>>> c6982331eb9cb7d1e6cf6dec234adb0281cb2784
     If Equals "reset"
         ChooseFromMenu prompt="This will revert all your settings to default and delete all of the downloaded media." items=["Reset & Remove Media","Stay as is"]
         Case #Proceed
@@ -266,7 +287,10 @@ If Equals "showSettings"
         End
         Nothing
     End
+<<<<<<< HEAD
     GetVariable mv:value.type
+=======
+>>>>>>> c6982331eb9cb7d1e6cf6dec234adb0281cb2784
     If Equals "exit"
         Nothing
     Otherwise

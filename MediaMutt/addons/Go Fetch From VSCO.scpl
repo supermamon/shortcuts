@@ -1,0 +1,180 @@
+# load fallback actions
+@import "../../lib/fallback.scpl"
+
+@icon "dog"
+@color "red"
+@ShowInShareSheet true
+
+SetVariable v:argv
+
+@set debug true
+@set mock false
+@import "../../lib/helpers.scpl"
+
+Comment "..:: Metadata ::.."
+Dictionary {
+    shortcut    : "Go Fetch From VSCO",
+    author      : "@supermamon",
+    version     : "1.0.0",
+    settings    : {
+        updater : {
+            ID: 0
+        },
+    },
+    changes     : {
+        "v1.0.0": "Initial release",
+    }
+} -> mv:meta
+GetVariable mv:meta:shortcut -> v:self
+GetVariable mv:meta:settings -> v:opt
+
+Dictionary items={"key":"val"}
+GetType -> v:lDictionary
+
+#  function detection
+GetVariable v:argv
+GetType
+If Equals v:lDictionary
+    GetVariable v:argv:fn -> v:function
+Otherwise
+    @call {fn:main}
+    ExitShortcut
+End
+
+# function list
+GetVariable v:function
+If Equals "main"
+    Comment
+    |This is where it lands when this
+    |addon is ran by itself. You can
+    |add your own initialization or
+    |setup here.
+    @call {
+        fn          : checkForUpdate,
+        name        : v:self,
+        id          : v:opt:"updater.ID",
+        version     : mv:meta:version,
+        noUpdAlert  : "show",
+    }
+    Text -> mv:msg
+    |This shortcut is an addon to Media Mutt.
+    |Download Media Mutt and register
+    |this addon.
+    ShowAlert title=v:self message=mv:msg
+    ExitShortcut
+End
+If Equals "register"
+    Comment
+    |Media Mutt calls this part to
+    |load addon information. At this
+    |time, only the name of the addon
+    |is required to be returned.
+    GetVariable v:self
+    ExitShortcut
+End
+If Equals "canProcessURL"
+    Comment
+    |A url will be passed here and will
+    |be accessible via the `argv` dictionary
+    |In here, return 1 is the addon can
+    |download from the passed url, else
+    |return 0
+    @dbgAlert "Entered canProcessURL with \(v:argv:url)"
+
+    List
+    |^https:\\/\\/vs\\.co\\/[a-zA-Z0-9]+
+    |^https:\\/\\/vsco\\.app\\.link\\/[a-zA-Z0-9]+
+    |^https:\\/\\/vsco.co\\/[a-z0-9\\-]\\/media\\/[a-f0-9]+
+    RepeatwithEach
+        @dbgAlert "matching \(v:"Repeat Item")"
+        GetVariable v:argv:url
+        MatchText pattern=v:"Repeat Item" caseSensitive=false -> v:matches
+        Count Items
+        If "Is Greater Than" 0
+            Number 1
+        Otherwise
+            Number 0
+        End -> mv:this_match
+        @dbgAlert "matched? \(mv:this_match)"
+    End
+    CalculateStatistics "Sum"
+    If "Is Greater Than" 0
+        Number 1
+    Otherwise
+        Number 0
+    End -> mv:supported
+
+    ExitShortcut
+End
+If Equals "fetchMedia"
+    @dbgAlert "Entered fetchMedia with \(v:argv:url)"
+    @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Inspecting url"}
+
+    Comment
+    |Put your downloading logic here.
+    |Similar to `canProcessURL, the
+    |this function will also receive the
+    |url from Media Mutt
+    GetVariable v:argv:url -> v:url
+    MatchText pattern="^https:\\/\\/vsco.co\\/[a-z0-9\\-]\\/media\\/[a-f0-9]+" caseSensitive=false
+    Count Items
+    If Equals 0
+        # shortened link. get full link
+        @dbgAlert "Processing shortened url"
+        GetVariable v:url
+        GetContentsOfUrl 
+        SetName "src.txt"
+        @dbgQuickLook
+        MatchText pattern="validate(?:Protocol)*\\(\"(http[^\"]+)" caseSensitive=false -> v:matches
+        Count Items
+        If Equals 1
+            GetVariable v:matches
+        Otherwise
+            GetVariable v:matches
+            GetItemFromList "First Item"
+        End -> mv:full_url_match
+        @dbgQuickLook
+        GetGroupfromMatchedText get="Group At Index" groupIndex=1
+        @dbgQuickLook
+        SetVariable v:url
+        @dbgAlert "Expanded URL \(v:url)"
+    End
+    GetVariable v:url
+    GetContentsOfUrl 
+    SetName "src.txt"
+    SplitText separator="Custom" custom="PRELOADED_STATE__ = "
+    @dbgQuickLook
+    GetItemFromList "Last Item"
+    SplitText separator="Custom" custom="</script>"
+    @dbgQuickLook
+    GetItemFromList "First Item"
+    @dbgQuickLook
+    GetDictionaryfromInput
+    @dbgQuickLook 
+    @dbgViewWithJayson
+    GetDictionaryValue get="Value" key="medias.byId" -> mv:medias
+    GetDictionaryValue get="All Keys"
+    RepeatwithEach 
+        GetVariable mv:medias
+        GetDictionaryValue get="Value" key=v:"Repeat Item"
+        GetDictionaryValue get="Value" key="media.responsiveUrl" -> mv:rurl
+        URL "https://\(mv:rurl)"
+        AddToVariable v:media_urls
+    end
+    @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Inspecting url"}
+    GetVariable v:media_urls
+    RepeatwithEach 
+      GetContentsOfUrl
+      AddToVariable v:downloaded_media
+    end
+
+    @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Download complete."}
+
+    GetVariable v:downloaded_media
+    ExitShortcut
+End
+@import "../../lib/checkForUpdate-fn.scpl"
+#
+ShowAlert title=v:self message="(addon) Invalid function call - \(v:function)" showCancelButton=false
+Nothing
+ExitShortcut
