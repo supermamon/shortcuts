@@ -89,6 +89,7 @@ If Equals "fetchMedia"
         Nothing
       End
     End
+    GetVariable v:userOpts.SaveTo
     If Equals "Files"
     //GetVariable v:userOpts.AlwaysSaveToFiles
     //If Equals 1
@@ -105,6 +106,7 @@ If Equals "fetchMedia"
       @call {fn:showMessage, message:"Saved in /Shortcuts/\(v:userOpts.DownloadFolder)/\(mv:media_name)"}
 
     End
+    GetVariable v:userOpts.SaveTo
     If Equals "Photo Album"
         GetVariable v:downloaded_media
         SaveToPhotoAlbum album="All Photos"
