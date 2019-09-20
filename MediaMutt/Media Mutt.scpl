@@ -176,14 +176,15 @@ End
 
 @dbgAlert "Calling: \(v:function)\n-----------\nWith Parameters:\n\(v:argv)"
 
-GetVariable v:function
+
+@import "./fn-fetchFromYoutube.scpl"
 @import "./_main.scpl"
 @import "./_detectInput.scpl"
 @import "./_firstRun.scpl"
 
 @import "./fn-fetchMedia.scpl"
 @import "./fn-fetchFromDirectLink.scpl"
-@import "./fn-fetchFromYoutube.scpl"
+
 @import "./fn-fetchFromInstagramPost.scpl"
 //@import "./fn-getIGProfileInfo.scpl"
 @import "./fn-fetchFromGfycat.scpl"

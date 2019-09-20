@@ -16,21 +16,31 @@ If Equals "fetchFromYoutube"
 
     GetVariable v:argv:url
     Expandurl
-    GetComponentOfUrl Query
+    GetComponentOfUrl "Query"
     GetDictionaryFromInput -> v:query
-    GetVariable v:query:v
-    SetVariable "video_id"
+    GetDictionaryValue get="Value" key="v"
+    #GetVariable v:query:v
+    SetVariable v:video_id
+    @dbgAlert "Video ID = \(v:video_id)"
     Url "http://youtube.com/get_video_info?video_id=\(v:video_id)&el=detailpage&ps=default&eurl=&gl=US&hl=en"
-    GetContentsOfUrl advanced=false headers=false
-    SetVariable "video_info"
+    GetContentsOfUrl advanced=false headers=false -> mv:raw_video_info
+    @dbgAlert "RAW Video Info = \(mv:raw_video_info)"
+    GetDictionaryfromInput
+    SetVariable v:video_info
+    @dbgAlert "DICT Video Info = \(v:video_info)"
+    
+    #@dbgViewWithJayson
 
-    @dbgViewWithJayson
-
-    GetVariable v:video_info.player_response
+    GetDictionaryValue get="Value" key="player_response" -> mv:raw_player_response
+    @dbgAlert "raw player_respose \(mv:raw_player_response)"
+    #GetVariable v:video_info.player_response
     GetDictionaryfromInput -> mv:player_response
+    @dbgAlert "dict player_respose \(mv:player_response)"
     GetDictionaryValue get="Value" key="videoDetails.title"
     ReplaceText findtext="+" replacewith=" "
-    SetVariable "yt_video_title"
+    SetVariable v:yt_video_title
+
+    @dbgAlert "Video Title = \(v:yt_video_title)"
 
     Dictionary {
         "_order":"38,37,85,96,22,84,95,59,78,83,94,18,82,93,92,132,91,151",
@@ -53,41 +63,47 @@ If Equals "fetchFromYoutube"
         "91":"144p",
        "151":"144p"
     }
-    SetVariable "itags"
 
-    @dbgViewWithJayson
+    SetVariable v:itags
+
+    #@dbgViewWithJayson
 
     GetVariable v:video_info
-    GetDictionaryValue key="url_encoded_fmt_stream_map"
-    SplitText separator="Custom" custom=","
+    GetDictionaryValue get="Value" key="url_encoded_fmt_stream_map" -> mv:stream_map
+    @dbgAlert "stream_map = \(mv:stream_map)"
+    SplitText separator="Custom" custom="," -> mv:split_stream
+    @dbgAlert "split_stream \(mv:split_stream)"
     RepeatWithEach
+        @dbgAlert "testing repeat item \(v:"Repeat Item")"
         GetDictionaryFromInput
-        SetVariable "stream"
+        SetVariable v:stream
 
-        @dbgViewWithJayson
+        @dbgAlert "stream \(v:stream)"
+        #@dbgViewWithJayson
 
-        GetVariable v:itags:"_order"
-        SplitText separator=Custom custom=","
-
-        # If itag is in the list
-        If input="Equals" value=v:stream:itag
-            @dbgAlert "matched \(v:stream:itag)"
+        GetVariable v:itags
+        GetDictionaryValue get="Value" key="_order"
+        SplitText separator=Custom custom="," -> mv:itag
+        If Contains v:stream.itag
+            @dbgAlert "matched \(mv:itag) == \(v:stream.itag)"
             GetVariable v:itags
-            GetDictionaryValue get=Value key=v:stream:itag -> v:quality_name
+            GetDictionaryValue get=Value key=v:stream.itag -> v:quality_name
 
-            GetVariable v:stream:url
-            SetName "\(v:quality_name) (itag_\(v:stream:itag))"
+            GetVariable v:stream
+            GetDictionaryValue get="Value" key="url"
+            #SetName "\(v:quality_name) (itag_\(v:stream:itag))"
             AddToVariable v:stream_options
-
+        otherwise
+            @dbgAlert "not matched \(mv:itag) == \(v:stream:itag)"
         End
     End
 
     # get highest quality
     GetVariable v:stream_options
     @dbgQuicklook
-    GetItemFromList get="First Item"
-
-    GetContentsOfUrl
+    GetItemFromList get="First Item" -> mv:media_url
+    @dbgAlert "media url = \(mv:media_url)"
+    GetContentsOfUrl -> mv:downloaded_media
     SetName v:yt_video_title
 
     @dbgAlert "Exited fetchFromYoutube"
