@@ -12,26 +12,33 @@ If Equals "fetchFromRedditHostedVideo"
 	GetVariable v:argv:"post.secure_media"
 	Count Items
 	If Equals 0
-		GetVariable v:argv:"post.crosspost_parent_list" -> mv:cross_posts
+		GetVariable v:argv:post
+		GetDictionaryValue get="Value" key="crosspost_parent_list" -> v:cross_posts
 		Count Items
 		If Equals 0
 			Nothing
 			@dbgAlert "Exited fetchFromRedditHostedVideo, returning Nothing"
 		End
 		@dbgAlert "It's a cross-post"
-		GetVariable mv:cross_posts
+		GetVariable v:cross_posts
 		GetItemFromList "First Item" -> v:ref_post
+		@dbgAlert "Reference Post - \(v:ref_post)"
 	End
 
-	GetVariable v:ref_post
 	@dbgAlert "getting video url"
+	GetVariable v:ref_post
 	GetDictionaryValue key="secure_media.reddit_video" -> v:video
+
+	@dbgAlert "video node = \(v:video)"
+
 	@dbgAlert "video url = \(v:video.fallback_url)"
 	GetVariable v:video.fallback_url
+
 	GetContentsOfURL
-	SetName "video_file.mp4" -> v:video_file
+	SetName "video_file.gif" -> v:video_file
 	SetVariable v:return
 
+	# if not gif, download audio
 	GetVariable v:video.is_gif
 	If Equals 1
 	Otherwise
