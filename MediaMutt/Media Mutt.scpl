@@ -61,7 +61,7 @@ Dictionary {
             file    : "media_mutt.json",
             addons  : "addons.json"
         },
-        <bool> TestMode : true,
+        <bool> TestMode : false,
     }
 } -> mv:meta
 GetVariable mv:meta:shortcut -> v:self

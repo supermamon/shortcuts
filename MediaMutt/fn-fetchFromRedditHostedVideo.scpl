@@ -9,7 +9,8 @@ If Equals "fetchFromRedditHostedVideo"
 
 	GetVariable v:argv:post -> v:ref_post
 
-	GetVariable v:argv:"post.secure_media"
+	//GetVariable v:argv:"post.secure_media"
+	GetDictionaryValue get="Value" key="secure_media"
 	Count Items
 	If Equals 0
 		GetVariable v:argv:post
@@ -28,12 +29,12 @@ If Equals "fetchFromRedditHostedVideo"
 	@dbgAlert "getting video url"
 	GetVariable v:ref_post
 	GetDictionaryValue key="secure_media.reddit_video" -> v:video
+	GetDictionaryValue get="Value" key="fallback_url" -> v:fallback_url
 
 	@dbgAlert "video node = \(v:video)"
 
-	@dbgAlert "video url = \(v:video.fallback_url)"
-	GetVariable v:video.fallback_url
-
+	@dbgAlert "video url = \(v:fallback_url)"
+	GetVariable v:fallback_url
 	GetContentsOfURL
 	SetName "video_file.gif" -> v:video_file
 	SetVariable v:return
@@ -42,15 +43,20 @@ If Equals "fetchFromRedditHostedVideo"
 	GetVariable v:video.is_gif
 	If Equals 1
 	Otherwise
-		URL "\(v:ref_post.url)/audio" -> mv:audio_url
-		@dbgAlert "audio url = \(mv:audio_url)"
+		GetVariable v:video_file
+		SetName "video_file.mp4"
+		SetVariable v:video_file
+
+		URL "\(v:ref_post.url)/audio" -> v:audio_url
+		@dbgAlert "audio url = \(v:audio_url)"
 		GetHeadersOfURL
 		GetDictionaryValue get="Value" key="Content-Type"
 		If Equals "video/mp4"
 			@dbgAlert "Downloading audio"
-			GetVariable mv:audio_url
+			GetVariable v:audio_url
 			GetContentsOfURL
 			SetName "audio_file.mp3" -> v:audio_file
+
 
 			#@addAudioToVideo v:video_file v:audio_file
 			URL "http://www.fileconverto.com/add-music-to-video/"
@@ -67,13 +73,19 @@ If Equals "fetchFromRedditHostedVideo"
 			}
 
 			SetName "src.txt"
+			SplitText separator="Custom" custom="Completed:"
+			GetItemfromList "Last Item"
+			SplitText separator="Custom" custom=">Download"
+			GetItemFromList "First Item"			
 			@dbgQuickLook
-			MatchText pattern="[^\"]+(fileconverto\\.com\\/download\\.php)([^\"]+)?" caseSensitive=false -> mv:media_url
-			@dbgAlert mv:media_url
+			MatchText pattern="(?m)(?:href=\")(http[^\\\"]+)" caseSensitive=false -> v:matches
+			GetGroupfromMatchedText get="Group At Index" groupIndex=1 -> v:url
+			URL "\(v:url)" -> v:media_url
+			@dbgAlert v:media_url
 			GetContentsOfURL -> v:return
 		End
 	End
-	GetVariable v:return
 	@dbgAlert "Exited fetchFromRedditHostedVideo"
+	GetVariable v:return
 	ExitShortcut
 End
