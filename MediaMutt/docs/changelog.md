@@ -1,5 +1,11 @@
 # Media Mutt Changelog
 
+* Media Mutt 2.0.0
+  - (fix) iOS 13 issues
+  - (new) Use reddit post title as name
+  - (fix) Download is not saved
+  - (fix) Last update date not saved correctly
+
 * Media Mutt 1.4.0
   - (new) Customizable update frequency
   - (new) Adaptive menu when update is available

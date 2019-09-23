@@ -18,7 +18,7 @@ Streamable
 
 ## Addons
 
-Dailymotion • Facebook Post (Photo/Video)
+Dailymotion • Facebook Post (Photo/Video) * Instagram Profile * Vero
 
 ## Creating Addons
 
@@ -34,7 +34,7 @@ If you are interested in authoring addons, check out the [authoring guide](makin
 
 ## Credits
 
-* I wouldn't have been able to build this complex shortcut without [ScPL](https://scpl.dev). Well I could but it would've taken me months. This took less than 2 weeks.
-* Icons from [https://fa2png.io]
+* I wouldn't have been able to build this complex shortcut without [ScPL](https://scpl.dev).
+* Icons from: https://fontawesome.com/ courtesy of @atnbueno over at Discord
 * YouTube Downloading method - https://tyrrrz.me/Blog/Reverse-engineering-YouTube
 * Audio/Video merging: http://www.fileconverto.com/add-music-to-video/
