@@ -1,0 +1,6 @@
+ChoosefromMenu prompt="Text" items=[Yes, No]
+Case WFMenuItemTitle=:raw"Yes"
+    Comment "Yes"
+Case WFMenuItemTitle=:raw"No"
+    Comment "No"
+End -> mv:"Choose from Menu"

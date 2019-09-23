@@ -1,0 +1,205 @@
+@Icon body
+@Color darkorange
+
+@ShowInShareSheet [string]
+@ImportQuestion q:description question=Description defaultValue="Easily switch between connectivity, power, brightness & volume profiles. \n"
+
+SetVariable v:argv
+Comment q:description
+
+Dictionary {
+	Shortcut: "Profile Switcher",
+	Author: @supermamon,
+	"RoutineHub ID": "289",
+	Version: "2.2",
+	Changes: {
+		"v1.1.0": "Add volume setting",
+		"v2.0.0": [
+			"Option to use external profile list",
+			"Allow switching profile via arguments"
+		],
+		"v2.0.1": "Default to use internal list for new users",
+		"v2.1.0": [
+			"ref: feedback from u/JoeReally",
+			"Use True/False for toggles",
+			"Remove the use of Number for setting toggles"
+		],
+		"v2.2": "UpdateKit support"
+	},
+	<boolean> CheckUpdates: false
+} -> v:meta
+Dictionary {
+	<boolean> UseExternalList: true,
+	ExternalList: MyProfiles,
+	<boolean> ConfirmExecShortcuts: true
+} -> v:Settings
+
+Comment
+|Settings
+|
+|* `UseExternalList`:
+|    False if your list of profiles are inside this shortcut.
+|    True if you want to use an external shortcut.
+|
+|	 External is recommended so that updating this shortcut will not affect your pre-configured profiles.
+|
+|* `ExternalList`: The name of the shortcut containing the list of profiles If you choose to use and external list
+|
+|* `ConfirmExecShortcuts`: If you added the names of shortcuts that you want to run during the switch, this option defines if you want a confirmation before running the other shortcuts.
+
+Comment
+|Profiles Configuration:
+|Configure your profiles in Dictionary just below.
+|If you wish to use existing profiles from previous versions, modify the Setting dictionary to use an external list instead. You can ignore the sample list below.
+
+Comment
+|Most of the toggles can be set to True or False.
+|True is on and False is off. 0|1 used in the previous versions also works.
+|For volume and brightness, values are in decimal from 0.0 (lowest) to 1.0 (highest).
+
+Comment
+|To execute your existing shortcuts together with the profile change, each profile contains a `Shortcuts` node which is an array of text. Add the names of your existing shortcuts there.
+
+Dictionary {
+	Morning: {
+		<boolean> DND		: false,
+		<boolean> LowPower	: false,
+		<boolean> Bluetooth	: true,
+		<boolean> Cellular	: true,
+		<boolean> Wifi		: true,
+		<boolean> Airplane	: false,
+		Volume				: "0.8",
+		Brightness			: "0.8",
+		Shortcuts			: ["Motivation Playlist"]
+	},
+	Sleeping: {
+		<boolean> DND		: true,
+		<boolean> LowPower	: true,
+		<boolean> Bluetooth	: false,
+		<boolean> Cellular	: false,
+		<boolean> Wifi		: true,
+		<boolean> Airplane	: true,
+		Brightness			: "0.05",
+		Volume				: "0.3",
+		Shortcuts			: ["Say Goodnight"]
+	},
+	"Power Saver"			: {
+		<boolean> DND		: true,
+		<boolean> LowPower	: true,
+		<boolean> Bluetooth	: false,
+		<boolean> Cellular	: true,
+		<boolean> Wifi		: true,
+		<boolean> Airplane	: false,
+		Volume				: "0.1",
+		Brightness			: "0",
+		Shortcuts			: []
+	},
+	"Binge Watch": {
+		<boolean> DND		: true,
+		<boolean> LowPower	: false,
+		<boolean> Bluetooth	: false,
+		<boolean> Cellular	: true,
+		<boolean> Wifi		: true,
+		<boolean> Airplane	: false,
+		Volume				: "1.0",
+		Brightness			: "1.0",
+		Shortcuts			: ["Open Netflix"]
+	}
+} -> v:DefaultProfiles
+
+Comment
+|Now that everything is setup above, this is where the fun starts.
+|
+|First stop, load the Profile List.
+
+GetVariable v:Settings.UseExternalList
+If Equals 1
+	RunShortcut shortcut=v:Settings.ExternalList showWhileRunning=false -> mv:"Run Shortcut"
+Otherwise
+	GetVariable v:DefaultProfiles
+End -> mv:If
+SetVariable v:Profiles
+
+Comment
+|If a parameter is passed to this shortcut,
+|assume that it's being called from another
+|shortcut to automatically switch profile.
+|If not, show the profiles list
+
+GetDictionaryValue get="All Keys" key=v:argv
+SetVariable v:ProfileNames
+
+GetVariable v:argv
+Count Items
+If "Is Greater Than" 0
+	GetVariable v:Profiles
+	GetDictionaryValue key=v:argv
+	Count Items
+	If "Is Greater Than" 0
+		GetVariable v:argv
+		SetVariable v:ChosenItem
+	End -> mv:If1
+End
+
+GetVariable v:ChosenItem
+Count Items
+If Equals 0
+	GetVariable v:ProfileNames
+	ChoosefromList -> v:ChosenItem
+End
+
+Comment "Now, get the details of the chosen profile and apply the settings."
+GetVariable v:Profiles
+GetDictionaryValue key=v:ChosenItem
+GetDictionaryfromInput
+SetVariable v:Profile
+
+SetDoNotDisturb doNotDisturb=v:Profile.DND
+SetLowPowerMode v:Profile.LowPower
+SetBrightness v:Profile.Brightness
+SetVolume v:Profile.Volume
+SetAirplaneMode v:Profile.Airplane
+Wait 2
+SetCellularData v:Profile.Cellular
+SetWiFi v:Profile.Wifi
+SetBluetooth v:Profile.Bluetooth
+
+Comment "if the profile contains a list of shortcuts to execute, loop through them and execute each one."
+GetVariable v:Profile.Shortcuts
+RepeatwithEach
+	GetMyShortcuts
+	If Contains v:"Repeat Item"
+		GetVariable v:"Repeat Item"
+		SetVariable v:otherShortcut
+		Comment "Only run shortcut if it exists"
+
+		GetVariable v:Settings.ConfirmExecShortcuts
+		If Equals 1
+			Comment "Use choose from Menu instead of Alert to confirm. This is because the Cancel on the Alert action stops the whole shortcut."
+			ChoosefromMenu prompt="Run \(v:otherShortcut)? " items=[Yes, No]
+			Case :raw"Yes"
+				RunShortcut shortcut=v:otherShortcut showWhileRunning=false
+			Case :raw"No"
+			End -> mv:"Choose from Menu"
+		Otherwise
+			RunShortcut shortcut=v:otherShortcut showWhileRunning=false
+		End
+	Otherwise
+		Comment "Shortcut does not exists"
+	End
+End
+
+Comment "UpdateKit section"
+Nothing
+GetVariable v:meta.CheckUpdates
+If input=Equals value=1
+	GetMyShortcuts
+	If Contains "UpdateKit"
+		Dictionary {
+			"Shortcut Name"		: v:meta.Shortcut,
+			"Current Version"	: v:meta.Version,
+			"RoutineHub ID"		: v:meta."RoutineHub ID"
+		}
+		RunShortcut shortcut=UpdateKit showWhileRunning=false
+	End
+End
