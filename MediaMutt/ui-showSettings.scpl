@@ -271,7 +271,12 @@ If Equals "showSettings"
     If Equals "reset"
         ChooseFromMenu prompt="This will revert all your settings to default and delete all of the downloaded media." items=["Reset & Remove Media","Stay as is"]
         Case #Proceed
-            CreateFolder service="iCloud Drive" path="\(v:userOpts.DownloadFolder)/"
+            GetFile (
+                service="iCloud Drive",
+                showDocumentPicker=false,
+                filePath="\(v:userOpts.DownloadFolder)/",
+                errorIfNotFound=false
+            )
             DeleteFiles false
 
             GetVariable v:defaultOpts
@@ -282,7 +287,6 @@ If Equals "showSettings"
                 destinationpath="\(v:opt:"storage.dir")/"
                 overwriteiffileexists=true
             }
-            CreateFolder service="iCloud Drive" path="\(v:userOpts.DownloadFolder)/"
             @call {fn:showMessage, message:"All settings have been reset."}
 
         Case #Stay
