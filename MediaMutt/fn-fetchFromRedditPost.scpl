@@ -56,9 +56,18 @@ If Equals "fetchFromRedditPost"
   # Call the handler
   Dictionary {fn:v:handler}
   SetDictionaryValue key="post" value=v:post
-  RunShortcut shortcut=v:self showWhileRunning=false
-  SetName name="\(v:post.title)"
+  RunShortcut shortcut=v:self showWhileRunning=false -> v:downloaded_media
+  Count Items
+  If "Is Greater Than" 1
+    GetVariable v:downloaded_media
+    RepeatwithEach
+      SetName name="\(v:post.title) \(v:"Repeat Index")"
+    End
+    SetVariable v:downloaded_media
+  Otherwise
+  End
 
   @dbgAlert "Exited fetchFromRedditPost"
+  GetVariable v:downloaded_media
   ExitShortcut
 End
