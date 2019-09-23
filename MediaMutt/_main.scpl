@@ -1,6 +1,7 @@
 Comment `
 ..:: main function ::..
 `
+GetVariable v:function
 If Equals "main"
   @dbgAlert "Entered main"
 
@@ -144,16 +145,18 @@ If Equals "main"
   @dbgAlert " menu_dict \n \(mv:menu)"
 
   RunShortcut shortcut=v:self false -> mv:chosen_item
-
-  GetVariable mv:chosen_item:value
+  GetDictionaryValue get="Value" key="value"
+  SetVariable v:menu_action
   If Equals "do-fetch"
     @call {fn:fetchMedia, type:v:input_type, url:v:argv:url}
     #@call{fn:main}
     ExitShortcut
   End
+  GetVariable v:menu_action
   If Equals "do-exit"
     ExitShortcut
   End
+  GetVariable v:menu_action
   If Equals "do-cfu"
     @call {
         fn          : checkForUpdate,
@@ -165,21 +168,25 @@ If Equals "main"
     }
     Nothing
   End
+  GetVariable v:menu_action
   If Equals "show-settings"
     @call{fn:showSettings}
     @call{fn:main}
     Nothing
   End
+  GetVariable v:menu_action
   If Equals "manage-addons"
     @call{fn:manageAddons }
     @call{fn:main}
     Nothing
   End
+  GetVariable v:menu_action
   If Equals "show-downloads"
     @call{fn:showDownloads }
     @call{fn:main}
     Nothing
   End
+  GetVariable v:menu_action
   If Equals "do-about"
     Text -> mv:about
     |\(v:self) \(mv:meta:version)

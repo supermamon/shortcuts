@@ -1,14 +1,11 @@
-Comment `BEFORE SHARING
-Set ShowInShareSheet to on
-Accepts
-- Safari Web Pages
-- URLs
-- Text
-`
-
 @icon "dog"
 @color "red"
 @ShowInWidget true
+@ShowInShareSheet [
+	safariwebpage,
+	string,
+	url
+]
 
 Comment `
                     ..:: Media Mutt ::..
@@ -54,7 +51,7 @@ End
 Dictionary {
     shortcut    : "Media Mutt",
     author      : "@supermamon",
-    version     : "1.4.0",
+    version     : "2.0.0",
     settings    : {
         updater : {
             ID: 3184
@@ -179,14 +176,15 @@ End
 
 @dbgAlert "Calling: \(v:function)\n-----------\nWith Parameters:\n\(v:argv)"
 
-GetVariable v:function
+
+@import "./fn-fetchFromYoutube.scpl"
 @import "./_main.scpl"
 @import "./_detectInput.scpl"
 @import "./_firstRun.scpl"
 
 @import "./fn-fetchMedia.scpl"
 @import "./fn-fetchFromDirectLink.scpl"
-@import "./fn-fetchFromYoutube.scpl"
+
 @import "./fn-fetchFromInstagramPost.scpl"
 //@import "./fn-getIGProfileInfo.scpl"
 @import "./fn-fetchFromGfycat.scpl"

@@ -20,6 +20,7 @@ Comment
 |  version      : Currently installed version
 |  interval     : Update check frequency in hours
 |  lastupdate   :
+GetVariable v:function
 If Equals "getUpdates"
     @dbgAlert "Entered getUpdates"
 

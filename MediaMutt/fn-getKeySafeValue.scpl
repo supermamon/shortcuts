@@ -1,3 +1,4 @@
+GetVariable v:function
 If Equals "getKeySafeValue"
     GetVariable v:argv:text
     ReplaceText findText="." replaceWith="-" caseSensitive=false

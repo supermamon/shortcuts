@@ -1,3 +1,4 @@
+GetVariable v:function
 If Equals "getAddonsFile"
     @dbgAlert "Entered getAddonsFile"
     GetFile a{

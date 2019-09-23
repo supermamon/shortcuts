@@ -1,3 +1,4 @@
+GetVariable v:function
 If Equals "registerAddon"
     AskforInput question="Find addons containing" defaultAnswer="Go Fetch" inputType="Text" -> mv:pattern
     GetMyShortcuts

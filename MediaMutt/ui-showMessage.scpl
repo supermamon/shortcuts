@@ -1,3 +1,4 @@
+GetVariable v:function
 If Equals "showMessage"
 	Text "\(v:argv:message)"
 	SetVariable v:message

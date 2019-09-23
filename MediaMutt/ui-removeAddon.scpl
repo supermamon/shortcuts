@@ -1,3 +1,4 @@
+GetVariable v:function
 If Equals "removeAddon"
   @call {fn:getAddonsFile}
   SetVariable v:addon_file

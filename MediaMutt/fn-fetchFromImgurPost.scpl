@@ -1,12 +1,23 @@
 Comment "..:: fetchFromImgurPost ::.."
+GetVariable v:function
 If Equals "fetchFromImgurPost"
   @dbgAlert "Entered fetchFromImgurPost with parameter \(v:argv.url)"
 
   GetVariable v:argv.url
   GetContentsofURL
   SetName name="src.txt"
-  MatchText pattern="(?m)(.*div\\sid=\")(\\w+)(\"\\sclass=\"post-image-container.*)"
-  GetGroupfromMatchedText groupIndex=2
+  SplitText separator="Custom" custom="widgetFactory.mergeConfig('gallery"
+  GetItemfromList get="Last Item"
+  SplitText separator="Custom" custom="widgetFactory.mergeConfig('groups"
+  GetItemfromList get="First Item"
+  MatchText pattern="(?:image\\s+:\\s)(.*)(?:,[\\s\\n])+"
+  GetGroupfromMatchedText groupIndex=1 -> mv:json
+  Text "\(mv:json)"
+  GetDictionaryfromInput
+  GetDictionaryValue get="Value" key="album_images.images"
+  RepeatwithEach
+    GetDictionaryValue get="Value" key="hash"  
+  End
   SetVariable v:imgur_media_ids
   RepeatwithEach
     SetVariable v:imgur_media_id

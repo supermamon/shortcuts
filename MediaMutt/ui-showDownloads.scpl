@@ -1,3 +1,4 @@
+GetVariable v:function
 If Equals "showDownloads"
     GetVariable mv:icons."arrow-alt-circle-left"
     Base64Encode (
@@ -20,17 +21,11 @@ If Equals "showDownloads"
         GetVariable v:back
         AddToVariable v:list
     Otherwise
-        If "Is Greater Than" 6
-            GetVariable v:back
-            AddToVariable v:list
-            GetVariable mv:files
-            AddToVariable v:list
-        Otherwise
-            GetVariable mv:files
-            AddToVariable v:list
-            GetVariable v:back
-            AddToVariable v:list
-        End
+        GetVariable v:back
+        AddToVariable v:list
+
+        GetVariable mv:files
+        AddToVariable v:list
     End
 
     GetVariable v:list

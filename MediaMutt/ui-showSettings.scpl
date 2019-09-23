@@ -1,3 +1,4 @@
+GetVariable v:function
 If Equals "showSettings"
     #ShowAlert title="Settings here" message=""
 
@@ -42,16 +43,19 @@ If Equals "showSettings"
     } -> v:opt_map
 
 
-    GetVariable v:userOpts.sysOrder
+    GetVariable v:userOpts
+    GetDictionaryValue get="Value" key="sysOrder"
     #GetDictionaryValue get="All Keys"
     RepeatwithEach
         SetVariable v:option_name
+
         GetVariable v:opt_map
         GetDictionaryValue get="Value" key=v:option_name -> mv:mapped_item
         Count Items
         # show only if mapping is defined
         If "Is Greater Than" 0
-            GetVariable mv:mapped_item.type
+            GetVariable mv:mapped_item
+            GetDictionaryValue get="Value" key="type" -> v:mapped_item_type
             If Equals "toggle"
 
                 # get current value, translate to on/off
@@ -69,6 +73,7 @@ If Equals "showSettings"
                 Getvariable mv:mapped_item.description -> v:optSubtitle
                 Nothing
             End
+            GetVariable v:mapped_item_type
             If Equals "text"
                 Getvariable mv:mapped_item.description -> v:optSubtitle
                 Getvariable mv:mapped_item.description -> v:optState
@@ -78,6 +83,7 @@ If Equals "showSettings"
 
                 Nothing
             End
+            GetVariable v:mapped_item_type
             If Equals "number"
                 Getvariable mv:mapped_item.description -> v:optSubtitle
 
@@ -87,8 +93,11 @@ If Equals "showSettings"
                 GetVariable mv:icons
                 GetDictionaryValue get="Value" key=mv:mapped_item.icon -> v:optIcon
 
+                @dbgAlert "subtitle:\(v:optSubtitle)\nState:\(v:optState)"
+
                 Nothing
             End
+            GetVariable v:mapped_item_type
             If Equals "list"
                 Getvariable mv:mapped_item.description -> v:optSubtitle
                 Getvariable mv:mapped_item.description -> v:optState
@@ -124,6 +133,7 @@ If Equals "showSettings"
         },
     }
     AddToVariable v:options_list
+    @dbgQuickLook
 
 
     Dictionary {
@@ -149,18 +159,23 @@ If Equals "showSettings"
     } -> mv:switcher
 
 
-    GetVariable mv:chosen_item.value
-    GetDictionaryfromInput -> mv:value
-    @dbgViewWithJayson
+    GetVariable mv:chosen_item
+    GetDictionaryValue get="Value" key="value"
+    GetDictionaryfromInput -> v:value
+    #@dbgViewWithJayson
 
-    GetVariable mv:value.type
+    GetVariable v:value
+    GetDictionaryValue get="Value" key="type" -> v:value_type
+
+    @dbgAlert "value_type = \(v:value_type)"
+
     If Equals "toggle"
 
         GetVariable mv:switcher
-        GetDictionaryValue get="Value" key=mv:value.state -> v:newState
+        GetDictionaryValue get="Value" key=v:value.state -> v:newState
 
         GetVariable v:userOpts
-        SetDictionaryValue key=mv:value.option value=v:newState
+        SetDictionaryValue key=v:value.option value=v:newState
         SetName v:opt:"storage.file"
         SaveFile a{
             service="iCloud Drive"
@@ -171,11 +186,12 @@ If Equals "showSettings"
         Nothing
 
     End
+    GetVariable v:value_type
     If Equals "text"
-        AskforInput question=mv:chosen_item.caption defaultAnswer=mv:value.state inputType="Text" -> v:newState
+        AskforInput question=mv:chosen_item.caption defaultAnswer=v:value.state inputType="Text" -> v:newState
 
         GetVariable v:userOpts
-        SetDictionaryValue key=mv:value.option value=v:newState
+        SetDictionaryValue key=v:value.option value=v:newState
         SetName v:opt:"storage.file"
         SaveFile a{
             service="iCloud Drive"
@@ -184,7 +200,7 @@ If Equals "showSettings"
             overwriteiffileexists=true
         }
 
-        GetVariable mv:value.option
+        GetVariable v:value.option
         If Equals "DownloadFolder"
             GetVariable v:newState
             If Equals v:userOpts.DownloadFolder
@@ -198,9 +214,10 @@ If Equals "showSettings"
         Nothing
 
     End
+    GetVariable v:value_type
     If Equals "list"
 
-        GetVariable mv:value.list
+        GetVariable v:value.list
         SplitText separator="New Lines"
         ChoosefromList (
             prompt="\(mv:chosen_item.caption)",
@@ -208,7 +225,7 @@ If Equals "showSettings"
         ) -> v:newState
 
         GetVariable v:userOpts
-        SetDictionaryValue key=mv:value.option value=v:newState
+        SetDictionaryValue key=v:value.option value=v:newState
         SetName v:opt:"storage.file"
         SaveFile a{
             service="iCloud Drive"
@@ -220,11 +237,25 @@ If Equals "showSettings"
         Nothing
 
     End
+    GetVariable v:value_type
     If Equals "number"
-        AskforInput question=mv:chosen_item.caption defaultAnswer=mv:value.state inputType="Number" -> v:newState
+        GetVariable v:value
+        GetDictionaryValue get="Value" key="state" -> v:number
+
+        GetVariable v:value
+        GetDictionaryValue get="Value" key="caption" -> v:caption
+
+        @dbgAlert "number = \(v:number)"
+
+        #AskforInput question=mv:chosen_item.caption defaultAnswer=v:number inputType="Number" -> v:newState
+        AskforInput (
+            question=v:caption,
+            defaultAnswer="\(v:number)",
+            inputType="Number",
+        ) -> v:newState
 
         GetVariable v:userOpts
-        SetDictionaryValue key=mv:value.option value=v:newState
+        SetDictionaryValue key=v:value.option value=v:newState
         SetName v:opt:"storage.file"
         SaveFile a{
             service="iCloud Drive"
@@ -236,6 +267,7 @@ If Equals "showSettings"
         Nothing
 
     End
+    GetVariable v:value_type
     If Equals "reset"
         ChooseFromMenu prompt="This will revert all your settings to default and delete all of the downloaded media." items=["Reset & Remove Media","Stay as is"]
         Case #Proceed
@@ -258,6 +290,7 @@ If Equals "showSettings"
         End
         Nothing
     End
+    GetVariable v:value_type
     If Equals "exit"
         Nothing
     Otherwise

@@ -3,6 +3,7 @@ Comment
 |Shows a menu from a list of dictionaries
 |casted into a list of contacts
 |
+GetVariable v:function
 If Equals "chooseFromVcardMenu"
     @dbgAlert "Entered chooseFromVcardMenu"
     Text "" -> v:menu_txt
@@ -18,7 +19,7 @@ If Equals "chooseFromVcardMenu"
 
         GetVariable v:menuitem
         GetDictionaryValue get="All Keys"
-        If input=Equals value="icon"
+        If Contains "icon"
             Text
             |\(v:menu_txt)
             |BEGIN:VCARD

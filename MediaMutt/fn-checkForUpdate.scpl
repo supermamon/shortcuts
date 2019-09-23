@@ -21,6 +21,7 @@ Comment
 |  interval     : Update check frequency in hours
 |  lastupdate   : Frequency of check
 
+GetVariable v:function
 If Equals "checkForUpdate"
     @dbgAlert "Entered checkForUpdate"
 
