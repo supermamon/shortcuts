@@ -134,7 +134,7 @@ If Equals "getUpdates"
         Date use="Current Date"
         FormatDate (
             dateFormat="Custom",
-            formatString="YYYY-MM-DD HH:mm"
+            formatString="yyyy-MM-dd HH:mm"
         ) -> mv:newLastUpdate
         @call {fn:updateSetting, option:"sysLastUpdateCheck", newValue:mv:newLastUpdate}
 

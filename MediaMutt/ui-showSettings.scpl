@@ -43,22 +43,32 @@ If Equals "showSettings"
     } -> v:opt_map
 
 
+    # Get user options
     GetVariable v:userOpts
     GetDictionaryValue get="Value" key="sysOrder"
-    #GetDictionaryValue get="All Keys"
     RepeatwithEach
+
+        # this will hold the option name
         SetVariable v:option_name
 
+        # get mapping information for that option
         GetVariable v:opt_map
         GetDictionaryValue get="Value" key=v:option_name -> mv:mapped_item
         Count Items
         # show only if mapping is defined
         If "Is Greater Than" 0
-            GetVariable mv:mapped_item
-            GetDictionaryValue get="Value" key="type" -> v:mapped_item_type
+
+
+            Text "\(mv:mapped_item.caption)" -> v:caption
+            Text "\(mv:mapped_item.description)" -> v:optSubtitle
+            GetVariable mv:icons
+            GetDictionaryValue get="Value" key=mv:mapped_item.icon -> v:optIcon
+
+
+            Text "\(mv:mapped_item.type)" -> v:mapped_item_type
+            # on/off type
             If Equals "toggle"
 
-                # get current value, translate to on/off
                 GetVariable v:userOpts
                 GetDictionaryValue get="Value" key=v:option_name
                 If Equals 1
@@ -70,52 +80,38 @@ If Equals "showSettings"
                 GetVariable mv:icons
                 GetDictionaryValue get="Value" key="toggle-\(v:optState)" -> v:optIcon
 
-                Getvariable mv:mapped_item.description -> v:optSubtitle
                 Nothing
             End
+
+            // text type
             GetVariable v:mapped_item_type
             If Equals "text"
-                Getvariable mv:mapped_item.description -> v:optSubtitle
                 Getvariable mv:mapped_item.description -> v:optState
-
-                GetVariable mv:icons
-                GetDictionaryValue get="Value" key=mv:mapped_item.icon -> v:optIcon
-
                 Nothing
             End
+
             GetVariable v:mapped_item_type
             If Equals "number"
-                Getvariable mv:mapped_item.description -> v:optSubtitle
 
                 GetVariable v:userOpts
                 GetDictionaryValue get="Value" key=v:option_name -> v:optState
-
-                GetVariable mv:icons
-                GetDictionaryValue get="Value" key=mv:mapped_item.icon -> v:optIcon
-
-                @dbgAlert "subtitle:\(v:optSubtitle)\nState:\(v:optState)"
 
                 Nothing
             End
             GetVariable v:mapped_item_type
             If Equals "list"
-                Getvariable mv:mapped_item.description -> v:optSubtitle
                 Getvariable mv:mapped_item.description -> v:optState
-
-                GetVariable mv:icons
-                GetDictionaryValue get="Value" key=mv:mapped_item.icon -> v:optIcon
-
                 Nothing
             End
 
             Dictionary {
-                "caption" : mv:mapped_item.caption,
+                "caption" : v:caption,
                 "subtitle": v:optSubtitle,
                 "icon"    : v:optIcon,
                 "value"   : {
                     option: v:option_name,
                     state : v:optState,
-                    type  : mv:mapped_item.type,
+                    type  : v:mapped_item_type,
                     list  : mv:mapped_item.list
                 }
             }
@@ -123,6 +119,7 @@ If Equals "showSettings"
         End
     End
 
+    # add a reset settings item
     Dictionary {
         "caption" : "Reset Settings",
         "subtitle": "Reset settings to default.",
@@ -133,9 +130,8 @@ If Equals "showSettings"
         },
     }
     AddToVariable v:options_list
-    @dbgQuickLook
 
-
+    # add an exit item
     Dictionary {
         "caption" : "Done",
         "subtitle": "Go back to the main menu",
@@ -146,12 +142,15 @@ If Equals "showSettings"
         },
     }
     AddToVariable v:options_list
+
+    # display the menu
     Dictionary {
         fn:"chooseFromVcardMenu",
         caption: "Tap the option to change."
     }
     SetDictionaryValue key="menu_items" value=v:options_list
     RunShortcut shortcut=v:self false -> mv:chosen_item
+
 
     Dictionary {
         <bool> on   :false,
@@ -161,10 +160,10 @@ If Equals "showSettings"
 
     GetVariable mv:chosen_item
     GetDictionaryValue get="Value" key="value"
-    GetDictionaryfromInput -> v:value
+    GetDictionaryfromInput -> v:chosen_value
     #@dbgViewWithJayson
 
-    GetVariable v:value
+    GetVariable v:chosen_value
     GetDictionaryValue get="Value" key="type" -> v:value_type
 
     @dbgAlert "value_type = \(v:value_type)"
@@ -172,10 +171,10 @@ If Equals "showSettings"
     If Equals "toggle"
 
         GetVariable mv:switcher
-        GetDictionaryValue get="Value" key=v:value.state -> v:newState
+        GetDictionaryValue get="Value" key=v:chosen_value.state -> v:newState
 
         GetVariable v:userOpts
-        SetDictionaryValue key=v:value.option value=v:newState
+        SetDictionaryValue key=v:chosen_value.option value=v:newState
         SetName v:opt:"storage.file"
         SaveFile a{
             service="iCloud Drive"
@@ -188,10 +187,10 @@ If Equals "showSettings"
     End
     GetVariable v:value_type
     If Equals "text"
-        AskforInput question=mv:chosen_item.caption defaultAnswer=v:value.state inputType="Text" -> v:newState
+        AskforInput question=mv:chosen_item.caption defaultAnswer=v:chosen_value.state inputType="Text" -> v:newState
 
         GetVariable v:userOpts
-        SetDictionaryValue key=v:value.option value=v:newState
+        SetDictionaryValue key=v:chosen_value.option value=v:newState
         SetName v:opt:"storage.file"
         SaveFile a{
             service="iCloud Drive"
@@ -200,7 +199,7 @@ If Equals "showSettings"
             overwriteiffileexists=true
         }
 
-        GetVariable v:value.option
+        GetVariable v:chosen_value.option
         If Equals "DownloadFolder"
             GetVariable v:newState
             If Equals v:userOpts.DownloadFolder
@@ -217,7 +216,7 @@ If Equals "showSettings"
     GetVariable v:value_type
     If Equals "list"
 
-        GetVariable v:value.list
+        GetVariable v:chosen_value.list
         SplitText separator="New Lines"
         ChoosefromList (
             prompt="\(mv:chosen_item.caption)",
@@ -225,7 +224,7 @@ If Equals "showSettings"
         ) -> v:newState
 
         GetVariable v:userOpts
-        SetDictionaryValue key=v:value.option value=v:newState
+        SetDictionaryValue key=v:chosen_value.option value=v:newState
         SetName v:opt:"storage.file"
         SaveFile a{
             service="iCloud Drive"
@@ -239,23 +238,23 @@ If Equals "showSettings"
     End
     GetVariable v:value_type
     If Equals "number"
-        GetVariable v:value
-        GetDictionaryValue get="Value" key="state" -> v:number
 
-        GetVariable v:value
-        GetDictionaryValue get="Value" key="caption" -> v:caption
+        # Get curret value
+        GetVariable v:chosen_value
+        GetDictionaryValue get="Value" key="state" -> v:number
 
         @dbgAlert "number = \(v:number)"
 
-        #AskforInput question=mv:chosen_item.caption defaultAnswer=v:number inputType="Number" -> v:newState
+        # ask for a new value
         AskforInput (
-            question=v:caption,
+            question=mv:chosen_item.caption,
             defaultAnswer="\(v:number)",
             inputType="Number",
         ) -> v:newState
 
+        # Save the new value
         GetVariable v:userOpts
-        SetDictionaryValue key=v:value.option value=v:newState
+        SetDictionaryValue key=v:chosen_value.option value=v:newState
         SetName v:opt:"storage.file"
         SaveFile a{
             service="iCloud Drive"
@@ -271,7 +270,12 @@ If Equals "showSettings"
     If Equals "reset"
         ChooseFromMenu prompt="This will revert all your settings to default and delete all of the downloaded media." items=["Reset & Remove Media","Stay as is"]
         Case #Proceed
-            CreateFolder service="iCloud Drive" path="\(v:userOpts.DownloadFolder)/"
+            GetFile (
+                service="iCloud Drive",
+                showDocumentPicker=false,
+                filePath="\(v:userOpts.DownloadFolder)/",
+                errorIfNotFound=false
+            )
             DeleteFiles false
 
             GetVariable v:defaultOpts
@@ -282,7 +286,6 @@ If Equals "showSettings"
                 destinationpath="\(v:opt:"storage.dir")/"
                 overwriteiffileexists=true
             }
-            CreateFolder service="iCloud Drive" path="\(v:userOpts.DownloadFolder)/"
             @call {fn:showMessage, message:"All settings have been reset."}
 
         Case #Stay
