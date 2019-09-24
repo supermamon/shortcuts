@@ -7,7 +7,7 @@
 
 @icon "server"
 @color "lightblue"
-@ShowInWidget true
+@ShowInWidget false
 
 @ShowInShareSheet [
     safariwebpage,
@@ -15,10 +15,18 @@
     url
 ]
 
-@set shortcutName "AirtableKit"
-@set shortcutAuthor "@supermamon"
-@set shortcutVersion "2.0.0"
-@set routineHubID 2828
+@set ALERT_IF_NO_UPDATES true
+
+Comment `
+                   ..:: AirtableKit ::..
+
+                   by @supermamon
+`
+Comment `AirtableKit is a utility shortcut
+that provides you an easy to use
+interface between your shortcut
+and Airtable.
+`
 
 # Shortcut Starts Here
 SetVariable v:argv
@@ -26,12 +34,12 @@ SetVariable v:argv
 Comment
 |..:: Metadata ::..
 Dictionary {
-    shortcut    : @:shortcutName,
-    author      : @:shortcutAuthor,
-    version     : @:shortcutVersion,
+    shortcut    : "AirtableKit",
+    author      : "@supermamon",
+    version     : "2.0.0",
     settings    : {
         updater : {
-            RoutineHubID : @:routineHubID
+            RoutineHubID : 2828
         },
         storage : {
             dir : "AirtableKit",

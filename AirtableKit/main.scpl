@@ -39,7 +39,6 @@ If Equals "main"
     |   }
     |   ]
     |}
-    CopytoClipboard localOnly=false
     GetDictionaryFromInput
     @dbgQuickLook
     RunShortcut v:self false
@@ -85,7 +84,12 @@ If Equals "main"
     End
     GetVariable v:menu_value
     If Equals "purge-cache"
-        CreateFolder service="iCloud Drive" path=v:opt:"storage.dir"
+        GetFile (
+            service="iCloud Drive",
+            showDocumentPicker=false,
+            filePath=v:opt:"storage.dir",
+            errorIfNotFound=false
+        )
         DeleteFiles confirmBeforeDeleting=true
         Nothing
     End
