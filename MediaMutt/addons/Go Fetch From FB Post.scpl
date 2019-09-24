@@ -4,7 +4,11 @@
 
 @icon "crowd"
 @color "blue"
-@ShowInShareSheet true
+@ShowInShareSheet [
+	safariwebpage,
+	string,
+	url
+]
 
 SetVariable v:argv
 
@@ -63,10 +67,12 @@ If Equals "main"
     ShowAlert title=v:self message=mv:msg
     ExitShortcut
 End
+GetVariable v:function
 If Equals "register"
     GetVariable v:self
     ExitShortcut
 End
+GetVariable v:function
 If Equals "canProcessURL"
     @dbgAlert "Entered [Go Fetch From FB Post] canProcessURL with \(v:argv:url)"
 
@@ -95,6 +101,7 @@ If Equals "canProcessURL"
     @dbgAlert "Exiting [Go Fetch From FB Post] canProcessURL returning \(mv:supported)"
     ExitShortcut
 End
+GetVariable v:function
 If Equals "fetchMedia"
     @dbgAlert "Entered fetchMedia with \(v:argv:url)"
     @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Inspecting url"}

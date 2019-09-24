@@ -3,7 +3,11 @@
 
 @icon "film"
 @color "lightblue"
-@ShowInShareSheet true
+@ShowInShareSheet [
+	safariwebpage,
+	string,
+	url
+]
 
 SetVariable v:argv
 
@@ -60,10 +64,12 @@ If Equals "main"
     }
     ExitShortcut
 End
+GetVariable v:function
 If Equals "register"
     GetVariable v:self
     ExitShortcut
 End
+GetVariable v:function
 If Equals "canProcessURL"
     @dbgAlert "Entered canProcessURL with \(v:argv:url)"
     GetVariable v:argv:url
@@ -76,6 +82,7 @@ If Equals "canProcessURL"
     End
     ExitShortcut
 End
+GetVariable v:function
 If Equals "fetchMedia"
     @dbgAlert "Entered fetchMedia with \(v:argv:url)"
 

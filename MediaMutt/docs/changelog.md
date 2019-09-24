@@ -1,5 +1,9 @@
 # Media Mutt Changelog
 
+* Media Mutt 2.0.1
+  - (fix) failure to identify Gfycat media url
+  - (fix) failure to download HD Reddit hosted media
+
 * Media Mutt 2.0.0
   - (fix) iOS 13 issues
   - (new) Use reddit post title as name

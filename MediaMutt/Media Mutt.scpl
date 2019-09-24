@@ -52,7 +52,7 @@ ContinueShortcutinApp
 Dictionary {
     shortcut    : "Media Mutt",
     author      : "@supermamon",
-    version     : "2.0.0",
+    version     : "2.0.1",
     settings    : {
         updater : {
             ID: 3184
@@ -222,18 +222,26 @@ End
 
 @import "./ui-showSettings.scpl"
 
+
 #
 ShowAlert title=v:self message="Invalid function call - \(v:function)" showCancelButton=false
 Nothing
 ExitShortcut
 
-Comment`Due to changes in iOS 13, you may
-encounter prompts that will say like:
+Comment`
+        P L E A S E   R E A D
+
+Due to changes in iOS 13, you may
+get addition prompts for access to
+iCloud Drive and notifications.
+
+You may also encounter prompts that
+will say like:
 
         "Media Mutt" would like to
          access "sub.domain.com"
     This shortcut will be able to send
-          data to this website
+          data to this website.
 
 Rest assured that this shortcut does
 not send data to the indicated website
