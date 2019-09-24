@@ -1,3 +1,4 @@
+GetVariable v:function
 If Equals "normalizeFields"
 
   GetVariable v:argv:fields -> v:fields
@@ -60,5 +61,5 @@ If Equals "normalizeFields"
   end
 
   GetVariable v:fields_new
-  ExitShortcut 
+  ExitShortcut
 End

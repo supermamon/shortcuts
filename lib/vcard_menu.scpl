@@ -1,5 +1,5 @@
 Comment
-|..:: Function showRichMenu ::..
+|..:: Function chooseFromVcardMenu ::..
 |Shows a menu from a list of dictionaries
 |casted into a list of contacts
 |

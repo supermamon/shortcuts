@@ -9,4 +9,4 @@ If Equals 0
     Nothing
 Otherwise
     GetVariable v:pref_file:api_key
-End    
+End

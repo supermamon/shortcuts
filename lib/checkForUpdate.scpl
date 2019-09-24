@@ -14,6 +14,7 @@
 * ALERT_IF_NO_UPDATES - (true|false) display an alert if there are no updates
 
 */
+GetVariable v:function
 Comment
 |..:: Function checkForUpdate ::..
 |Check if there is an updated version

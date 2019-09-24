@@ -1,3 +1,4 @@
+GetVariable v:function
 If Equals "listRecords"
     @dbgAlert "Entered getRecords"
 
@@ -25,7 +26,7 @@ If Equals "listRecords"
             "Authorization":"Bearer \(v:api_key)"
         },
     } -> v:records
-    
+
     # GetDictionaryValue get="Value" key="records"
     @dbgAlert "Exited listRecords"
     ExitShortcut

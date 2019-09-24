@@ -1,3 +1,4 @@
+GetVariable v:function
 If Equals "deleteRecord"
 
     @dbgAlert "Entered deleteRecord"
@@ -22,7 +23,7 @@ If Equals "deleteRecord"
         },
     } -> v:record
 
-    @dbgAlert "Exited deleteRecord with \(v:record)"    
+    @dbgAlert "Exited deleteRecord with \(v:record)"
 
     ExitShortcut
 End

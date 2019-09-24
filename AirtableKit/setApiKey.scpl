@@ -1,3 +1,4 @@
+GetVariable v:function
 If Equals "setApiKey"
     GetFile a{
         service="iCloud Drive"

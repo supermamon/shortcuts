@@ -1,6 +1,7 @@
+GetVariable v:function
 If Equals "updateRecord"
     @dbgAlert "Entered updateRecord"
-    
+
     @call {fn:getBaseId, base:v:argv:base}
     SetVariable v:base
     If Equals v:base
@@ -17,7 +18,7 @@ If Equals "updateRecord"
 
     Dictionary {}
     SetDictionaryValue key="fields" value=v:fields{as:Dictionary} -> v:data
-    
+
     URL "https://api.airtable.com/v0/\(v:base)/\(v:table)/\(v:record_id)"
     GetContentsOfUrl a{
         advanced=true,
@@ -31,7 +32,7 @@ If Equals "updateRecord"
         file=v:data
     } -> v:record
 
-    @dbgAlert "Exited createRecord with \(v:record)"    
+    @dbgAlert "Exited createRecord with \(v:record)"
 
     ExitShortcut
 End

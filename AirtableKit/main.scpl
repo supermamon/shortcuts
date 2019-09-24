@@ -1,3 +1,4 @@
+GetVariable v:function
 If Equals "main"
     @dbgAlert "Entered main"
 
@@ -38,10 +39,11 @@ If Equals "main"
     |   }
     |   ]
     |}
+    CopytoClipboard localOnly=false
     GetDictionaryFromInput
-    #@dbgQuickLook
+    @dbgQuickLook
     RunShortcut v:self false
-    GetDictionaryValue get="Value" key="value"
+    GetDictionaryValue get="Value" key="value" -> v:menu_value
     If Equals "list-bases"
         @call {fn:getBases}
         ChooseFromList prompt="Tap to copy the base id to clipboard"
@@ -49,6 +51,7 @@ If Equals "main"
         ShowAlert v:self message="Base ID copied to clipboard." showCancelButton=false
         Nothing
     End
+    GetVariable v:menu_value
     If Equals "show-api-key"
         ChooseFromMenu prompt="Tap key to copy" items=[v:api_key, "Change"]
         Case
@@ -80,11 +83,13 @@ If Equals "main"
         Nothing
 
     End
+    GetVariable v:menu_value
     If Equals "purge-cache"
         CreateFolder service="iCloud Drive" path=v:opt:"storage.dir"
         DeleteFiles confirmBeforeDeleting=true
         Nothing
     End
+    GetVariable v:menu_value
     If Equals "download-demo"
         URL "https://routinehub.co/api/v1/shortcuts/2640/versions/latest"
         GetContentsOfUrl
@@ -100,13 +105,15 @@ If Equals "main"
         OpenURLs
         ExitShortcut
     End
+    GetVariable v:menu_value
     If Equals "check-for-update"
         @call {
-            fn:checkForUpdate, 
-            name:v:self, 
-            id:v:opt:"updater.RoutineHubID", 
-            version:mv:meta:version
+            fn          : checkForUpdate,
+            name        : v:self,
+            id          : v:opt:"updater.RoutineHubID",
+            version     : mv:meta:version
         }
+
         ExitShortcut
     End
 /*
@@ -121,6 +128,7 @@ If Equals "main"
         Quicklook
     End
 */
+    GetVariable v:menu_value
     If Equals "exit"
         ExitShortcut
     End

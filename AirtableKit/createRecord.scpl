@@ -1,3 +1,4 @@
+GetVariable v:function
 If Equals "createRecord"
     @dbgAlert "Entered createRecord"
     @call {fn:getBaseId, base:v:argv:base}

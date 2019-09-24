@@ -1,3 +1,4 @@
+GetVariable v:function
 If Equals "getApiKey"
     @dbgAlert "Entered getApiKey"
     @import "partial_getApiKey.scpl"

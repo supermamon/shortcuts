@@ -1,21 +1,24 @@
-    # load fallback actions
-    @import "../lib/fallback.scpl"
+# load fallback actions
+# @import "../lib/fallback.scpl"
 
-    @set debug false
-    @set mock false
-    @import "../lib/helpers.scpl"
+@set debug false
+@set mock false
+@import "../lib/helpers.scpl"
 
-    @set ALERT_IF_NO_UPDATES true
+@icon "server"
+@color "lightblue"
+@ShowInWidget true
 
-    @icon "server"
-    @color "lightblue"
-    @ShowInWidget true
-    @ShowInSharesheet true
+@ShowInShareSheet [
+    safariwebpage,
+    string,
+    url
+]
 
-    @set shortcutName "AirtableKit"
-    @set shortcutAuthor "@supermamon"
-    @set shortcutVersion "1.3.0"
-    @set routineHubID 2828
+@set shortcutName "AirtableKit"
+@set shortcutAuthor "@supermamon"
+@set shortcutVersion "2.0.0"
+@set routineHubID 2828
 
 # Shortcut Starts Here
 SetVariable v:argv
@@ -43,7 +46,8 @@ Dictionary {
             "Fix javascript to use an alternate method of getting base info",
             "Backup `base.json` when refreshing.",
         ],
-        "v1.3.0" : "Add a feature to add a linked record/s when creating/updating records"
+        "v1.3.0" : "Add a feature to add a linked record/s when creating/updating records",
+        "v2.0.0" : "IOS 13 fixes"
     }
 } -> mv:meta
 GetVariable mv:meta:settings -> v:opt
@@ -62,7 +66,7 @@ GetType
 If input=Equals value=v:lDictionary
     GetVariable v:argv
     GetDictionaryValue get="All Keys"
-    If Equals "fn"
+    If Contains "fn"
     Otherwise
         ShowAlert title=v:self message="Invalid function call."
         ExitShortcut
@@ -168,6 +172,7 @@ Otherwise
                     overwriteiffileexists=true
                 }
                 ShowAlert title="Bases saved!" message="" showCancelButton=false
+                ExitShortcut
             End
         End
 
