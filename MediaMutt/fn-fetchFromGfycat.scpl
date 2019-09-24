@@ -25,10 +25,9 @@ If Equals "fetchFromGfycat"
   SplitText separator=Custom custom="player-bottom"
   GetItemfromList "First Item"
   @dbgQuicklook
-  MatchText pattern="(?mi)([^\"]\")(https:\\/\\/\\w+\\.gfycat\\.com\\/\(v:gfycat_media_id)\\.mp4)(\")" caseSensitive=false
+  MatchText pattern="https[^-\"]+\\.mp4" caseSensitive=false -> mv:match
   @dbgQuicklook
-  GetGroupfromMatchedText groupIndex=2
-  SetVariable v:gfycat_media_url
+  Text "\(mv:match)" -> v:gfycat_media_url
 
   @dbgAlert "gfycat_media_url = \(v:gfycat_media_url)"
 
