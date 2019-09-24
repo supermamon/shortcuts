@@ -33,19 +33,26 @@ If Equals "fetchFromRedditHostedVideo"
 
 	@dbgAlert "video node = \(v:video)"
 
+	CreateFolder service="iCloud Drive" path="temp/"
+
 	@dbgAlert "video url = \(v:fallback_url)"
 	GetVariable v:fallback_url
-	GetContentsOfURL
-	SetName "video_file.gif" -> v:video_file
-	SetVariable v:return
+	GetContentsOfUrl
+	SetName "video_file.mp4" 
+	SaveFile (
+		service="iCloud Drive",
+		askWheretoSave=false,
+		destinationPath="temp/",
+		overwriteIfFileExists=true
+	) -> v:video_file
 
 	# if not gif, download audio
 	GetVariable v:video.is_gif
 	If Equals 1
-	Otherwise
 		GetVariable v:video_file
-		SetName "video_file.mp4"
-		SetVariable v:video_file
+		SetName "video_file.gif"
+		SetVariable v:return
+	Otherwise
 
 		URL "\(v:ref_post.url)/audio" -> v:audio_url
 		@dbgAlert "audio url = \(v:audio_url)"
@@ -83,6 +90,9 @@ If Equals "fetchFromRedditHostedVideo"
 			URL "\(v:url)" -> v:media_url
 			@dbgAlert v:media_url
 			GetContentsOfURL -> v:return
+
+			GetVariable v:video_file
+			DeleteFiles false
 		End
 	End
 	@dbgAlert "Exited fetchFromRedditHostedVideo"
