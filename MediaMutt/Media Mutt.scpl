@@ -52,7 +52,7 @@ ContinueShortcutinApp
 Dictionary {
     shortcut    : "Media Mutt",
     author      : "@supermamon",
-    version     : "2.0.1",
+    version     : "2.0.2",
     settings    : {
         updater : {
             ID: 3184
@@ -248,11 +248,13 @@ not send data to the indicated website
 but rather downloads the media you
 wanted.
 
-However, www.fileconverto.com
-is used to combine video and audio
-for links that have video and audio
-separated, so the actual video and
-audio is being sent to that site.
+However, Media Mutt does use
+www.fileconverto.com to combine
+video and audio for links that have
+video and audio separated, so the
+actual video and audio is being sent
+to that site.
+
 As of this version, only videos
 hosted on reddit servers fit this
 criteria.
