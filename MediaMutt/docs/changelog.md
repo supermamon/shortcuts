@@ -1,5 +1,9 @@
 # Media Mutt Changelog
 
+* Media Mutt 2.0.2
+  - (fix) Reddit title sometimes is not being used as filename
+  - (fix) Reddit hosted video still fails for some videos
+
 * Media Mutt 2.0.1
   - (fix) failure to identify Gfycat media url
   - (fix) failure to download HD Reddit hosted media
