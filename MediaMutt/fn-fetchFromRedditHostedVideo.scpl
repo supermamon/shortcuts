@@ -37,14 +37,24 @@ If Equals "fetchFromRedditHostedVideo"
 
 	@dbgAlert "video url = \(v:fallback_url)"
 	GetVariable v:fallback_url
-	GetContentsOfUrl
-	SetName "video_file.mp4" 
+	@dbgAlert "fallback url = \(v:fallback_url)"
+	GetContentsOfUrl -> v:fallback_url_contents
+	@dbgQuicklook
+
+	#GetVariable mv:fallback_url_contents
+	#GetType -> mv:media_type
+	#@dbgAlert "media_type = \(mv:media_type)"
+
+	GetVariable v:fallback_url_contents
+	SetName "video_file.mp4"
 	SaveFile (
 		service="iCloud Drive",
 		askWheretoSave=false,
 		destinationPath="temp/",
 		overwriteIfFileExists=true
 	) -> v:video_file
+
+	Nothing -> v:fallback_url_contents
 
 	# if not gif, download audio
 	GetVariable v:video.is_gif
@@ -61,7 +71,7 @@ If Equals "fetchFromRedditHostedVideo"
 		If Equals "video/mp4"
 			@dbgAlert "Downloading audio"
 			GetVariable v:audio_url
-			GetContentsOfURL
+			GetContentsOfURL -> mv:audio_url_contents
 			SetName "audio_file.mp3" -> v:audio_file
 
 
@@ -83,7 +93,7 @@ If Equals "fetchFromRedditHostedVideo"
 			SplitText separator="Custom" custom="Completed:"
 			GetItemfromList "Last Item"
 			SplitText separator="Custom" custom=">Download"
-			GetItemFromList "First Item"			
+			GetItemFromList "First Item"
 			@dbgQuickLook
 			MatchText pattern="(?m)(?:href=\")(http[^\\\"]+)" caseSensitive=false -> v:matches
 			GetGroupfromMatchedText get="Group At Index" groupIndex=1 -> v:url
@@ -93,6 +103,10 @@ If Equals "fetchFromRedditHostedVideo"
 
 			GetVariable v:video_file
 			DeleteFiles false
+		Else
+			GetVariable v:video_file
+			SetName "video_file.gif"
+			SetVariable v:return
 		End
 	End
 	@dbgAlert "Exited fetchFromRedditHostedVideo"
