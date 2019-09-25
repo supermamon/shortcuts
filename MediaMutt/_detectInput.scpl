@@ -8,40 +8,38 @@ If Equals "detectInput"
     Dictionary {
         "DIRECT_MEDIA_URL" : [
             "^https:\\/\\/[iv]\\.redd\\.it\\/[a-z0-9]+\\.[a-z]{3,}",
-
         ],
         "REDDIT_POST": [
             "^https:\\/\\/(www\\.)*reddit\\.com\\/r\\/\\w+\\/comments\\/\\w+\\/\\w+",
             "^https:\\/\\/v\\.reddit\\.com\\/[a-z0-9]+",
             "^https:\\/\\/v\\.redd\\.it\\/[a-z0-9]+",
-
-            ],
+        ],
         "INSTAGRAM_POST": [
             ".+(www\\.)*instagram\\.com[\\w\\.\\\\/-]*\\/p\\/",
-            ],
+        ],
         "OVERCAST_LINK": [
             ".+overcast\\.fm.+"
-            ],
+        ],
         "YOUTUBE_VIDEO" : [
             ".+youtu\\.be\\/[a-zA-Z0-9]+",
             ".+youtube\\.com\\/watch\\?v=[a-zA-Z0-9-]+.*"
-            ],
+        ],
         "GFYCAT_VIDEO" : [
             "^https:\\/\\/gfycat\\.com\\/[\\w]{3,}[\\w-]*"
-            ],
+        ],
         "IMGUR_GIFV" : [
             "^http(s*):\\/\\/i\\.imgur\\.com\\/[a-zA-Z0-9]+\\.gifv(\\?*.*)$"
-            ],
+        ],
         "IMGUR_DIRECT" : [
             "^https:\\/\\/i\\.imgur\\.com\\/[a-zA-Z0-9]+\\.(?!gifv)[a-zA-Z0-9]+(\\?*.*)$"
             "^https:\\/\\/imgur\\.com\\/[a-zA-Z0-9]+\\.(?!gifv)[a-zA-Z0-9]+(\\?*.*)$",
-            ],
+        ],
         "IMGUR_POST" : [
             "^http(s*):\\/\\/imgur\\.com\\/(a\\/)*[0-9a-zA-Z]+(\\?*.*)$"
-            ],
+        ],
         "STREAMABLE_POST" : [
             "^https:\\/\\/streamable\\.com\\/[a-z0-9]{5,}(\\?*.*)$"
-            ],
+        ],
         "TUMBLR_POST" : [
             "^https:\\/\\/[\\w-]+\\.tumblr\\.com\\/post\\/.+"
             ]
@@ -70,7 +68,7 @@ If Equals "detectInput"
     RepeatwithEach
         @callExt v:"Repeat Item" {fn:canProcessURL, url:v:argv:url}
         If Equals 1
-            GetVariable v:"Repeat Item"
+            Text "\(v:"Repeat Item")"
             AddToVariable v:ext_addons
         End
     End

@@ -1,46 +1,42 @@
 GetVariable v:function
 If Equals "getSetupState"
+
   @dbgAlert "Entered getSetupsState"
+
   Dictionary {
     OptFileExists   : 0,
     AddonFileExists : 0,
     SetupComplete   : 0
   } -> v:setup
 
-  Number 0 -> v:SetupComplete
-
   CreateFolder service="iCloud Drive" path=v:opt:"storage.dir"
   GetFile a{
     service="iCloud Drive"
     showDocumentPicker=false
-    filePath="\(v:opt:"storage.dir")/\(v:opt:"storage.file")"
+    filePath="\(v:opt:"storage.dir")/"
     errorIfnotFound=false
-  }
-  Count Items
-  If Equals 0
-  Otherwise
+  } -> mv:files
+
+  GetVariable mv:files{as:File,get:Name}
+  If Contains "media_mutt"
       GetVariable v:setup
       SetDictionaryValue key="OptFileExists" value=1
       SetVariable v:setup
-
-      GetVariable v:SetupComplete
-      Calculate operation="+" operand=1 -> v:SetupComplete
-
   End
-  @call {fn:getAddonsFile}
-  Count Items
-  If Equals 0
-  Otherwise
+
+  GetVariable mv:files{as:File,get:Name}
+  If Contains "addons"
     GetVariable v:setup
     SetDictionaryValue key="AddonFileExists" value=1
     SetVariable v:setup
-
-    GetVariable v:SetupComplete
-    Calculate operation="+" operand=1 -> v:SetupComplete
-
   End
+
   GetVariable v:setup
-  SetDictionaryValue key="SetupComplete" value=v:SetupComplete
+  GetDictionaryValue get="All Values"
+  CalculateStatistics "Sum" -> mv:SetupComplete
+  GetVariable v:setup
+  SetDictionaryValue key="SetupComplete" value=mv:SetupComplete
+
   @dbgAlert "Exited getSetupsState"
   ExitShortcut
 End

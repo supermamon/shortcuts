@@ -29,6 +29,7 @@ may track urls that you send to them.
 Everything is done within the shortcut.
 `
 
+Comment "Input checking"
 SetVariable v:argv
 Count Items
 If Equals 0
@@ -46,8 +47,8 @@ If Equals 0
     # extension to prevent crashing due
     # to the limited memory allocated in
     # the widget.
+    ContinueShortcutinApp
 End
-ContinueShortcutinApp
 
 Dictionary {
     shortcut    : "Media Mutt",
@@ -69,26 +70,30 @@ GetVariable mv:meta:shortcut -> v:self
 GetVariable mv:meta:settings -> v:opt
 
 # load user options
-Comment `..:: Default Settings ::..
-             Do not change
+Comment `
+            ..:: Default Settings ::..
+                Do not change
 `
 Dictionary {
-    sysOrder                    : [
-        "ShowAlerts",
-        "ViewBeforeSave",
-        "DownloadImmediately",
-        "SaveTo",
-        "DownloadFolder",
-        "UpdateInterval",
-    ],
-    sysLastUpdateCheck          : "2019-01-01 00:00",
-    <bool> ShowAlerts           : true,
-    <bool> DownloadImmediately  : false,
-    <bool> ViewBeforeSave       : true,
-    SaveTo                      : "Always Ask",
-    DownloadFolder              : "\(v:opt:"storage.dir")/downloads",
-    UpdateInterval              : 12,
-} -> v:defaultOpts
+    defaultOpts: {
+        sysOrder                    : [
+            "ShowAlerts",
+            "ViewBeforeSave",
+            "DownloadImmediately",
+            "SaveTo",
+            "DownloadFolder",
+            "UpdateInterval",
+        ],
+        sysLastUpdateCheck          : "2019-01-01 00:00",
+        <bool> ShowAlerts           : true,
+        <bool> DownloadImmediately  : false,
+        <bool> ViewBeforeSave       : true,
+        SaveTo                      : "Always Ask",
+        DownloadFolder              : "\(v:opt:"storage.dir")/downloads",
+        UpdateInterval              : 12,
+    }
+}
+GetDictionaryValue get="Value" key="defaultOpts" -> v:defaultOpts
 SetVariable v:userOpts
 
 Comment `..:: Load User Saved Settings ::..
@@ -117,8 +122,7 @@ If "Is Greater Than" 0
     End
 End
 
-Comment `..:: Settings Icons ::..
-`
+Comment "..:: Settings Icons ::.."
 @import "./_fontawesome.scpl"
 
 Comment `..:: Localized Types ::..
@@ -129,28 +133,19 @@ SetVariable v:lDictionary
 Text "Text"
 GetType -> v:lText
 
-Comment `
-..:: Function Call Detection
-`
-#  function detection
+Comment "..:: Function Call Detection"
 GetVariable v:argv
 GetType
 If Equals v:lDictionary
     GetVariable v:argv:fn -> v:function
-    Count Items
+    Text "\(v:function)"
+    Count Characters
     If Equals 0
-        # it's a dictionary but not a function call
-        #@call {fn:showMessage, message:"Not a valid function call."}
-        ExitShortcut
-    Otherwise
-        GetVariable v:function
-        Count Characters
-        If Equals 0
-            ExitShortcut
-        End
+        Nothing -> v:argv
+        Text "main" -> v:function
     End
-
 Otherwise
+
     @dbgAlert "Not a dictionary, \(v:argv) "
     @call {fn:firstRun}
     SetVariable v:setup
@@ -163,15 +158,9 @@ Otherwise
 
     Text "\(v:argv)"
     GetURLsFromInput -> v:url
-    #@call {fn:main, url:v:argv}
+    Dictionary {fn:main, url:v:url} -> v:argv
+    Text "main" -> v:function
 
-    Dictionary {
-      fn:main,
-      url:v:url
-    } -> v:argv
-    GetVariable v:argv:fn -> v:function
-
-    #ExitShortcut
 End
 
 
@@ -190,7 +179,6 @@ End
 
 @import "./fn-fetchFromInstagramPost.scpl"
 
-//@import "./fn-getIGProfileInfo.scpl"
 @import "./fn-fetchFromGfycat.scpl"
 @import "./fn-fetchFromImgurGifV.scpl"
 @import "./fn-fetchFromImgurPost.scpl"

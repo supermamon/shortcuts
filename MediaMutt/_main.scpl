@@ -9,20 +9,16 @@ If Equals "main"
   # validate that there is an input
   #
   Number 0 -> v:hasUrl
-  GetVariable v:argv:url
-  Count Items
-  If "Is Greater Than" 0
-    GetVariable v:argv:url
-    Count Characters
-    If "Is Greater Than" 0
-      Number 1 -> v:hasUrl
-    End
 
+  Text "\(v:argv:url)"
+  Count Characters
+  If "Is Greater Than" 0
+    Number 1 -> v:hasUrl
   End
+  @dbgAlert "Has URL = \(v:hasUrl)"
 
   Number 0 -> v:canDownload
   GetVariable v:hasUrl
-  @dbgAlert "Has URL = \(v:hasUrl)"
   If Equals 0
 
     Text "" -> v:dl_menu_item
