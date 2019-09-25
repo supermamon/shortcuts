@@ -65,6 +65,9 @@ If Equals "fetchFromRedditPost"
     End
     SetVariable v:downloaded_media
   Otherwise
+    GetVariable v:downloaded_media
+    SetName name="\(v:post.title)"
+    SetVariable v:downloaded_media
   End
 
   @dbgAlert "Exited fetchFromRedditPost"
