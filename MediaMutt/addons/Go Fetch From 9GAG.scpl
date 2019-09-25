@@ -1,0 +1,162 @@
+# load fallback actions
+@import "../../lib/fallback.scpl"
+
+@icon "cat"
+@color "darkgray"
+@ShowInShareSheet [
+	safariwebpage,
+	string,
+	url
+]
+
+SetVariable v:argv
+
+@set debug false
+@set mock false
+@import "../../lib/helpers.scpl"
+
+Comment "..:: Metadata ::.."
+Dictionary {
+    shortcut    : "Go Fetch From 9GAG",
+    author      : "@supermamon",
+    version     : "1.0.0",
+    settings    : {
+        updater : {
+            ID: 3558
+        },
+    },
+    changes     : {
+        "v1.0.0": "Initial release",
+    }
+} -> mv:meta
+GetVariable mv:meta:shortcut -> v:self
+GetVariable mv:meta:settings -> v:opt
+
+Dictionary items={"key":"val"}
+GetType -> v:lDictionary
+
+
+#  function detection
+GetVariable v:argv
+GetType
+If Equals v:lDictionary
+    GetVariable v:argv:fn -> v:function
+Otherwise
+    @call {fn:main}
+    ExitShortcut
+End
+
+# function list
+GetVariable v:function
+If Equals "main"
+    Text -> mv:msg
+    |This shortcut is an addon to Media Mutt.
+    |Download Media Mutt and register
+    |this addon.
+    ShowAlert title=v:self message=mv:msg
+    @call {
+        fn          : checkForUpdate,
+        name        : v:self,
+        id          : v:opt:"updater.ID",
+        version     : mv:meta:version,
+        noUpdAlert  : "show",
+    }
+    ExitShortcut
+End
+GetVariable v:function
+If Equals "register"
+    GetVariable v:self
+    ExitShortcut
+End
+GetVariable v:function
+If Equals "canProcessURL"
+    @dbgAlert "Entered canProcessURL with \(v:argv:url)"
+    GetVariable v:argv:url
+    MatchText pattern="https://9gag.com/gag/[a-zA-Z0-9]" caseSensitive=false -> v:matches
+    Count Items
+    If "Is Greater Than" 0
+        Number 1
+    Otherwise
+        Number 0
+    End
+    ExitShortcut
+End
+GetVariable v:function
+If Equals "fetchMedia"
+    @dbgAlert "Entered fetchMedia with \(v:argv:url)"
+
+    @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Inspecting url"}
+
+    GetVariable v:argv:url
+    GetContentsofURL
+    SetName "src.txt"
+    SplitText separator="Custom" custom="- 9GAG</title>"
+    GetItemfromList get="First Item"
+    MatchText pattern="[^>]+$" caseSensitive=false -> mv:matches
+    Text "\(mv:matches)" -> mv:title
+
+
+    GetVariable v:argv:url
+    GetComponentofURL "Query" -> v:query
+    GetVariable v:argv:url
+    ReplaceText (
+        findText="?\(v:query)",
+        replaceWith="",
+        caseSensitive=false
+        regularExpression=false
+    )
+    MatchText pattern="[^/]+$" caseSensitive=false -> v:post_id
+
+    Nothing
+    SetVariable v:media_url
+    Number 0 -> v:found
+
+    List
+    |700sv.mp4
+    |460sv.mp4
+    |700b.jpg
+    |700s.jpg
+    |460s.jpg
+
+    RepeatwithEach
+        GetVariable v:found
+        If Equals 0
+
+            URL "https://img-9gag-fun.9cache.com/photo/\(v:post_id)_\(v:"Repeat Item")" -> v:this_url
+            GetHeadersofURL
+            GetDictionaryValue get="Value" key="Content-Type" -> mv:content_type
+            Text "video/mp4|image/jpeg"
+            If Contains mv:content_type
+                GetVariable v:this_url
+                SetVariable v:media_url
+                Number 1 -> v:found
+            End
+        End
+    End
+    GetVariable v:media_url
+    Count Items
+    If Equals 0
+        @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Unable to find media url"}
+        Nothing
+        ExitShortcut
+    End
+
+    @dbgAlert "media url = \(v:media_url)"
+
+    @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Download started."}
+    GetVariable v:media_url
+    GetContentsOfUrl -> mv:downloaded_media
+
+    @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Download complete."}
+
+
+    GetVariable mv:downloaded_media
+    SetName mv:title
+    ExitShortcut
+End
+
+@import "../../lib/checkForUpdate-fn.scpl"
+#
+ShowAlert title=v:self message="(addon) Invalid function call - \(v:function)" showCancelButton=false
+Nothing
+ExitShortcut
