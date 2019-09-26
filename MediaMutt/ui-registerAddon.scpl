@@ -1,8 +1,21 @@
 GetVariable v:function
 If Equals "registerAddon"
-    AskforInput question="Find addons containing" defaultAnswer="Go Fetch" inputType="Text" -> mv:pattern
+
+    #AskforInput question="Find addons containing" defaultAnswer="Go Fetch" inputType="Text" -> mv:pattern
     GetMyShortcuts
-    FilterFiles :filter{name contains mv:pattern} sortBy="Name" order="Ascending" -> v:available_addons
+    FilterFiles :filter{name contains "Go Fetch"} sortBy="Name" order="Ascending" -> v:available_addons
+
+    Count Items
+    If Equals 0
+        ChoosefromMenu prompt="There are no addons found in your shortcuts." items=["Find Addons","Later"]
+        Case "Find Addons"
+            URL "https://routinehub.co/search/?q=%22go+fetch%22"
+            OpenURLs
+            ExitShortcut
+        Case "Later"
+            ExitShortcut
+        End
+    End
 
     GetVariable mv:icons."sc-back"
     SetName "Back.shortcut"
