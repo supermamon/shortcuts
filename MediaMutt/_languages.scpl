@@ -1,5 +1,52 @@
 Dictionary {
     "English": {
+        "SECTION1"              : "-- Main Menu --",
+        "DOWNLOAD"              : "Download",
+        "UNSUPPORTED_URL"       : "Unsupported URL",
+        "DOWNLOADS"             : "Dowloads",
+        "DOWNLOADS_SUBTTL"      : "Downloaded items in Files",
+        "SETTINGS"              : "Settings",
+        "SETTINGS_SUBTTL"       : "Manage settings",
+        "ADDONS"                : "Addons",
+        "ADDONS_SUBTTL"         : "Manage addons",
+        "CHECK4UPDATES"         : "Check for Updates",
+        "CHECK4UPDATES_SUBTTL"  : "Check for new versions",
+        "ABOUT"                 : "About",
+        "ABOUT_SUBTTL"          : "About Media Mutt",
+        "EXIT"                  : "Exit",
+        "EXIT_SUBTTL"           : "Exit Shortcut",
+
+        "SECTION2"              : "-- Settings Menu --",
+        "SHOW_ALERTS"           : "Show Alerts",
+        "SHOW_ALERTS_SUBTTL"    : "Messages as alerts instead of notifications",
+        "PREVIEWB4SAVE"         : "Preview Before Saving",
+        "PREVIEWB4SAVE_SUBTTL"  : "Display the downloaded media before saving",
+        "DLOADIMMED"            : "Download Immediately",
+        "DLOADIMMED_SUBTTL"     : "Don't show the menu when downloading",
+        "SAVETO"                : "Save To",
+        "SAVETO_PROMPT"         : "Always Ask",
+        "SAVETO_FILES"          : "Files",
+        "SAVETO_PHOTOS"         : "Photo Album",
+        "DOWNLOAD_DIR"          : "iCloud Drive Download Location",
+        "UPDATEFREQ"            : "Update Check Frequency",
+        "UPDATEFREQ_SUBTTL"     : "How often (in hours) to check for updates",
+        "RESET"                 : "Reset Settings",
+        "RESET_SUBTTL"          : "Reset settings to default",
+        "DONE"                  : "Done",
+        "DONE_SUBTTL"           : "Go back to the main menu",
+
+        "SECTION3"              : "-- Addons Menu --",
+        "REGISTERADDON"         : "Register Addon",
+        "REGISTERADDON_SUBTTL"  : "Add support for more sites",
+        "REMOVEADDON"           : "Remove Addon",
+        "REMOVEADDON_SUBTTL"    : "Remove registered addon",
+        "FINDADDON"             : "Find Addons",
+        "FINDADDON_SUBTTL"      : "Search for Addons on RoutineHub",
+        "BACK"                  : "Back",
+
+        "SECTION4"              : "-- Check for Updates --",
+        "MM_UPDATED"            : "Your copy of Media Mutt is up-to-date",
+
 
     }
 }
