@@ -20,7 +20,7 @@ Comment "..:: Metadata ::.."
 Dictionary {
     shortcut    : "Go Fetch From FB Post",
     author      : "@supermamon",
-    version     : "1.0.1",
+    version     : "2.0.0",
     settings    : {
         updater : {
             ID: 3187
@@ -31,7 +31,8 @@ Dictionary {
         "v1.0.1":[
             "Fix unable to download due to url issue",
             "Add update checking"
-        ]
+        ],
+        "v2.0.0":"IOS13 fixes"
     }
 } -> mv:meta
 GetVariable mv:meta:shortcut -> v:self

@@ -19,7 +19,7 @@ Comment "..:: Metadata ::.."
 Dictionary {
     shortcut    : "Go Fetch From Dailymotion",
     author      : "@supermamon",
-    version     : "1.0.1",
+    version     : "2.0.0",
     settings    : {
         updater : {
             ID: 3186
@@ -27,7 +27,8 @@ Dictionary {
     },
     changes     : {
         "v1.0.0": "Initial release",
-        "v1.0.1": "Fix url issue caused by calling showMessage."
+        "v1.0.1": "Fix url issue caused by calling showMessage.",
+        "v2.0.0": "IOS13 fixes"
     }
 } -> mv:meta
 GetVariable mv:meta:shortcut -> v:self
