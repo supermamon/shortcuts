@@ -7,10 +7,11 @@
 	url
 ]
 
+# ######### COMPILER OPTIONS ######### #
 @set debug false
 @set mock false
 @import "../lib/helpers.scpl"
-
+# #################################### #
 
 Comment `
                    ..:: Media Mutt ::..
@@ -34,135 +35,15 @@ SetVariable v:argv
 Count Items
 If Equals 0
     GetClipboard -> v:argv
-    # Assume it was run in the widget
-    # in case it's not run in the widget
-    # it's okay because that means
-    # the user is already in the app
-    # so this won't have any effect.
-    # if it was run from the share sheet
-    # it won't even go here.
-    # this is done because it's such a
-    # large shortcut, it needs to be run
-    # either in the app or as a share
-    # extension to prevent crashing due
-    # to the limited memory allocated in
-    # the widget.
     ContinueShortcutinApp
 End
 
-Dictionary {
-    shortcut    : "Media Mutt",
-    author      : "@supermamon",
-    version     : "2.0.2",
-    settings    : {
-        updater : {
-            ID: 3184
-        },
-        storage : {
-            dir     : "MediaMutt",
-            file    : "media_mutt.json",
-            addons  : "addons.json"
-        },
-        <bool> TestMode : false,
-    }
-} -> mv:meta
-GetVariable mv:meta:shortcut -> v:self
-GetVariable mv:meta:settings -> v:opt
-
-# load user options
-Comment `
-            ..:: Default Settings ::..
-                Do not change
-`
-Dictionary {
-    defaultOpts: {
-        sysOrder                    : [
-            "ShowAlerts",
-            "ViewBeforeSave",
-            "DownloadImmediately",
-            "SaveTo",
-            "DownloadFolder",
-            "UpdateInterval",
-        ],
-        sysLastUpdateCheck          : "2019-01-01 00:00",
-        <bool> ShowAlerts           : true,
-        <bool> DownloadImmediately  : false,
-        <bool> ViewBeforeSave       : true,
-        SaveTo                      : "Always Ask",
-        DownloadFolder              : "\(v:opt:"storage.dir")/downloads",
-        UpdateInterval              : 12,
-    }
-}
-GetDictionaryValue get="Value" key="defaultOpts" -> v:defaultOpts
-SetVariable v:userOpts
-
-Comment `..:: Load User Saved Settings ::..
-If exists, override the default settings
-`
-GetFile a{
-    service="iCloud Drive"
-    showDocumentPicker=false
-    filePath="\(v:opt:"storage.dir")/\(v:opt:"storage.file")"
-    errorIfnotFound=false
-} -> mv:savedOpts
-Count Items
-If "Is Greater Than" 0
-    GetVariable v:userOpts
-    GetDictionaryValue get="All Keys"
-    RepeatwithEach
-        GetVariable mv:savedOpts
-        GetDictionaryValue get="Value" key=v:"Repeat Item" -> mv:value
-        Count Items
-        If "Is Greater Than" 0
-            GetVariable v:userOpts
-            SetDictionaryValue key=v:"Repeat Item" value=mv:value
-            SetVariable v:userOpts
-        End
-
-    End
-End
-
-Comment "..:: Settings Icons ::.."
-@import "./_fontawesome.scpl"
-
-Comment `..:: Localized Types ::..
-`
-Dictionary items={"key":"val"}
-GetType
-SetVariable v:lDictionary
-Text "Text"
-GetType -> v:lText
-
-Comment "..:: Function Call Detection"
-GetVariable v:argv
-GetType
-If Equals v:lDictionary
-    GetVariable v:argv:fn -> v:function
-    Text "\(v:function)"
-    Count Characters
-    If Equals 0
-        Nothing -> v:argv
-        Text "main" -> v:function
-    End
-Otherwise
-
-    @dbgAlert "Not a dictionary, \(v:argv) "
-    @call {fn:firstRun}
-    SetVariable v:setup
-
-    GetVariable v:setup.SetupComplete
-    If "Is Less Than" 2
-        ShowAlert title=v:self message="Configuration is not yet completed. Please re-run this shortcut to configure."
-        ExitShortcut
-    End
-
-    Text "\(v:argv)"
-    GetURLsFromInput -> v:url
-    Dictionary {fn:main, url:v:url} -> v:argv
-    Text "main" -> v:function
-
-End
-
+@import "_meta.scpl"
+@import "_user_opts.scpl"
+@import "_fontawesome.scpl"
+@import "_languages.scpl"
+@import "_types.scpl"
+@import "_function_id.scpl"
 
 @dbgAlert "Calling: \(v:function)\n-----------\nWith Parameters:\n\(v:argv)"
 
@@ -174,11 +55,8 @@ End
 @import "./fn-fetchMedia.scpl"
 
 @import "./fn-fetchFromDirectLink.scpl"
-
 @import "./fn-fetchFromYoutube.scpl"
-
 @import "./fn-fetchFromInstagramPost.scpl"
-
 @import "./fn-fetchFromGfycat.scpl"
 @import "./fn-fetchFromImgurGifV.scpl"
 @import "./fn-fetchFromImgurPost.scpl"
@@ -190,7 +68,6 @@ End
 @import "./fn-fetchFromRedditLinkedMedia.scpl"
 @import "./fn-getKeySafeValue.scpl"
 @import "./fn-fetchFromTumblr.scpl"
-
 
 @import "./ui-showMessage.scpl"
 @import "./ui-getSetupState.scpl"

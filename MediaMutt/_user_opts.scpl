@@ -1,0 +1,52 @@
+# load user options
+Comment `
+            ..:: Default Settings ::..
+                Do not change
+`
+Dictionary {
+    defaultOpts: {
+        sysOrder                    : [
+            "ShowAlerts",
+            "ViewBeforeSave",
+            "DownloadImmediately",
+            "SaveTo",
+            "DownloadFolder",
+            "UpdateInterval",
+        ],
+        sysLastUpdateCheck          : "2019-01-01 00:00",
+        <bool> ShowAlerts           : true,
+        <bool> DownloadImmediately  : false,
+        <bool> ViewBeforeSave       : true,
+        SaveTo                      : "Always Ask",
+        DownloadFolder              : "\(v:opt:"storage.dir")/downloads",
+        UpdateInterval              : 12,
+    }
+}
+GetDictionaryValue get="Value" key="defaultOpts" -> v:defaultOpts
+SetVariable v:userOpts
+
+Comment `..:: Load User Saved Settings ::..
+If exists, override the default settings
+`
+GetFile a{
+    service="iCloud Drive"
+    showDocumentPicker=false
+    filePath="\(v:opt:"storage.dir")/\(v:opt:"storage.file")"
+    errorIfnotFound=false
+} -> mv:savedOpts
+Count Items
+If "Is Greater Than" 0
+    GetVariable v:userOpts
+    GetDictionaryValue get="All Keys"
+    RepeatwithEach
+        GetVariable mv:savedOpts
+        GetDictionaryValue get="Value" key=v:"Repeat Item" -> mv:value
+        Count Items
+        If "Is Greater Than" 0
+            GetVariable v:userOpts
+            SetDictionaryValue key=v:"Repeat Item" value=mv:value
+            SetVariable v:userOpts
+        End
+
+    End
+End

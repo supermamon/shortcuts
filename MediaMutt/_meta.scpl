@@ -1,0 +1,18 @@
+Dictionary {
+    shortcut    : "Media Mutt",
+    author      : "@supermamon",
+    version     : "2.0.2",
+    settings    : {
+        updater : {
+            ID: 3184
+        },
+        storage : {
+            dir     : "MediaMutt",
+            file    : "media_mutt.json",
+            addons  : "addons.json"
+        },
+        <bool> TestMode : false,
+    }
+} -> mv:meta
+GetVariable mv:meta:shortcut -> v:self
+GetVariable mv:meta:settings -> v:opt

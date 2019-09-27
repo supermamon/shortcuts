@@ -1,0 +1,29 @@
+Comment "..:: Function Call Detection ::.."
+GetVariable v:argv
+GetType
+If Equals v:lDictionary
+    GetVariable v:argv:fn -> v:function
+    Text "\(v:function)"
+    Count Characters
+    If Equals 0
+        Nothing -> v:argv
+        Text "main" -> v:function
+    End
+Otherwise
+
+    @dbgAlert "Not a dictionary, \(v:argv) "
+    @call {fn:firstRun}
+    SetVariable v:setup
+
+    GetVariable v:setup.SetupComplete
+    If "Is Less Than" 2
+        ShowAlert title=v:self message="\(v:lang.MSG_CFG_INCOMP)"
+        ExitShortcut
+    End
+
+    Text "\(v:argv)"
+    GetURLsFromInput -> v:url
+    Dictionary {fn:main, url:v:url} -> v:argv
+    Text "main" -> v:function
+
+End

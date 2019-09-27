@@ -100,7 +100,7 @@ If Equals "getUpdates"
         | };
         | var v=\(mv:versions)
         | var m=comp(v.local, v.remote)
-        | m=m==0?'same':(m>0?'A rollback':'An update');
+        | m=m==0?'same':(m>0?'rollback':'update');
         | document.write(m);
         | </script></body></html>
         @dbgQuickLook
@@ -115,16 +115,31 @@ If Equals "getUpdates"
         } -> mv:comp
         @dbgQuickLook
 
+        Dictionary {
+            "same"      : "\(v:lang.MSG_UPTODATE)",
+            "update"    : "\(v:lang.MSG_UPDATE_AVAIL)",
+            "rollback"  : "\(v:lang.MSG_ROLLBACK_AVAIL)",
+        }
+        GetDictionaryValue get="Value" key="\(mv:comp)"
+        ReplaceText (
+            findText="{SHORTCUT}",
+            replaceWith="\(v:self)",
+            caseSensitive=true,
+            regularExpression=false
+        ) -> mv:upd_msg
+
+        GetVariable mv:comp
         If Equals "same"
             Dictionary {
-                hasUpdate : "no"
+                hasUpdate : "no",
+                updateMessage: "\(mv:upd_msg)"
             }
         Otherwise
             Dictionary {
                 hasUpdate: "yes",
                 localVersion: v:local.version,
                 latestVersion: v:remote.Version,
-                updateMessage: "\(mv:comp) is available",
+                updateMessage: "\(mv:upd_msg)",
                 releaseNotes: v:remote.Notes,
                 downloadID: v:remote.id,
                 downloadURL: "https://routinehub.co/download/\(v:remote.id)",

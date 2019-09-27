@@ -1,0 +1,6 @@
+Comment "..:: Localized Types ::.."
+Dictionary items={"key":"val"}
+GetType
+SetVariable v:lDictionary
+Text "Text"
+GetType -> v:lText

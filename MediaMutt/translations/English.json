@@ -1,5 +1,15 @@
-Dictionary {
+{
     "English": {
+        "SECTION0"              : "-- First Run --",
+        "CONF_INCOMPLETE"       : "Configuration for {SHORTCUT} is not yet complete.\\nThe following steps will guide you through the configuration.",
+        "CONF_PREF_MISSING"     : "The preference file is not yet created.\\nPress next to create it now.",
+        "CONF_PREF_CREATED"     : "Options file created. Tap Next.",
+        "CONF_ADDONS_MISSING"   : "The addon file is not yet created.\\nPress next to create it now.",
+        "CONF_FILE_CREATED"     : "File created. Tap Next.",
+        "CONF_COMPLETE"         : "Configuration is complete.",
+
+
+
         "SECTION1"              : "-- Main Menu --",
         "DOWNLOAD"              : "Download",
         "UNSUPPORTED_URL"       : "Unsupported URL",
@@ -12,7 +22,7 @@ Dictionary {
         "CHECK4UPDATES"         : "Check for Updates",
         "CHECK4UPDATES_SUBTTL"  : "Check for new versions",
         "ABOUT"                 : "About",
-        "ABOUT_SUBTTL"          : "About Media Mutt",
+        "ABOUT_SUBTTL"          : "About {SHORTCUT}",
         "EXIT"                  : "Exit",
         "EXIT_SUBTTL"           : "Exit Shortcut",
 
@@ -34,6 +44,10 @@ Dictionary {
         "RESET_SUBTTL"          : "Reset settings to default",
         "DONE"                  : "Done",
         "DONE_SUBTTL"           : "Go back to the main menu",
+        "MSG_RESET_WARNING"     : "This will revert all your settings to default and delete all of the downloaded media.",
+        "MSG_RESET_REMOVE"      : "Reset & Remove Media",
+        "MSG_KEEP_DATA"         : "Stay as is",
+        "MSG_ALL_CONF_CLEAR"    : "All settings have been reset.",
 
         "SECTION3"              : "-- Addons Menu --",
         "REGISTERADDON"         : "Register Addon",
@@ -42,6 +56,13 @@ Dictionary {
         "REMOVEADDON_SUBTTL"    : "Remove registered addon",
         "FINDADDON"             : "Find Addons",
         "FINDADDON_SUBTTL"      : "Search for Addons on RoutineHub",
+        "NO_ADDONS_FOUND"       : "There are no addons found in your shortcuts.",
+        "CHOOSE_ADDON_TOREG"    : "Choose addon to register",
+        "ADDON_ALREADY_REG"     : "{ADDON} is already registered.",
+        "ADDON_NOW_REG"         : "{ADDON} is now registered.",
+        "NO_REG_ADDONS"         : "There are no registered addons",
+        "CHOOSE_ADDON_DEL"      : "Choose addon to remove",
+        "LATER"                 : "Later",
         "BACK"                  : "Back",
 
         "SECTION4"              : "-- Messages --",
@@ -53,8 +74,12 @@ Dictionary {
         "MSG_ROLLBACK_AVAIL"    : "A rollback is available",
         "MSG_UPDATE_AVAIL"      : "An update is available",
         "MSG_UPTODATE"          : "Your copy of {SHORTCUT} is up-to-date",
-
-
+        "MSG_SAVETO_FILES"      : "Save to Files",
+        "MSG_SAVETO_PHOTOS"     : "Save to Photo Album",
+        "MSG_DISCARD"           : "Discard",
+        "MSG_SAVED_FILE"        : "Saved in {FOLDER}",
+        "MSG_SAVED_PHOTOS"      : "Saved in Photo Album",
+        "MSG_NO_DOWNLOADS"      : "No downloads yet.",
+        "MSG_PREVIEW"           : "Pick a file to view."
     }
-} -> mv:languages
-GetDictionaryValue get="Value" key="English" -> v:lang
+}

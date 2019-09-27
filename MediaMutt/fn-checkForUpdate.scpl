@@ -1,26 +1,12 @@
-/*
-# Arguments
-
-* `v:argv:id` - routinehub id for shortcut
-* `v:argv:version` - version number of local copy
-* `v:argv:name` - name of shortcut
-* `v:argv:NoUpdAlert` - show|hide
-
-# Required Libraries
-* lib/helpers.scpl
-
-*/
-Comment
-|..:: Function checkForUpdate ::..
-|Check if there is an updated version
-|of the shortcut on routinehub.co
-|
-|Parameters:
-|  id           : RoutineHub shortcut id
-|  version      : Currently installed version
-|  interval     : Update check frequency in hours
-|  lastupdate   : Frequency of check
-
+Comment "..:: Function checkForUpdate ::.."
+#Check if there is an updated version
+#of the shortcut on routinehub.co
+#
+#Parameters:
+#  id           : RoutineHub shortcut id
+#  version      : Currently installed version
+#  interval     : Update check frequency in hours
+#  lastupdate   : Frequency of check
 GetVariable v:function
 If Equals "checkForUpdate"
     @dbgAlert "Entered checkForUpdate"
@@ -36,12 +22,12 @@ If Equals "checkForUpdate"
     SetVariable v:update
     GetVariable v:update.hasUpdate
     If Equals "no"
-        ShowAlert title=v:argv:name message="Your copy of \(v:argv:name) is up-to-date."
+        ShowAlert title=v:argv:name message="\(v:update.updateMessage)"
     Otherwise
-        Text "\(v:update.updateMessage): \(v:update.localVersion) -> \(v:update.latestVersion)\n\n** Release Notes **\n\(v:update.releaseNotes)" -> mv:prompt
+        Text "\(v:update.updateMessage): \(v:update.localVersion) -> \(v:update.latestVersion)\n\n** \(v:lang.MSG_REL_NOTES) **\n\(v:update.releaseNotes)" -> mv:prompt
         ChooseFromMenu "\(mv:prompt)"
-        | Get \(v:argv.name) v\(v:update.latestVersion)
-        | Skip
+        | \(v:lang.MSG_GET) \(v:argv.name) v\(v:update.latestVersion)
+        | \(v:lang.MSG_SKIP)
         case Install
             URL "https://routinehub.co/download/\(v:update.downloadID)"
             OpenURLs

@@ -81,11 +81,11 @@ If Equals "main"
   # if update is available, change the menu item
   If Equals "no"
     Text
-    |{ "caption":"Check for Updates", "subtitle":"Check for new versions", "value":"do-cfu", "icon":"\(mv:icons.bullhorn)"},
+    |{ "caption":"\(v:lang.CHECK4UPDATES)", "subtitle":"\(v:lang.CHECK4UPDATES_SUBTTL)", "value":"do-cfu", "icon":"\(mv:icons.bullhorn)"},
   Otherwise
     Number 1 -> v:hasUpdate
     Text
-    |{ "caption":"\(v:upd.updateMessage)", "subtitle":"\(v:upd.localVersion) -> \(v:upd.latestVersion)", "value":"do-cfu", "icon":"\(mv:icons.bullhorn)"},
+    |{ "caption":"\(v:upd.updateMessage)",  "subtitle":"\(v:upd.localVersion) -> \(v:upd.latestVersion)", "value":"do-cfu", "icon":"\(mv:icons.bullhorn)"},
   End -> mv:updateEntry
 
 
@@ -96,12 +96,12 @@ If Equals "main"
     |"caption": "\(v:self) v\(mv:meta.version)",
     |"menu_items": [
     | \(v:dl_menu_item)
-    | { "caption":"Downloads", "subtitle":"Downloaded items in Files", "value":"show-downloads", "icon":"\(mv:icons.folder)" },
-    | { "caption":"Settings", "subtitle":"Manage settings", "value":"show-settings", "icon":"\(mv:icons.cog)" },
-    | { "caption":"Addons", "subtitle":"Manage addons", "value":"manage-addons", "icon":"\(mv:icons."puzzle-piece")" },
+    | { "caption":"\(v:lang.DOWNLOADS)",  "subtitle":"\(v:lang:DOWNLOADS_SUBTTL)",  "value":"show-downloads", "icon":"\(mv:icons.folder)" },
+    | { "caption":"\(v:lang.SETTINGS)",   "subtitle":"\(v:lang:SETTINGS_SUBTTL)",   "value":"show-settings", "icon":"\(mv:icons.cog)" },
+    | { "caption":"\(v:lang.ADDONS)",     "subtitle":"\(v:lang.ADDONS_SUBTTL)",     "value":"manage-addons", "icon":"\(mv:icons."puzzle-piece")" },
     | \(mv:updateEntry)
-    | { "caption":"About", "subtitle":"About \(v:self)", "value":"do-about", "icon":"\(mv:icons."info-circle")"},
-    | { "caption":"Exit", "subtitle":"Exit shortcut", "value":"do-exit", "icon":"\(mv:icons."arrow-alt-circle-left")"}
+    | { "caption":"\(v:lang.ABOUT)",      "subtitle":"\(v:lang.ABOUT) \(v:self)",   "value":"do-about", "icon":"\(mv:icons."info-circle")"},
+    | { "caption":"\(v:lang.EXIT)",       "subtitle":"\(v:lang.EXIT_SUBTTL)",       "value":"do-exit", "icon":"\(mv:icons."arrow-alt-circle-left")"}
     | ]
     |}
 
@@ -119,7 +119,7 @@ If Equals "main"
           |"menu_items": [
           | \(v:dl_menu_item)
           | \(mv:updateEntry)
-          | { "caption":"Exit", "subtitle":"Exit shortcut", "value":"do-exit", "icon":"\(mv:icons."arrow-alt-circle-left")"}
+          | { "caption":"\(v:lang.EXIT)",       "subtitle":"\(v:lang.EXIT_SUBTTL)",       "value":"do-exit", "icon":"\(mv:icons."arrow-alt-circle-left")"}
           | ]
           |}
 
