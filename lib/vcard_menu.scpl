@@ -20,25 +20,25 @@ If Equals "chooseFromVcardMenu"
         GetVariable v:menuitem
         GetDictionaryValue get="All Keys"
         If Contains "icon"
-            Text
-            |\(v:menu_txt)
-            |BEGIN:VCARD
-            |VERSION:3.0
-            |N;CHARSET=utf-8:\(v:menuitem:caption);;;;
-            |ORG;CHARSET=utf-8:\(v:menuitem:subtitle);
-            |PHOTO;ENCODING=b:\(v:menuitem:icon)
-            |NOTE:\(v:menu_value)
-            |END:VCARD
+            Text "\(v:menuitem:icon)"
+            Count Characters
+            If "Is Greater Than" 0
+                Text "\nPHOTO;ENCODING=b:\(v:menuitem:icon)"
+            Otherwise
+                Text ""
+            End
         Otherwise
-            Text
-            |\(v:menu_txt)
-            |BEGIN:VCARD
-            |VERSION:3.0
-            |N;CHARSET=utf-8:\(v:menuitem:caption);;;;
-            |ORG;CHARSET=utf-8:\(v:menuitem:subtitle);
-            |NOTE:\(v:menu_value)
-            |END:VCARD
-        End
+            Text ""
+        End -> v:card_icon
+        Text
+        |\(v:menu_txt)
+        |BEGIN:VCARD
+        |VERSION:3.0
+        |N;CHARSET=utf-8:\(v:menuitem:caption);;;;
+        |ORG;CHARSET=utf-8:\(v:menuitem:subtitle);\(v:card_icon)
+        |NOTE:\(v:menu_value)
+        |END:VCARD
+
         SetVariable "menu_txt"
     End
 
