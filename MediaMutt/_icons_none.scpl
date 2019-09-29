@@ -1,0 +1,22 @@
+Dictionary {
+	"icons": {
+		"download"      : "",
+		"ban"           : "",
+		"folder"        : "",
+		"cog"           : "",
+		"puzzle-piece"  : "",
+		"bullhorn"      : "",
+		"info-circle"   : "",
+		"arrow-alt-circle-left" : "",
+		"save"          : "",
+		"toggle-on"     : "",
+		"toggle-off"    : "",
+		"clock"         : "",
+		"history"       : "",
+		"plus-circle"   : "",
+		"minus-circle"  : "",
+		"search"        : "",
+		"sc-back"       : ""
+	}
+}
+GetDictionaryValue get="Value" key="icons" -> mv:icons

@@ -80,6 +80,9 @@
         "MSG_SAVED_FILE"        : "Saved in {FOLDER}",
         "MSG_SAVED_PHOTOS"      : "Saved in Photo Album",
         "MSG_NO_DOWNLOADS"      : "No downloads yet.",
-        "MSG_PREVIEW"           : "Pick a file to view."
+        "MSG_PREVIEW"           : "Pick a file to view.",
+        "MSG_DOMAIN_NOT_SUPP"   : "Domain {DOMAIN} is not yet supported.",
+        "MSG_POST_NOT_SUP"      : "This type of post is not yet handled.\\nDetails:\\n\\npost_hint: {POST_HINT}",
+        "MSG_NOTHING_DOWNLOADED": "Nothing was downloaded."
     }
 }

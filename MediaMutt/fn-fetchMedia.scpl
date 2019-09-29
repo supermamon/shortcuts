@@ -44,7 +44,7 @@ If Equals "fetchMedia"
     |Type: \(v:argv:type)
     |Url : \(v:argv:url)
     CopytoClipboard
-    @call {fn:showMessage, message:"Nothing was downloaded."}
+    @call {fn:showMessage, message:"\(v:lang.MSG_NOTHING_DOWNLOADED)"}
     Nothing
   Otherwise
 
@@ -93,6 +93,14 @@ If Equals "fetchMedia"
 
     GetVariable v:SaveTo
     If Equals "Files"
+      Text "\(v:lang.MSG_SAVED_FILE)"
+      ReplaceText (
+        findText="{FOLDER}",
+        replaceWith="\(v:userOpts.DownloadFolder)/",
+        caseSensitive=true,
+        regularExpression=false
+      ) -> mv:msg_saved
+
       GetVariable v:downloaded_media
       SaveFile a{
           service="iCloud Drive"
@@ -102,14 +110,14 @@ If Equals "fetchMedia"
       }
       GetName -> mv:media_name
       GetVariable v:downloaded_media
-      @call {fn:showMessage, message:"Saved in /Shortcuts/\(v:userOpts.DownloadFolder)/\(mv:media_name)"}
+      @call {fn:showMessage, message:"\(mv:msg_saved)"}
 
     End
     GetVariable v:SaveTo
     If Equals "Photo Album"
         GetVariable v:downloaded_media
         SaveToPhotoAlbum album="All Photos"
-        @call {fn:showMessage, message:"Saved in Photo Album."}
+        @call {fn:showMessage, message:v:lang.MSG_SAVED_PHOTOS}
     End
 
   End

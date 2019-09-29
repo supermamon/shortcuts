@@ -24,7 +24,14 @@ If Equals "fetchFromRedditLinkedMedia"
 	SetVariable v:handler
 	Count Items
 	If Equals 0
-		@call {fn:showMessage message:"Domain \(v:argv:"post.domain") is not yet supported."}
+		Text "\(v:lang.MSG_DOMAIN_NOT_SUPP)"
+		ReplaceText (
+			findText="{DOMAIN}",
+			replaceWith=v:self,
+			caseSensitive=true,
+			regularExpression=false
+		) -> mv:msg_unsup
+		@call {fn:showMessage message:"\(mv:msg_unsup)"}
 		ExitShortcut
 	End
 	@dbgAlert "domain: \(v:argv:"post.domain")\nhandler: \(v:handler)"

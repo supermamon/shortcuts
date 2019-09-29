@@ -40,7 +40,7 @@ End
 
 @import "_meta.scpl"
 @import "_user_opts.scpl"
-@import "_fontawesome.scpl"
+@import "_icons_fontawesome.scpl"
 @import "_languages.scpl"
 @import "_types.scpl"
 @import "_function_id.scpl"

@@ -7,14 +7,20 @@ If Equals "firstRun"
     CalculateStatistics operation="Sum" -> mv:sum
     @dbgAlert "_firstRun: Setup State Count = \(mv:sum)"
     If "Is Less Than" 4
-        Text "Configuration for \(v:self) is not yet complete.\nThe following steps will guide you through the configuration." -> mv:prompt1
+        Text "\(v:lang.CONF_INCOMPLETE)"
+        ReplaceText (
+            findText="{SHORTCUT}",
+            replaceWith=v:self,
+            caseSensitive=true,
+            regularExpression=false
+        ) -> mv:prompt1
         ChooseFromMenu prompt=mv:prompt1 items=["Next"]
         Case "Next"
         End
 
         GetVariable v:setup:OptFileExists
         If Equals 0
-            Text "The preference file is not yet created.\nPress next to create it now." -> mv:prompt2
+            Text "\(v:lang.CONF_PREF_MISSING)" -> mv:prompt2
             ChooseFromMenu prompt=mv:prompt2 items=["Next"]
             Case "Next"
             End
@@ -30,7 +36,7 @@ If Equals "firstRun"
 
             CreateFolder service="iCloud Drive" path="\(v:opt:"storage.dir")/downloads"
 
-            Text "Options file created. Tap Next." -> mv:prompt3
+            Text "\(v:lang.CONF_PREF_CREATED)" -> mv:prompt3
             ChooseFromMenu prompt=mv:prompt3 items=["Next"]
             Case "Next"
             End
@@ -38,7 +44,7 @@ If Equals "firstRun"
 
         GetVariable v:setup:AddonFileExists
         If Equals 0
-            Text "The addon file is not yet created.\nPress next to create it now." -> mv:prompt4
+            Text "\(v:lang.CONF_ADDONS_MISSING)" -> mv:prompt4
             ChooseFromMenu prompt=mv:prompt4 items=["Next"]
             Case "Next"
             End
@@ -54,13 +60,13 @@ If Equals "firstRun"
                 destinationpath="\(v:opt:"storage.dir")/"
                 overwriteiffileexists=true
             }
-            Text "File created. Tap Next." -> mv:prompt5
+            Text "\(v:lang.CONF_FILE_CREATED)" -> mv:prompt5
             ChooseFromMenu prompt=mv:prompt5 items=["Next"]
             Case "Next"
             End
         End
 
-        ChooseFromMenu prompt="Configuration is complete." ["OK"]
+        ChooseFromMenu prompt="\(v:lang.CONF_COMPLETE)" ["OK"]
         Case "OK"
         End
 

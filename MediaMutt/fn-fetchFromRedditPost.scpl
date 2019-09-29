@@ -48,7 +48,14 @@ If Equals "fetchFromRedditPost"
 
   Count Items
   If Equals 0
-    @call {fn:showMessage message:"This type of post is not yet handled.\nDetails:\n\npost_hint : \(v:post_hint)"}
+    Text "\(v:lang.MSG_POST_NOT_SUP)"
+    ReplaceText (
+      findText="{POST_HINT}",
+      replaceWith=v:post_hint,
+      caseSensitive=true,
+      regularExpression=false
+    ) -> mv:type_unsup
+    @call {fn:showMessage message:"\(mv:type_unsup)"}
     Nothing
     ExitShortcut
   End

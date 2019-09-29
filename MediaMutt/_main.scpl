@@ -37,7 +37,7 @@ If Equals "main"
 
 
       Text -> v:dl_menu_item
-      | { "caption":"Unsupported URL", "subtitle":"\(v:argv:url)", "value":"do-exit", "icon":"\(mv:icons.ban)" },
+      | { "caption":"\(v:lang.UNSUPPORTED_URL)", "subtitle":"\(v:argv:url)", "value":"do-exit", "icon":"\(mv:icons.ban)" },
 
       GetVariable v:opt.TestMode
       If Equals 1
@@ -57,7 +57,7 @@ If Equals "main"
 
       # otherwise, update the menu item
       Text -> v:dl_menu_item
-      | { "caption":"Download", "subtitle":"\(v:argv:url)", "value":"do-fetch", "icon":"\(mv:icons.download)" },
+      | { "caption":"\(v:lang.DOWNLOAD)", "subtitle":"\(v:argv:url)", "value":"do-fetch", "icon":"\(mv:icons.download)" },
 
       Number 1 -> v:canDownload
 
