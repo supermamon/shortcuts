@@ -80,19 +80,19 @@ If Equals "fetchMedia"
 
     GetVariable v:userOpts
     GetDictionaryValue get="Value" key="SaveTo" -> v:SaveTo
-    If Equals "Always Ask"
+    If Equals "always-ask"
       ChooseFromMenu prompt="Save" items=["Save to Files", "Save to Photo Album", "Discard"]
       Case
-        Text "Files"
+        Text "saveto-file"
       Case
-        Text "Photo Album"
+        Text "saveto-photos"
       Case
         Nothing
       End -> v:SaveTo
     End
 
     GetVariable v:SaveTo
-    If Equals "Files"
+    If Equals "saveto-files"
       Text "\(v:lang.MSG_SAVED_FILE)"
       ReplaceText (
         findText="{FOLDER}",
@@ -114,7 +114,7 @@ If Equals "fetchMedia"
 
     End
     GetVariable v:SaveTo
-    If Equals "Photo Album"
+    If Equals "saveto-photos"
         GetVariable v:downloaded_media
         SaveToPhotoAlbum album="All Photos"
         @call {fn:showMessage, message:v:lang.MSG_SAVED_PHOTOS}

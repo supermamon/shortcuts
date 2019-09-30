@@ -16,6 +16,7 @@ If Equals "detectInput"
         ],
         "INSTAGRAM_POST": [
             ".+(www\\.)*instagram\\.com[\\w\\.\\\\/-]*\\/p\\/",
+            ".+(www\\.)*instagram\\.com\\/tv\\/[a-zA-Z0-0]+",
         ],
         "OVERCAST_LINK": [
             ".+overcast\\.fm.+"

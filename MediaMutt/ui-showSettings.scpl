@@ -95,6 +95,8 @@ If Equals "showSettings"
             GetVariable mv:icons
             GetDictionaryValue get="Value" key=mv:mapped_item.icon -> v:optIcon
 
+            GetVariable v:userOpts
+            GetDictionaryValue get="Value" key=v:option_name -> v:optState
 
             Text "\(mv:mapped_item.type)" -> v:mapped_item_type
             # on/off type
@@ -117,20 +119,6 @@ If Equals "showSettings"
             // text type
             GetVariable v:mapped_item_type
             If Equals "text"
-                Getvariable mv:mapped_item.description -> v:optState
-                Nothing
-            End
-
-            GetVariable v:mapped_item_type
-            If Equals "number"
-
-                GetVariable v:userOpts
-                GetDictionaryValue get="Value" key=v:option_name -> v:optState
-
-                Nothing
-            End
-            GetVariable v:mapped_item_type
-            If Equals "list"
                 Getvariable mv:mapped_item.description -> v:optState
                 Nothing
             End
@@ -248,7 +236,15 @@ If Equals "showSettings"
     If Equals "list"
 
         GetVariable v:chosen_value.list
-        SplitText separator="New Lines"
+        GetDictionaryfromInput -> mv:list_options
+        GetDictionaryValue get="All Keys"
+        RepeatwithEach
+            GetVariable mv:list_options
+            GetDictionaryValue get="Value" key=v:"Repeat Item" -> mv:item_name
+
+            GetVariable v:"Repeat Item"
+            SetName name=mv:item_name
+        End
         ChoosefromList (
             prompt="\(mv:chosen_item.caption)",
             selectMultiple=false,
