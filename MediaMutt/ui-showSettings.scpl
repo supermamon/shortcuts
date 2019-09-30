@@ -3,49 +3,80 @@ If Equals "showSettings"
     #ShowAlert title="Settings here" message=""
 
     Dictionary {
+        SaveTo: {
+            "always-ask": "\(v:lang.SAVETO_PROMPT)",
+            "saveto-files": "\(v:lang.SAVETO_FILES)",
+            "saveto-photos": "\(v:lang.SAVETO_PHOTOS)",
+        },
+        Language: {
+            "English" : "English",
+            "Russian" : "Russian",
+        }
+    } -> mv:opt_lists
+
+    GetVariable mv:opt_lists.SaveTo
+    GetDictionaryValue get="Value" key=v:userOpts:SaveTo -> mv:SaveToSubttl
+
+    GetVariable mv:opt_lists.Language
+    GetDictionaryValue get="Value" key=v:userOpts:Language -> mv:LanguageSubttl
+
+    Dictionary {
         ShowAlerts: {
             type        : "toggle",
             icon        : "toggle",
-            caption     : "Show Alerts",
-            description : "Messages as alerts instead of notifications.",
+            caption     : v:lang.SHOW_ALERTS,
+            description : v:lang.SHOW_ALERTS_SUBTTL,
         },
         ViewBeforeSave: {
             type        : "toggle",
             icon        : "toggle",
-            caption     : "Preview Before Saving",
-            description : "Display the downloaded media before saving.",
+            caption     : v:lang.PREVIEWB4SAVE,
+            description : v:lang.PREVIEWB4SAVE_SUBTTL,
         },
         DownloadImmediately: {
             type        : "toggle",
             icon        : "toggle",
-            caption     : "Download Immediately",
-            description : "Don't show menu when downloading.",
+            caption     : v:lang.DLOADIMMED,
+            description : v:lang.DLOADIMMED_SUBTTL,
         },
         DownloadFolder: {
             type        : "text",
             icon        : "folder",
-            caption     : "iCloud Drive Download Location",
+            caption     : v:lang.DOWNLOAD_DIR,
             description : v:userOpts:DownloadFolder,
         },
         SaveTo: {
             type        : "list",
             icon        : "save",
-            list        : ["Always Ask", "Files", "Photo Album"]
-            caption     : "Save To",
-            description : v:userOpts:SaveTo,
+            list        : mv:opt_lists.SaveTo
+            caption     : v:lang.SAVETO,
+            description : mv:SaveToSubttl,
         },
         UpdateInterval: {
             type        : "number",
             icon        : "clock",
-            caption     : "Update Check Frequency",
-            description : "How often (in hours) to check for updates",
+            caption     : v:lang.UPDATEFREQ,
+            description : v:lang.UPDATEFREQ_SUBTTL,
+        },
+        Language: {
+            type        : "list",
+            icon        : "clock",
+            list        : mv:opt_lists.Language,
+            caption     : "Language",
+            description : mv:LanguageSubttl
         },
     } -> v:opt_map
 
 
-    # Get user options
-    GetVariable v:userOpts
-    GetDictionaryValue get="Value" key="sysOrder"
+    List [
+        "ShowAlerts",
+        "ViewBeforeSave",
+        "DownloadImmediately",
+        "SaveTo",
+        "DownloadFolder",
+        "UpdateInterval",
+        "Language",
+    ] -> mv:sysPrefOrder
     RepeatwithEach
 
         # this will hold the option name
@@ -121,8 +152,8 @@ If Equals "showSettings"
 
     # add a reset settings item
     Dictionary {
-        "caption" : "Reset Settings",
-        "subtitle": "Reset settings to default.",
+        "caption" : v:lang.RESET,
+        "subtitle": v:lang.RESET_SUBTTL,
         "icon"    : mv:icons:history,
         "value"   : {
             option: "reset",
@@ -133,8 +164,8 @@ If Equals "showSettings"
 
     # add an exit item
     Dictionary {
-        "caption" : "Done",
-        "subtitle": "Go back to the main menu",
+        "caption" : v:lang.DONE,
+        "subtitle": v:lang.DONE_SUBTTL,
         "icon"    : mv:icons:"arrow-alt-circle-left",
         "value"   : {
             option: "done",
@@ -268,7 +299,7 @@ If Equals "showSettings"
     End
     GetVariable v:value_type
     If Equals "reset"
-        ChooseFromMenu prompt="This will revert all your settings to default and delete all of the downloaded media." items=["Reset & Remove Media","Stay as is"]
+        ChooseFromMenu prompt=v:lang.MSG_RESET_WARNING items=[v:lang.MSG_RESET_REMOVE,v:lang.MSG_KEEP_DATA]
         Case #Proceed
             GetFile (
                 service="iCloud Drive",
@@ -286,7 +317,7 @@ If Equals "showSettings"
                 destinationpath="\(v:opt:"storage.dir")/"
                 overwriteiffileexists=true
             }
-            @call {fn:showMessage, message:"All settings have been reset."}
+            @call {fn:showMessage, message:v:lang.MSG_ALL_CONF_CLEAR}
 
         Case #Stay
             Nothing

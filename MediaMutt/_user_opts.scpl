@@ -5,14 +5,6 @@ Comment `
 `
 Dictionary {
     defaultOpts: {
-        sysOrder                    : [
-            "ShowAlerts",
-            "ViewBeforeSave",
-            "DownloadImmediately",
-            "SaveTo",
-            "DownloadFolder",
-            "UpdateInterval",
-        ],
         sysLastUpdateCheck          : "2019-01-01 00:00",
         <bool> ShowAlerts           : true,
         <bool> DownloadImmediately  : false,
@@ -20,6 +12,7 @@ Dictionary {
         SaveTo                      : "Always Ask",
         DownloadFolder              : "\(v:opt:"storage.dir")/downloads",
         UpdateInterval              : 12,
+        Language                    : "English",
     }
 }
 GetDictionaryValue get="Value" key="defaultOpts" -> v:defaultOpts
