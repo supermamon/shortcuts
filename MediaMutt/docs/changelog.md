@@ -1,5 +1,8 @@
 # Media Mutt Changelog
 
+* Media Mutt 2.0.3
+  - (fix) Youtube age-restricted videos
+
 * Media Mutt 2.0.2
   - (fix) Reddit title sometimes is not being used as filename
   - (fix) Reddit hosted video still fails for some videos
