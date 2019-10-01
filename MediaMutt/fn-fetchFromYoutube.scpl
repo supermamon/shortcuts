@@ -96,12 +96,10 @@ If Equals "fetchFromYoutube"
         RepeatwithEach
             GetDictionaryfromInput
         End -> v:streams
-
     Otherwise
         GetVariable mv:player_response
         GetDictionaryValue get="Value" key="streamingData.formats" -> v:streams
     End
-
     #@dbgViewWithJayson
 
     #GetVariable v:video_info
@@ -109,7 +107,6 @@ If Equals "fetchFromYoutube"
     #@dbgAlert "stream_map = \(mv:stream_map)"
     #SplitText separator="Custom" custom="," -> mv:split_stream
     #@dbgAlert "split_stream \(mv:split_stream)"
-
     GetVariable  v:streams
     RepeatWithEach
         #@dbgAlert "testing repeat item \(v:"Repeat Item")"

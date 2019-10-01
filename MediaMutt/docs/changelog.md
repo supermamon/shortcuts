@@ -3,7 +3,9 @@
 * Media Mutt 2.1.0
   - (new) Russian translation
   - (new) Instagram TV downloads
-  - (fix) unable to download age-restricted videos
+
+* Media Mutt 2.0.3
+  - (fix) Youtube age-restricted videos
 
 * Media Mutt 2.0.2
   - (fix) Reddit title sometimes is not being used as filename
