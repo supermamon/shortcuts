@@ -4,7 +4,7 @@ If Equals "showDownloads"
     Base64Encode (
         mode="Decode"
     )
-    SetName "Back"
+    SetName "\(v:lang.BACK)"
     SetVariable v:back
 
     GetFile a{
@@ -15,8 +15,8 @@ If Equals "showDownloads"
     } -> mv:files
     Count Items
     If Equals 0
-        Text "No downloads yet."
-        SetName "No downloads yet."
+        Text "\(v:lang.MSG_NO_DOWNLOADS)"
+        SetName "\(v:lang.MSG_NO_DOWNLOADS)"
         AddToVariable v:list
         GetVariable v:back
         AddToVariable v:list
@@ -32,7 +32,7 @@ If Equals "showDownloads"
 
     ChoosefromList prompt="Pick a file to view" -> mv:selected
     GetName
-    If Equals "Back"
+    If Equals "\(v:lang.BACK)"
         ExitShortcut
     Otherwise
         GetVariable mv:selected

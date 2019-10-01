@@ -80,10 +80,19 @@ If Equals "fetchMedia"
 
     GetVariable v:userOpts
     GetDictionaryValue get="Value" key="SaveTo" -> v:SaveTo
+    ShowAlert (
+      title="DEBUG",
+      message=v:SaveTo,
+      showCancelButton=true
+    )
     If Equals "always-ask"
-      ChooseFromMenu prompt="Save" items=["Save to Files", "Save to Photo Album", "Discard"]
+      ChooseFromMenu prompt="Save" items=[
+        v:lang.MSG_SAVETO_FILES,
+        v:lang.MSG_SAVETO_PHOTOS,
+        v:lang.MSG_DISCARD
+      ]
       Case
-        Text "saveto-file"
+        Text "saveto-files"
       Case
         Text "saveto-photos"
       Case

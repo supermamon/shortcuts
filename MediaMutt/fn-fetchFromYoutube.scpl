@@ -15,7 +15,7 @@ If Equals "fetchFromYoutube"
     | https://tyrrrz.me/Blog/Reverse-engineering-YouTube
 
     GetVariable v:argv:url
-    Expandurl
+    Expandurl -> mv:expanded_url
     GetComponentOfUrl "Query"
     GetDictionaryFromInput -> v:query
     GetDictionaryValue get="Value" key="v"
@@ -23,12 +23,20 @@ If Equals "fetchFromYoutube"
     SetVariable v:video_id
     @dbgAlert "Video ID = \(v:video_id)"
     Url "http://youtube.com/get_video_info?video_id=\(v:video_id)&el=detailpage&ps=default&eurl=&gl=US&hl=en"
-    GetContentsOfUrl advanced=false headers=false -> mv:raw_video_info
+    #GetContentsOfUrl advanced=false headers=false -> mv:raw_video_info
+    GetContentsofURL (
+        advanced=true,
+        method="GET",
+        headers=true,
+        headers2={
+            "Referer": "\(mv:expanded_url)"
+        }
+    ) -> mv:raw_video_info
     @dbgAlert "RAW Video Info = \(mv:raw_video_info)"
     GetDictionaryfromInput
     SetVariable v:video_info
     @dbgAlert "DICT Video Info = \(v:video_info)"
-    
+
     #@dbgViewWithJayson
 
     GetDictionaryValue get="Value" key="player_response" -> mv:raw_player_response
@@ -36,6 +44,8 @@ If Equals "fetchFromYoutube"
     #GetVariable v:video_info.player_response
     GetDictionaryfromInput -> mv:player_response
     @dbgAlert "dict player_respose \(mv:player_response)"
+
+    GetVariable mv:player_response
     GetDictionaryValue get="Value" key="videoDetails.title"
     ReplaceText findtext="+" replacewith=" "
     SetVariable v:yt_video_title
@@ -66,16 +76,44 @@ If Equals "fetchFromYoutube"
 
     SetVariable v:itags
 
+    GetVariable mv:player_response
+    GetDictionaryValue get="Value" key="playabilityStatus.status" -> mv:play_status
+    Text "\(mv:play_status)"
+    If Equals "LOGIN_REQUIRED"
+        Url "http://youtube.com/get_video_info?video_id=\(v:video_id)&el=embedded&ps=default&eurl=&gl=US&hl=en"
+        GetContentsofURL (
+            advanced=true,
+            method="GET",
+            headers=true,
+            headers2={
+                "Referer": "\(mv:expanded_url)"
+            }
+        ) -> mv:raw_video_info_ar
+        GetDictionaryfromInput
+        SetVariable v:video_info_ar
+        GetDictionaryValue get="Value" key="url_encoded_fmt_stream_map" -> mv:stream_map
+        SplitText separator="Custom" custom="," -> v:split_stream
+        RepeatwithEach
+            GetDictionaryfromInput
+        End -> v:streams
+
+    Otherwise
+        GetVariable mv:player_response
+        GetDictionaryValue get="Value" key="streamingData.formats" -> v:streams
+    End
+
     #@dbgViewWithJayson
 
-    GetVariable v:video_info
-    GetDictionaryValue get="Value" key="url_encoded_fmt_stream_map" -> mv:stream_map
-    @dbgAlert "stream_map = \(mv:stream_map)"
-    SplitText separator="Custom" custom="," -> mv:split_stream
-    @dbgAlert "split_stream \(mv:split_stream)"
+    #GetVariable v:video_info
+    #GetDictionaryValue get="Value" key="url_encoded_fmt_stream_map" -> mv:stream_map
+    #@dbgAlert "stream_map = \(mv:stream_map)"
+    #SplitText separator="Custom" custom="," -> mv:split_stream
+    #@dbgAlert "split_stream \(mv:split_stream)"
+
+    GetVariable  v:streams
     RepeatWithEach
-        @dbgAlert "testing repeat item \(v:"Repeat Item")"
-        GetDictionaryFromInput
+        #@dbgAlert "testing repeat item \(v:"Repeat Item")"
+        #GetDictionaryFromInput
         SetVariable v:stream
 
         @dbgAlert "stream \(v:stream)"

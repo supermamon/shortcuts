@@ -204,6 +204,9 @@ If Equals "main"
     |Youtube Download: https://tyrrrz.me/Blog/Reverse-engineering-YouTube
     |
     |Audio/Video merging: http://www.fileconverto.com/add-music-to-video/
+    |
+    |Translations:
+    |Russian by @Devilmachine
     ShowAlert title="" message=mv:about showCancelButton=false
     @call{fn:main}
     Nothing
