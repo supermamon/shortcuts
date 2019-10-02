@@ -52,7 +52,7 @@ ContinueShortcutinApp
 Dictionary {
     shortcut    : "Media Mutt",
     author      : "@supermamon",
-    version     : "2.0.3",
+    version     : "2.0.4",
     settings    : {
         updater : {
             ID: 3184
