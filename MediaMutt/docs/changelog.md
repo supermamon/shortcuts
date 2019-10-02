@@ -4,6 +4,9 @@
   - (new) Russian translation
   - (new) Instagram TV downloads
 
+* Media Mutt 2.0.4
+  - (update) Show a proper message when trying to download protected Youtube videos
+
 * Media Mutt 2.0.3
   - (fix) Youtube age-restricted videos
 

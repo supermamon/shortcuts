@@ -30,7 +30,9 @@ may track urls that you send to them.
 Everything is done within the shortcut.
 `
 
-Comment "Input checking"
+Comment `
+         ..:: Input checking ::..
+`
 SetVariable v:argv
 Count Items
 If Equals 0
