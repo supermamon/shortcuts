@@ -38,11 +38,6 @@ If Equals "fetchFromYoutube"
     GetDictionaryfromInput
     SetVariable v:video_info
     @dbgAlert "DICT Video Info = \(v:video_info)"
-<<<<<<< HEAD
-
-    #@dbgViewWithJayson
-=======
->>>>>>> master
 
     GetDictionaryValue get="Value" key="player_response" -> mv:raw_player_response
     @dbgAlert "raw player_respose \(mv:raw_player_response)"
