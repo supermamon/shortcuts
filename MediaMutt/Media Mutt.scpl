@@ -31,7 +31,7 @@ Everything is done within the shortcut.
 `
 
 Comment `
-         ..:: Input checking ::..
+             ..:: Input checking ::..
 `
 SetVariable v:argv
 Count Items
@@ -50,7 +50,7 @@ End
 @dbgAlert "Calling: \(v:function)\n-----------\nWith Parameters:\n\(v:argv)"
 
 @import "./_main.scpl"
-@import "./_detectInput.scpl"
+#@import "./_detectInput.scpl"
 @import "./_firstRun.scpl"
 @import "../lib/vcard_menu.scpl"
 
@@ -72,7 +72,7 @@ End
 @import "./fn-fetchFromTumblr.scpl"
 
 @import "./ui-showMessage.scpl"
-@import "./ui-getSetupState.scpl"
+
 @import "./ui-getUserOpts.scpl"
 @import "./ui-getAddonsFile.scpl"
 @import "./ui-getAddonsList.scpl"

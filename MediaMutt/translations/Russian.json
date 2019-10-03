@@ -8,8 +8,6 @@
         "CONF_FILE_CREATED"     : "Файл создан. Нажмите далее.",
         "CONF_COMPLETE"         : "Настройка завершена.",
 
-
-
         "SECTION1"              : "-- Main Menu --",
         "DOWNLOAD"              : "Загрузка",
         "UNSUPPORTED_URL"       : "URL не поддерживается",

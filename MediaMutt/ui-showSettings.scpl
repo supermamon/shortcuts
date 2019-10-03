@@ -11,6 +11,7 @@ If Equals "showSettings"
         Language: {
             "English" : "English",
             "Russian" : "Russian",
+            "Portuguese" : "Portuguese",
         }
     } -> mv:opt_lists
 

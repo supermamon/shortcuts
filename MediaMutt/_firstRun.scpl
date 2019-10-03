@@ -1,80 +1,137 @@
 GetVariable v:function
 If Equals "firstRun"
     @dbgAlert "Entered firstRun"
-    @call {fn:getSetupState}
-    SetVariable v:setup
-    GetDictionaryValue get="All Values"
-    CalculateStatistics operation="Sum" -> mv:sum
-    @dbgAlert "_firstRun: Setup State Count = \(mv:sum)"
-    If "Is Less Than" 4
-        Text "\(v:lang.CONF_INCOMPLETE)"
-        ReplaceText (
-            findText="{SHORTCUT}",
-            replaceWith=v:self,
-            caseSensitive=true,
-            regularExpression=false
-        ) -> mv:prompt1
-        ChooseFromMenu prompt=mv:prompt1 items=["Next"]
+
+    #@call {fn:getSetupState}
+
+    Comment `
+        ..:: Get Setup State ::..
+    `
+
+    Dictionary {
+        OptFileExists   : 0,
+        AddonFileExists : 0,
+        SetupComplete   : 0
+    } -> v:setup
+
+    # Create the MediaMutt dfolder
+    CreateFolder service="iCloud Drive" path=v:opt:"storage.dir"
+    CreateFolder service="iCloud Drive" path="\(v:opt:"storage.dir")/downloads"
+
+    # get the files in the folder
+    GetFile a{
+        service="iCloud Drive"
+        showDocumentPicker=false
+        filePath="\(v:opt:"storage.dir")/"
+        errorIfnotFound=false
+    } -> mv:files
+
+    # count the files that match addons & media_mutt
+    # if there are 2, the setup is complete.
+    RepeatwithEach
+        GetDetailsofFiles "Name"
+    End
+    CombineText separator="Spaces"
+    MatchText pattern="(addons media_mutt|media_mutt addons)" caseSensitive=true
+    Count Items
+    If Equals 1
+        Dictionary {
+            OptFileExists   : 1,
+            AddonFileExists : 1,
+            SetupComplete   : 2
+        } -> v:setup
+        ExitShortcut
+    End
+
+    # tell the user setup is not complete
+    Text "\(v:lang.CONF_INCOMPLETE)"
+    ReplaceText (
+        findText="{SHORTCUT}",
+        replaceWith=v:self,
+        caseSensitive=true,
+        regularExpression=false
+    ) -> mv:prompt1
+    ChooseFromMenu prompt=mv:prompt1 items=["Next"]
+    Case "Next"
+    End
+
+    # setup the media_mutt.json file
+    Text "\(mv:files{as:File,get=Name})"
+    If Contains "media_mutt"
+        GetVariable v:setup
+        SetDictionaryValue key="OptFileExists" value=1
+        SetVariable v:setup
+    Otherwise
+
+        Text "\(v:lang.CONF_PREF_MISSING)" -> mv:prompt2
+        ChooseFromMenu prompt=mv:prompt2 items=["Next"]
         Case "Next"
         End
 
-        GetVariable v:setup:OptFileExists
-        If Equals 0
-            Text "\(v:lang.CONF_PREF_MISSING)" -> mv:prompt2
-            ChooseFromMenu prompt=mv:prompt2 items=["Next"]
-            Case "Next"
-            End
+        # save the default opts into the file
+        GetVariable v:userOpts
+        SetName v:opt:"storage.file"
+        SaveFile a{
+            service="iCloud Drive"
+            askwheretosave=false
+            destinationpath="\(v:opt:"storage.dir")/"
+            overwriteiffileexists=true
+        }
 
-            GetVariable v:userOpts
-            SetName v:opt:"storage.file"
-            SaveFile a{
-                service="iCloud Drive"
-                askwheretosave=false
-                destinationpath="\(v:opt:"storage.dir")/"
-                overwriteiffileexists=true
-            }
-
-            CreateFolder service="iCloud Drive" path="\(v:opt:"storage.dir")/downloads"
-
-            Text "\(v:lang.CONF_PREF_CREATED)" -> mv:prompt3
-            ChooseFromMenu prompt=mv:prompt3 items=["Next"]
-            Case "Next"
-            End
+        Text "\(v:lang.CONF_PREF_CREATED)" -> mv:prompt3
+        ChooseFromMenu prompt=mv:prompt3 items=["Next"]
+        Case "Next"
         End
 
-        GetVariable v:setup:AddonFileExists
-        If Equals 0
-            Text "\(v:lang.CONF_ADDONS_MISSING)" -> mv:prompt4
-            ChooseFromMenu prompt=mv:prompt4 items=["Next"]
-            Case "Next"
-            End
+        GetVariable v:setup
+        SetDictionaryValue key="OptFileExists" value=1
+        SetVariable v:setup
+    End
 
-            Text
-            |{
-            |  "addons":[]
-            |}
-            SetName v:opt:"storage.addons"
-            SaveFile a{
-                service="iCloud Drive"
-                askwheretosave=false
-                destinationpath="\(v:opt:"storage.dir")/"
-                overwriteiffileexists=true
-            }
-            Text "\(v:lang.CONF_FILE_CREATED)" -> mv:prompt5
-            ChooseFromMenu prompt=mv:prompt5 items=["Next"]
-            Case "Next"
-            End
+    # setup the addons.json file
+    Text "\(mv:files{as:File,get=Name})"
+    If Contains "addons"
+        GetVariable v:setup
+        SetDictionaryValue key="AddonFileExists" value=1
+        SetVariable v:setup
+    Otherwise
+        Text "\(v:lang.CONF_ADDONS_MISSING)" -> mv:prompt4
+        ChooseFromMenu prompt=mv:prompt4 items=["Next"]
+        Case "Next"
         End
 
-        ChooseFromMenu prompt="\(v:lang.CONF_COMPLETE)" ["OK"]
-        Case "OK"
+        Text
+        |{
+        |  "addons":[]
+        |}
+        SetName v:opt:"storage.addons"
+        SaveFile a{
+            service="iCloud Drive"
+            askwheretosave=false
+            destinationpath="\(v:opt:"storage.dir")/"
+            overwriteiffileexists=true
+        }
+        Text "\(v:lang.CONF_FILE_CREATED)" -> mv:prompt5
+        ChooseFromMenu prompt=mv:prompt5 items=["Next"]
+        Case "Next"
         End
 
-        @call {fn:getSetupState}
+        GetVariable v:setup
+        SetDictionaryValue key="AddonFileExists" value=1
         SetVariable v:setup
 
     End
+
+    ChooseFromMenu prompt="\(v:lang.CONF_COMPLETE)" ["OK"]
+    Case "OK"
+    End
+
     GetVariable v:setup
+    GetDictionaryValue get="All Values"
+    CalculateStatistics "Sum" -> mv:SetupComplete
+    GetVariable v:setup
+    SetDictionaryValue key="SetupComplete" value=mv:SetupComplete
+
     @dbgAlert "Exited firstRun"
     ExitShortcut
 End

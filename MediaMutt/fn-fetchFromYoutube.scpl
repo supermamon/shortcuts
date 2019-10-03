@@ -51,7 +51,7 @@ If Equals "fetchFromYoutube"
     If Equals 1
         ShowAlert (
             title=v:self,
-            message="\(v:self) is unable to dowload protected videos.",
+            message="\(v:self) is unable to dowload protected videos.\\nSource URLs of protected videos are encrypted.",
             showCancelButton=false
         )
         Nothing
