@@ -116,6 +116,7 @@ If Equals "fetchMedia"
   # clear clipboard
   Nothing
   CopytoClipboard localOnly=false
+  GetVariable v:downloaded_media
   ExitShortcut
 
 End

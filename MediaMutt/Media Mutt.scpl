@@ -52,7 +52,7 @@ ContinueShortcutinApp
 Dictionary {
     shortcut    : "Media Mutt",
     author      : "@supermamon",
-    version     : "2.0.4",
+    version     : "2.0.5",
     settings    : {
         updater : {
             ID: 3184
@@ -163,6 +163,14 @@ Otherwise
 
     Text "\(v:argv)"
     GetURLsFromInput -> v:url
+    Count Items
+    If "Is Greater Than" 1
+        GetVariable v:url
+        ChoosefromList (
+            prompt="Multiple URLs detected from the input. Choose which one to process.",
+            selectMultiple=false
+        ) -> v:url
+    End
     #@call {fn:main, url:v:argv}
 
     Dictionary {
