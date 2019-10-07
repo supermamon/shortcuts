@@ -3,15 +3,15 @@ GetVariable v:function
 If Equals "fetchFromTumblr"
     @dbgAlert "Entered fetchFromTumblr with \(v:argv:url)"
     Dictionary {
-        "photo"     : "og:image\"\\scontent=\"([^\"]+)",
-        "photoset"  : "og:image\"\\scontent=\"([^\"]+)",
-        "video"     : "og:video\"\\scontent=\"([^\"]+)",
+        "photo"     : "(?m)og:image\"\\s+content=\"([^\"]+)",
+        "photoset"  : "(?m)og:image\"\\s+content=\"([^\"]+)",
+        "video"     : "(?m)og:video\"\\s+content=\"([^\"]+)",
     } -> mv:type_dict
 
     GetVariable v:argv:url
     GetContentsOfUrl
     SetName "src.txt" -> mv:src
-    MatchText pattern="og:type\"\\scontent=\"([^\"]+)"
+    MatchText pattern="og:type\"\\s+content=\"([^\"]+)"
     GetGroupfromMatchedText get="Group At Index" groupIndex=1 -> mv:type
 
     GetVariable mv:type_dict
@@ -26,6 +26,11 @@ If Equals "fetchFromTumblr"
             GetVariable mv:media_url
             GetContentsOfUrl
         Otherwise
+            ShowAlert (
+                title=v:self,
+                message="The url of the associated media is not hosted in tumblr.com. It will be share again with \(v:self) to attempt donwloading.",
+                showCancelButton=false
+            )
             GetVariable mv:media_url
             RunShortcut v:self false
         End
