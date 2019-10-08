@@ -1,5 +1,5 @@
 Dictionary {
-    shortcut    : "Media Mutt",
+    shortcut    : "\(@:SHORTCUT_NAME)",
     author      : "@supermamon",
     version     : "2.1.0",
     settings    : {
@@ -7,7 +7,7 @@ Dictionary {
             ID: 3184
         },
         storage : {
-            dir     : "\(@:SHORTCUT_NAME)",
+            dir     : "MediaMutt",
             file    : "media_mutt.json",
             addons  : "addons.json",
             langlst : "https://raw.githubusercontent.com/supermamon/shortcuts/sc-media-mutt/MediaMutt/translations/list.json",
