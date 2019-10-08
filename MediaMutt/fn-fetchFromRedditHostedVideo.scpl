@@ -103,9 +103,9 @@ If Equals "fetchFromRedditHostedVideo"
 
 			GetVariable v:video_file
 			DeleteFiles false
-		Else
+		Otherwise
 			GetVariable v:video_file
-			SetName "video_file.gif"
+			#SetName "video_file.mp4"
 			SetVariable v:return
 		End
 	End
