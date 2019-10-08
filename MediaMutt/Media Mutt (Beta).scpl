@@ -1,0 +1,10 @@
+
+# ######### COMPILER OPTIONS ######### #
+@set debug false
+@set mock false
+@import "../lib/helpers.scpl"
+# #################################### #
+
+
+@set SHORTCUT_NAME "Media Mutt (Beta)"
+@import "_Media Mutt.scpl"

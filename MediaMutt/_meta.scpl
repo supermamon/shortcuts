@@ -7,7 +7,7 @@ Dictionary {
             ID: 3184
         },
         storage : {
-            dir     : "MediaMutt",
+            dir     : "\(@:SHORTCUT_NAME)",
             file    : "media_mutt.json",
             addons  : "addons.json",
             langlst : "https://raw.githubusercontent.com/supermamon/shortcuts/sc-media-mutt/MediaMutt/translations/list.json",
