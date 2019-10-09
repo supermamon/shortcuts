@@ -256,4 +256,54 @@ Dictionary {
         "MSG_NOTHING_DOWNLOADED": "Nada foi transferido."
     }
 } -> mv:languages
-GetDictionaryValue get="Value" key=v:userOpts.Language -> v:lang
+GetDictionaryValue get="Value" key="English" -> v:base_lang
+Text "\(v:userOpts.Language)"
+If Equals "English"
+    GetVariable v:base_lang
+    SetVariable v:lang
+Otherwise
+    GetFile (
+        service="iCloud Drive",
+        showDocumentPicker=false,
+        selectMultiple=false,
+        filePath="\(v:opt."storage.dir")/lang/\(v:userOpts.Language).json",
+        errorIfNotFound=false
+    ) -> mv:foreign_lang_file
+    Count "Items"
+    If Equals 0
+        Text "The language file for \(v:userOpts.Language) is missing.\nLanguage has been reset to English. Go to Settings to download the desired language." -> mv:msg_missing_lang
+        ShowAlert (
+            title=v:self,
+            message=mv:msg_missing_lang,
+            showCancelButton=false
+        )
+        GetVariable v:userOpts
+        SetDictionaryValue key="Language" value="English" -> v:userOpts
+        SetName v:opt:"storage.file"
+        SaveFile a{
+            service="iCloud Drive"
+            askwheretosave=false
+            destinationpath="\(v:opt:"storage.dir")/"
+            overwriteiffileexists=true
+        }
+        GetVariable v:base_lang
+        SetVariable v:lang
+    Otherwise
+        GetVariable mv:foreign_lang_file
+        GetDictionaryValue get="Value" key=v:userOpts.Language -> mv:foreign_lang
+
+        GetVariable v:base_lang
+        SetVariable v:lang
+        GetDictionaryValue get="All Keys"
+        RepeatwithEach
+            GetVariable mv:foreign_lang
+            GetDictionaryValue get="Value" key=v:"Repeat Item" -> mv:translation
+            Count Items
+            If "Is Greater Than" 0
+                GetVariable v:lang
+                SetDictionaryValue key=v:"Repeat Item" value=mv:translation
+                SetVariable v:lang
+            End
+        End
+    End
+End

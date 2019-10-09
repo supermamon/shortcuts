@@ -9,9 +9,10 @@ Dictionary {
         storage : {
             dir     : "MediaMutt",
             file    : "media_mutt.json",
-            addons  : "addons.json",
-            langlst : "https://raw.githubusercontent.com/supermamon/shortcuts/sc-media-mutt/MediaMutt/translations/list.json",
+            addons  : "addons.json"
         },
+        ,
+        langs_url : "https://raw.githubusercontent.com/supermamon/shortcuts/sc-media-mutt/MediaMutt/translations/list.json",
         <bool> TestMode : false,
     }
 } -> mv:meta

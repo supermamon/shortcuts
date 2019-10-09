@@ -1,6 +1,8 @@
 {
-    "available": [
+    "translations": [
         "English",
-        "Russian"
+        "Russian",
+        "Portuguese",
+        "Spanish"
     ]
 }

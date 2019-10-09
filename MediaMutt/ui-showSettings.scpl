@@ -8,17 +8,27 @@ If Equals "showSettings"
             "saveto-files": "\(v:lang.SAVETO_FILES)",
             "saveto-photos": "\(v:lang.SAVETO_PHOTOS)",
         },
-        Language: {
-            "English" : "English",
-            "Russian" : "Russian",
-            "Portuguese" : "Portuguese",
-        }
-    } -> mv:opt_lists
+        Language: {}
+    } -> v:opt_lists
 
-    GetVariable mv:opt_lists.SaveTo
+    URL v:opt.langs_url
+    GetContentsofURL
+    GetDictionaryValue get="Value" key="translations" -> v:langs_available_online
+
+    Dictionary {} -> v:langs_available
+
+    GetVariable v:langs_available_online
+    RepeatwithEach
+        GetVariable v:langs_available
+        SetDictionaryValue key=v:"Repeat Item" value=v:"Repeat Item"
+        SetVariable v:langs_available
+    End
+
+
+    GetVariable v:opt_lists.SaveTo
     GetDictionaryValue get="Value" key=v:userOpts:SaveTo -> mv:SaveToSubttl
 
-    GetVariable mv:opt_lists.Language
+    GetVariable v:langs_available
     GetDictionaryValue get="Value" key=v:userOpts:Language -> mv:LanguageSubttl
 
     Dictionary {
@@ -49,7 +59,7 @@ If Equals "showSettings"
         SaveTo: {
             type        : "list",
             icon        : "save",
-            list        : mv:opt_lists.SaveTo
+            list        : v:opt_lists.SaveTo
             caption     : v:lang.SAVETO,
             description : mv:SaveToSubttl,
         },
@@ -62,7 +72,7 @@ If Equals "showSettings"
         Language: {
             type        : "list",
             icon        : "clock",
-            list        : mv:opt_lists.Language,
+            list        : v:langs_available,
             caption     : "Language",
             description : mv:LanguageSubttl
         },
@@ -260,6 +270,23 @@ If Equals "showSettings"
             destinationpath="\(v:opt:"storage.dir")/"
             overwriteiffileexists=true
         }
+
+        GetVariable v:chosen_value.option
+        If Equals "Language"
+            GetVariable v:newState
+            If Equals "English"
+            Otherwise
+                URL "https://raw.githubusercontent.com/supermamon/shortcuts/sc-media-mutt/MediaMutt/translations/\(v:newState).json"
+                GetContentsofURL
+                SetName "\(v:newState).json"
+                SaveFile (
+                    service="iCloud Drive",
+                    askWheretoSave=false,
+                    destinationPath="\(v:opt:"storage.dir")/lang/",
+                    overwriteIfFileExists=true
+                )
+            End
+        End
 
         Nothing
 

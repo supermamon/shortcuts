@@ -1,8 +1,16 @@
 # Media Mutt Changelog
 
 * Media Mutt 2.1.0
-  - (new) Russian translation
+  - (new) Translations
   - (new) Instagram TV downloads
+  - (fix) error when there is media in the clipboard
+
+* Media Mutt 2.0.6
+  - (fix) Reddit videos being blank
+
+* Media Mutt 2.0.5
+  - fix) Tumblr download. Age-restricted urls still not supported.
+  - (new) warn when there are multiple urls in the input
 
 * Media Mutt 2.0.4
   - (update) Show a proper message when trying to download protected Youtube videos

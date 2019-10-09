@@ -15,8 +15,9 @@ If Equals "firstRun"
     } -> v:setup
 
     # Create the MediaMutt dfolder
-    CreateFolder service="iCloud Drive" path=v:opt:"storage.dir"
+    CreateFolder service="iCloud Drive" path="\(v:opt:"storage.dir")"
     CreateFolder service="iCloud Drive" path="\(v:opt:"storage.dir")/downloads"
+    CreateFolder service="iCloud Drive" path="\(v:opt:"storage.dir")/lang"
 
     # get the files in the folder
     GetFile a{

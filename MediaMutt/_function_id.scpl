@@ -21,7 +21,8 @@ Otherwise
         ExitShortcut
     End
 
-    Text "\(v:argv)"
+    GetVariable v:argv
+    GetTextfromInput -> mv:textFromInput
     GetURLsFromInput -> v:url
     Dictionary {fn:main, url:v:url} -> v:argv
     Text "main" -> v:function
