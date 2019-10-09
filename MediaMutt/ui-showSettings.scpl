@@ -8,28 +8,11 @@ If Equals "showSettings"
             "saveto-files": "\(v:lang.SAVETO_FILES)",
             "saveto-photos": "\(v:lang.SAVETO_PHOTOS)",
         },
-        Language: {}
     } -> v:opt_lists
-
-    URL v:opt.langs_url
-    GetContentsofURL
-    GetDictionaryValue get="Value" key="translations" -> v:langs_available_online
-
-    Dictionary {} -> v:langs_available
-
-    GetVariable v:langs_available_online
-    RepeatwithEach
-        GetVariable v:langs_available
-        SetDictionaryValue key=v:"Repeat Item" value=v:"Repeat Item"
-        SetVariable v:langs_available
-    End
 
 
     GetVariable v:opt_lists.SaveTo
     GetDictionaryValue get="Value" key=v:userOpts:SaveTo -> mv:SaveToSubttl
-
-    GetVariable v:langs_available
-    GetDictionaryValue get="Value" key=v:userOpts:Language -> mv:LanguageSubttl
 
     Dictionary {
         ShowAlerts: {
@@ -70,11 +53,10 @@ If Equals "showSettings"
             description : v:lang.UPDATEFREQ_SUBTTL,
         },
         Language: {
-            type        : "list",
+            type        : "lang-list",
             icon        : "clock",
-            list        : v:langs_available,
             caption     : "Language",
-            description : mv:LanguageSubttl
+            description : v:userOpts:Language
         },
     } -> v:opt_map
 
@@ -244,6 +226,48 @@ If Equals "showSettings"
 
     End
     GetVariable v:value_type
+    If Equals "lang-list"
+
+        URL v:opt.langs_web_lst
+        GetContentsofURL
+        GetDictionaryValue get="Value" key="translations" -> v:langs_available_online
+
+        ChoosefromList (
+            prompt="\(mv:chosen_item.caption)",
+            selectMultiple=false,
+        ) -> v:newState
+
+        GetVariable v:userOpts
+        SetDictionaryValue key=v:chosen_value.option value=v:newState
+        SetName v:opt:"storage.file"
+        SaveFile a{
+            service="iCloud Drive"
+            askwheretosave=false
+            destinationpath="\(v:opt:"storage.dir")/"
+            overwriteiffileexists=true
+        }
+
+        GetVariable v:newState
+        If Equals "English"
+        Otherwise
+            Date
+            FormatDate (
+                dateFormat="ISO 8601",
+                includeISO8601Time=true,
+            ) -> mv:no_cache
+            URL "\(v:opt.langs_web_dir)/\(v:newState).json?ts=\(mv:no_cache)"
+            GetContentsofURL
+            SetName "\(v:newState).json"
+            SaveFile (
+                service="iCloud Drive",
+                askWheretoSave=false,
+                destinationPath="\(v:opt:"storage.dir")/lang/",
+                overwriteIfFileExists=true
+            )
+        End
+        Nothing
+    End
+    GetVariable v:value_type
     If Equals "list"
 
         GetVariable v:chosen_value.list
@@ -270,29 +294,6 @@ If Equals "showSettings"
             destinationpath="\(v:opt:"storage.dir")/"
             overwriteiffileexists=true
         }
-
-        GetVariable v:chosen_value.option
-        If Equals "Language"
-            GetVariable v:newState
-            If Equals "English"
-            Otherwise
-                Date
-                FormatDate (
-                    dateFormat="ISO 8601",
-                    includeISO8601Time=true,
-                ) -> mv:no_cache
-                URL "https://raw.githubusercontent.com/supermamon/shortcuts/sc-media-mutt/MediaMutt/translations/\(v:newState).json?ts=\(mv:no_cache)"
-                GetContentsofURL
-                SetName "\(v:newState).json"
-                SaveFile (
-                    service="iCloud Drive",
-                    askWheretoSave=false,
-                    destinationPath="\(v:opt:"storage.dir")/lang/",
-                    overwriteIfFileExists=true
-                )
-            End
-        End
-
         Nothing
 
     End

@@ -12,7 +12,8 @@ Dictionary {
             addons  : "addons.json"
         },
         ,
-        langs_url : "https://raw.githubusercontent.com/supermamon/shortcuts/sc-media-mutt/MediaMutt/translations/list.json",
+        langs_web_lst : "https://raw.githubusercontent.com/supermamon/shortcuts/sc-media-mutt/MediaMutt/translations/list.json",
+        langs_web_dir : "https://raw.githubusercontent.com/supermamon/shortcuts/sc-media-mutt/MediaMutt/translations",
         <bool> TestMode : false,
     }
 } -> mv:meta
