@@ -1,5 +1,5 @@
 {
-    "English": {
+    "Spanish": {
         "SECTION0"              : "-- Primer Ejecución --",
         "CONF_INCOMPLETE"       : "La configuración para {SHORTCUT} aún no está completa.\\nLos siguientes pasos lo guiarán a través de la configuración.",
         "CONF_PREF_MISSING"     : "El documento de preferencia aún no existe.\\nPresione siguiente para crearlo.",
