@@ -217,7 +217,14 @@ If Equals "showSettings"
             If Equals v:userOpts.DownloadFolder
             Otherwise
                 @call {fn:moveFiles, from:v:userOpts.DownloadFolder, to:v:newState}
-                @call {fn:showMessage, message:"Downloaded files have been moved to /Shortcuts/\(v:newState)/."}
+                GetVariable v:lang.MSG_FILES_MOVED
+                ReplaceText (
+                    findText="{DOWNLOAD_DIR}",
+                    replaceWith=v:newState,
+                    caseSensitive=true,
+                    regularExpression=false
+                ) -> mv:msg_files_moved
+                @call {fn:showMessage, message:mv:msg_files_moved}
             End
 
         End
