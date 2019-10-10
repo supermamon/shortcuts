@@ -8,8 +8,6 @@ Dictionary {
         "CONF_FILE_CREATED"     : "File created. Tap Next.",
         "CONF_COMPLETE"         : "Configuration is complete.",
 
-
-
         "SECTION1"              : "-- Main Menu --",
         "DOWNLOAD"              : "Download",
         "UNSUPPORTED_URL"       : "Unsupported URL",
@@ -48,7 +46,7 @@ Dictionary {
         "MSG_RESET_REMOVE"      : "Reset & Remove Media",
         "MSG_KEEP_DATA"         : "Stay as is",
         "MSG_ALL_CONF_CLEAR"    : "All settings have been reset.",
-        "MSG_FILES_MOVED"       : "Downloaded files have been moved to /Shortcuts/{DOWNLOAD_DIR}/."
+        "MSG_FILES_MOVED"       : "Downloaded files have been moved to /Shortcuts/{DOWNLOAD_DIR}/.",
 
         "SECTION3"              : "-- Addons Menu --",
         "REGISTERADDON"         : "Register Addon",
