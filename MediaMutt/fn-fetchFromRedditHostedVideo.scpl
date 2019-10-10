@@ -60,7 +60,7 @@ If Equals "fetchFromRedditHostedVideo"
 	GetVariable v:video.is_gif
 	If Equals 1
 		GetVariable v:video_file
-		SetName "video_file.gif"
+		#SetName "video_file.gif"
 		SetVariable v:return
 	Otherwise
 
