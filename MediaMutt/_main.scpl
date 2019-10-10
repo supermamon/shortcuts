@@ -5,9 +5,7 @@ GetVariable v:function
 If Equals "main"
   @dbgAlert "Entered main"
 
-  #
   # validate that there is an input
-  #
   Number 0 -> v:hasUrl
   Number 0 -> v:canDownload
 
@@ -25,6 +23,7 @@ If Equals "main"
   If Equals 0
 
     Text "" -> v:dl_menu_item
+    # Exit if it's in test mode and no input
     GetVariable v:opt.TestMode
     If Equals 1
       Nothing
@@ -48,9 +47,6 @@ If Equals "main"
             ".+(www\\.)*instagram\\.com[\\w\\.\\\\/-]*\\/p\\/",
             ".+(www\\.)*instagram\\.com\\/tv\\/[a-zA-Z0-0]+",
         ],
-        "OVERCAST_LINK": [
-            ".+overcast\\.fm.+"
-        ],
         "YOUTUBE_VIDEO" : [
             ".+youtu\\.be\\/[a-zA-Z0-9]+",
             ".+youtube\\.com\\/watch\\?v=[a-zA-Z0-9-]+.*"
@@ -70,10 +66,7 @@ If Equals "main"
         ],
         "STREAMABLE_POST" : [
             "^https:\\/\\/streamable\\.com\\/[a-z0-9]{5,}(\\?*.*)$"
-        ],
-        "TUMBLR_POST" : [
-            "^https:\\/\\/[\\w-]+\\.tumblr\\.com\\/post\\/.+"
-            ]
+        ]
     } -> mv:detection_list
 
     GetDictionaryValue get="All Keys"
@@ -199,11 +192,11 @@ If Equals "main"
     |"menu_items": [
     | \(v:dl_menu_item)
     | { "caption":"\(v:lang.DOWNLOADS)",  "subtitle":"\(v:lang:DOWNLOADS_SUBTTL)",  "value":"show-downloads", "icon":"\(mv:icons.folder)" },
-    | { "caption":"\(v:lang.SETTINGS)",   "subtitle":"\(v:lang:SETTINGS_SUBTTL)",   "value":"show-settings", "icon":"\(mv:icons.cog)" },
-    | { "caption":"\(v:lang.ADDONS)",     "subtitle":"\(v:lang.ADDONS_SUBTTL)",     "value":"manage-addons", "icon":"\(mv:icons."puzzle-piece")" },
+    | { "caption":"\(v:lang.SETTINGS)",   "subtitle":"\(v:lang:SETTINGS_SUBTTL)",   "value":"show-settings",  "icon":"\(mv:icons.cog)" },
+    | { "caption":"\(v:lang.ADDONS)",     "subtitle":"\(v:lang.ADDONS_SUBTTL)",     "value":"manage-addons",  "icon":"\(mv:icons."puzzle-piece")" },
     | \(mv:updateEntry)
-    | { "caption":"\(v:lang.ABOUT)",      "subtitle":"\(v:lang.ABOUT) \(v:self)",   "value":"do-about", "icon":"\(mv:icons."info-circle")"},
-    | { "caption":"\(v:lang.EXIT)",       "subtitle":"\(v:lang.EXIT_SUBTTL)",       "value":"do-exit", "icon":"\(mv:icons."arrow-alt-circle-left")"}
+    | { "caption":"\(v:lang.ABOUT)",      "subtitle":"\(v:lang.ABOUT) \(v:self)",   "value":"do-about",       "icon":"\(mv:icons."info-circle")"},
+    | { "caption":"\(v:lang.EXIT)",       "subtitle":"\(v:lang.EXIT_SUBTTL)",       "value":"do-exit",        "icon":"\(mv:icons."arrow-alt-circle-left")"}
     | ]
     |}
 

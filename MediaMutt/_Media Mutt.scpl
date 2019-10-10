@@ -44,7 +44,7 @@ End
 @dbgAlert "Calling: \(v:function)\n-----------\nWith Parameters:\n\(v:argv)"
 
 @import "./_main.scpl"
-#@import "./_detectInput.scpl"
+
 @import "./_firstRun.scpl"
 @import "../lib/vcard_menu.scpl"
 
@@ -63,7 +63,7 @@ End
 @import "./fn-fetchFromRedditHostedVideo.scpl"
 @import "./fn-fetchFromRedditLinkedMedia.scpl"
 @import "./fn-getKeySafeValue.scpl"
-@import "./fn-fetchFromTumblr.scpl"
+#@import "./fn-fetchFromTumblr.scpl"
 
 @import "./ui-showMessage.scpl"
 

@@ -1,0 +1,138 @@
+@icon "film"
+@color "lightblue"
+@ShowInShareSheet [
+	safariwebpage,
+	string,
+	url
+]
+
+SetVariable v:argv
+
+@set debug false
+@set mock false
+@import "../../lib/helpers.scpl"
+
+Comment "..:: Metadata ::.."
+Dictionary {
+    shortcut    : "Go Fetch From Tumblr",
+    author      : "@supermamon",
+    version     : "1.0.0",
+    settings    : {
+        updater : {
+            ID: 0
+        },
+    },
+    changes     : {
+        "v1.0.0": "Initial release",
+    }
+} -> mv:meta
+GetVariable mv:meta:shortcut -> v:self
+GetVariable mv:meta:settings -> v:opt
+
+Dictionary items={"key":"val"}
+GetType -> v:lDictionary
+
+
+#  function detection
+GetVariable v:argv
+GetType
+If Equals v:lDictionary
+    GetVariable v:argv:fn   -> v:function
+Otherwise
+    Dictionary {fn:main}    -> v:argv
+    GetVariable v:argv:fn   -> v:function
+End
+
+# function list
+GetVariable v:function
+If Equals "main"
+    Text -> mv:msg
+    |This shortcut is an addon to Media Mutt.
+    |Download Media Mutt and register
+    |this addon.
+    ShowAlert title=v:self message=mv:msg
+    @call {
+        fn          : checkForUpdate,
+        name        : v:self,
+        id          : v:opt:"updater.ID",
+        version     : mv:meta:version,
+        noUpdAlert  : "show",
+    }
+    ExitShortcut
+End
+GetVariable v:function
+If Equals "register"
+    GetVariable v:self
+    ExitShortcut
+End
+GetVariable v:function
+If Equals "canProcessURL"
+    @dbgAlert "Entered canProcessURL with \(v:argv:url)"
+    GetVariable v:argv:url
+    MatchText pattern="^https:\\/\\/[\\w-]+\\.tumblr\\.com\\/post\\/.+" caseSensitive=false -> v:matches
+    Count Items
+    If "Is Greater Than" 0
+        Number 1
+    Otherwise
+        Number 0
+    End
+    ExitShortcut
+End
+GetVariable v:function
+If Equals "fetchMedia"
+    @dbgAlert "Entered fetchMedia with \(v:argv:url)"
+
+    # get the __PLAYER_CONFIG__ json
+    # get context.metadata_template_url
+    # replace videoId
+    # get contents JSON
+    # get qualities
+    # get url
+    # download video
+    @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Inspecting url"}
+
+    Dictionary {
+        "photo"     : "(?m)og:image\"\\s+content=\"([^\"]+)",
+        "photoset"  : "(?m)og:image\"\\s+content=\"([^\"]+)",
+        "video"     : "(?m)og:video\"\\s+content=\"([^\"]+)",
+    } -> mv:type_dict
+
+    GetVariable v:argv:url
+    GetContentsOfUrl
+    SetName "src.txt" -> mv:src
+    MatchText pattern="og:type\"\\s+content=\"([^\"]+)"
+    GetGroupfromMatchedText get="Group At Index" groupIndex=1 -> mv:type
+
+    GetVariable mv:type_dict
+    GetDictionaryValue get=Value key=mv:type -> mv:pattern
+
+    GetVariable mv:src
+    MatchText pattern=mv:pattern
+    RepeatWithEach
+        GetGroupfromMatchedText get="Group At Index" groupIndex=1 -> mv:media_url
+        @dbgAlert "url=[\(mv:media_url)]"
+        If Contains "tumblr.com"
+            @callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Downloading media"}
+            GetVariable mv:media_url
+            GetContentsOfUrl
+        Otherwise
+            ShowAlert (
+                title=v:self,
+                message="The url of the associated media is not hosted in tumblr.com. It will be share again with \(v:self) to attempt donwloading.",
+                showCancelButton=false
+            )
+            GetVariable mv:media_url
+            RunShortcut "Media Mutt" false
+        End
+        AddToVariable v:downloaded_media
+    End
+    GetVariable v:downloaded_media
+    ExitShortcut
+
+End
+
+@import "../../lib/checkForUpdate-fn.scpl"
+#
+ShowAlert title=v:self message="(addon) Invalid function call - \(v:function)" showCancelButton=false
+Nothing
+ExitShortcut

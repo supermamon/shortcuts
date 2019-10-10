@@ -54,7 +54,7 @@ If Equals "showSettings"
         },
         Language: {
             type        : "lang-list",
-            icon        : "clock",
+            icon        : "atlas",
             caption     : "Language",
             description : v:userOpts:Language
         },

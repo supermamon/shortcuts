@@ -14,9 +14,7 @@ If Equals "fetchMedia"
     "IMGUR_GIFV"      : "fetchFromImgurGifV",
     "IMGUR_POST"      : "fetchFromImgurPost",
     "STREAMABLE_POST" : "fetchFromStreamable",
-    "REDDIT_POST"     : "fetchFromRedditPost",
-    "TUMBLR_POST"     : "fetchFromTumblr"
-
+    "REDDIT_POST"     : "fetchFromRedditPost"
   } -> v:url_type_handlers
 
   GetVariable v:argv:type
