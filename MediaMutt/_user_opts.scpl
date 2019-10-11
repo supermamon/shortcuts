@@ -9,7 +9,7 @@ Dictionary {
         <bool> ShowAlerts           : true,
         <bool> DownloadImmediately  : false,
         <bool> ViewBeforeSave       : true,
-        SaveTo                      : "Always Ask",
+        SaveTo                      : "always-ask",
         DownloadFolder              : "\(v:opt:"storage.dir")/downloads",
         UpdateInterval              : 12,
         Language                    : "English",
@@ -24,7 +24,7 @@ If exists, override the default settings
 GetFile a{
     service="iCloud Drive"
     showDocumentPicker=false
-    filePath="\(v:opt:"storage.dir")/\(v:opt:"storage.file")"
+    filePath="\(v:opt:"storage.cfgdir")/\(v:opt:"storage.file")"
     errorIfnotFound=false
 } -> mv:savedOpts
 Count Items

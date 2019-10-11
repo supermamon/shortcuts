@@ -1,9 +1,8 @@
-Comment "..:: fetchMedia ::.."
+Comment "fetchMedia ::.."
+
 GetVariable v:function
 If Equals "fetchMedia"
   @dbgAlert "Entered fetchMedia\nargs\ntype=\(v:argv:type)\nurl = \(v:argv:url)"
-
-  #ShowAlert "Downloading \(v:argv:type) from \(v:argv:url)."
 
   Dictionary {
     "DIRECT_MEDIA_URL": "fetchFromDirectLink",
@@ -20,7 +19,7 @@ If Equals "fetchMedia"
   GetVariable v:argv:type
   If Contains "EXT_"
     ReplaceText findText="EXT_" replaceWith="" caseSensitive=true regularExpression=false -> v:addon
-    @callExt v:addon {fn:fetchMedia, url:v:argv:url}
+    @callExt v:addon {fn:fetchMedia, url:v:argv:url, caller:v:self}
   Otherwise
     GetVariable v:url_type_handlers
     GetDictionaryValue get="Value" key=v:argv:type -> v:handler

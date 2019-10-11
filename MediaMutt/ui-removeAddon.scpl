@@ -54,7 +54,7 @@ If Equals "removeAddon"
   ReplaceText findText=",\"DEL_ME\"" replaceWith="" caseSensitive=true regularExpression=false
   ReplaceText findText="\"DEL_ME\"" replaceWith="" caseSensitive=true regularExpression=false
   @dbgQuicklook
-  SaveFile service="iCloud Drive" askWheretoSave=false destinationPath="\(v:opt:"storage.dir")/\(v:opt:"storage.addons")" overwriteIfFileExists=true
+  SaveFile service="iCloud Drive" askWheretoSave=false destinationPath="\(v:opt:"storage.cfgdir")/\(v:opt:"storage.addons")" overwriteIfFileExists=true
   ShowAlert title=v:self message="[\(mv:addon)] is now removed." showCancelButton=false
 
   ExitShortcut

@@ -1,5 +1,4 @@
-Comment `
-..:: main function ::..
+Comment `main function ::..
 `
 GetVariable v:function
 If Equals "main"
@@ -32,8 +31,7 @@ If Equals "main"
 
   Otherwise
 
-    #@call {fn:detectInput, url:v:argv:url}
-    # DETECT INPUT
+    # detect if input is supported by built-in handlers
     Dictionary {
         "DIRECT_MEDIA_URL" : [
             "^https:\\/\\/[iv]\\.redd\\.it\\/[a-z0-9]+\\.[a-z]{3,}",
@@ -87,11 +85,15 @@ If Equals "main"
         End
     End
 
+
+
     Text "\(v:found_internal_handler)"
     Count Characters
     If "Is Greater Than" 0
-      Text "\(v:found_internal_handler)" -> v:return
+      GetVariable v:found_internal_handler -> v:return
     Otherwise
+
+      # detect if input is supported by addons
 
       @dbgAlert "Assume unsupported before checking with addons"
       Text "UNSUPPORTED" -> v:return
@@ -99,34 +101,35 @@ If Equals "main"
       # addons here
       @call {fn:getAddonsList}
       SetVariable v:addons
+
+      # loop through addons and check if addon can handle
       RepeatwithEach
+          @dbgAlert "Checking with \(v:"Repeat Item")"
           @callExt v:"Repeat Item" {fn:canProcessURL, url:v:argv:url}
           If Equals 1
-              Text "\(v:"Repeat Item")"
+              GetVariable v:"Repeat Item"
               AddToVariable v:ext_addons
           End
       End
+
+      # choose the addon that will handle
       GetVariable v:ext_addons
       Count Items
       If "Is Greater Than" 1
           GetVariable v:ext_addons
           ChoosefromList prompt="Fetch using" selectMultiple=false -> mv:chosen_addon
-          @dbgAlert "Exiting detectInput\nreturn\n\(mv:chosen_addon)"
-          Text "EXT_\(mv:chosen_addon)" -> v:return
-          #ExitShortcut
-      Otherwise
-          If Equals 1
-              #GetVariable v:ext_addons
-              @dbgAlert "Exiting detectInput\nreturn\n\(v:ext_addons)"
-              Text "EXT_\(v:ext_addons)" -> v:return
-              #ExitShortcut
-          End
+          Text "\(mv:chosen_addon)" -> v:ext_addons
       End
+      GetVariable v:ext_addons
+      Count Items
+      If "Is Greater Than" 0
+        Text "EXT_\(v:ext_addons)" -> v:return
+      End
+
 
     End
 
-    Text "\(v:return)"
-    SetVariable v:input_type
+    Text "\(v:return)" -> v:input_type
 
     If Equals "UNSUPPORTED"
 
@@ -183,6 +186,13 @@ If Equals "main"
     |{ "caption":"\(v:upd.updateMessage)",  "subtitle":"\(v:upd.localVersion) -> \(v:upd.latestVersion)", "value":"do-cfu", "icon":"\(mv:icons.bullhorn)"},
   End -> mv:updateEntry
 
+  GetVariable v:userOpts.SaveTo
+  If Equals "saveto-photos"
+    Text ""
+  Otherwise
+    Text `{ "caption":"\(v:lang.DOWNLOADS)",  "subtitle":"\(v:lang:DOWNLOADS_SUBTTL)",  "value":"show-downloads", "icon":"\(mv:icons.folder)" },`
+  End -> mv:download_dir_menu
+
 
   # Standard Menu
   Text -> v:menu_txt
@@ -191,7 +201,7 @@ If Equals "main"
     |"caption": "\(v:self) v\(mv:meta.version)",
     |"menu_items": [
     | \(v:dl_menu_item)
-    | { "caption":"\(v:lang.DOWNLOADS)",  "subtitle":"\(v:lang:DOWNLOADS_SUBTTL)",  "value":"show-downloads", "icon":"\(mv:icons.folder)" },
+    | \(mv:download_dir_menu)
     | { "caption":"\(v:lang.SETTINGS)",   "subtitle":"\(v:lang:SETTINGS_SUBTTL)",   "value":"show-settings",  "icon":"\(mv:icons.cog)" },
     | { "caption":"\(v:lang.ADDONS)",     "subtitle":"\(v:lang.ADDONS_SUBTTL)",     "value":"manage-addons",  "icon":"\(mv:icons."puzzle-piece")" },
     | \(mv:updateEntry)
@@ -273,8 +283,12 @@ If Equals "main"
   End
   GetVariable v:menu_action
   If Equals "show-downloads"
-    @call{fn:showDownloads }
-    @call{fn:main}
+    URL "shareddocuments:///private/var/mobile/Library/Mobile%20Documents/iCloud~is~workflow~my~workflows/Documents/\(v:userOpts.DownloadFolder)"
+    OpenURLs
+    ExitShortcut
+
+    #@call{fn:showDownloads }
+    #@call{fn:main}
     Nothing
   End
   GetVariable v:menu_action
@@ -285,8 +299,8 @@ If Equals "main"
     |_____________________
     |
     | Youtube - Instagram - Reddit
-    | Tumblr - Imgur - Gfycat
-    | Streamable - More!
+    | Imgur - Gfycat - Streamable
+    | More!
     |_____________________
     |
     |Credits
@@ -301,7 +315,10 @@ If Equals "main"
     |Audio/Video merging: http://www.fileconverto.com/add-music-to-video/
     |
     |Translations:
-    |Russian by @Devilmachine
+    |Russian: @Devilmachine
+    |Portuguese: @D3W10
+    |Spanish: Joel García
+    |To contribute translations, message @supermamon.
     ShowAlert title="" message=mv:about showCancelButton=false
     @call{fn:main}
     Nothing

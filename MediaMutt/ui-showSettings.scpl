@@ -191,7 +191,7 @@ If Equals "showSettings"
         SaveFile a{
             service="iCloud Drive"
             askwheretosave=false
-            destinationpath="\(v:opt:"storage.dir")/"
+            destinationpath="\(v:opt:"storage.cfgdir")/"
             overwriteiffileexists=true
         }
         Nothing
@@ -207,7 +207,7 @@ If Equals "showSettings"
         SaveFile a{
             service="iCloud Drive"
             askwheretosave=false
-            destinationpath="\(v:opt:"storage.dir")/"
+            destinationpath="\(v:opt:"storage.cfgdir")/"
             overwriteiffileexists=true
         }
 
@@ -216,7 +216,18 @@ If Equals "showSettings"
             GetVariable v:newState
             If Equals v:userOpts.DownloadFolder
             Otherwise
-                @call {fn:moveFiles, from:v:userOpts.DownloadFolder, to:v:newState}
+
+                CreateFolder service="iCloud Drive" path="\(v:newState)/"
+                GetFile service="iCloud Drive" showDocumentPicker=false  filePath="\(v:userOpts.DownloadFolder)/" errorIfNotFound=false
+                RepeatwithEach
+                    SaveFile service="iCloud Drive" askWheretoSave=false destinationPath="\(v:newState)/" overwriteIfFileExists=true
+                End
+                GetFile service="iCloud Drive" showDocumentPicker=false  filePath="\(v:userOpts.DownloadFolder)/" errorIfNotFound=false
+                RepeatwithEach
+                    DeleteFiles false
+                end
+
+
                 GetVariable v:lang.MSG_FILES_MOVED
                 ReplaceText (
                     findText="{DOWNLOAD_DIR}",
@@ -250,7 +261,7 @@ If Equals "showSettings"
         SaveFile a{
             service="iCloud Drive"
             askwheretosave=false
-            destinationpath="\(v:opt:"storage.dir")/"
+            destinationpath="\(v:opt:"storage.cfgdir")/"
             overwriteiffileexists=true
         }
 
@@ -268,7 +279,7 @@ If Equals "showSettings"
             SaveFile (
                 service="iCloud Drive",
                 askWheretoSave=false,
-                destinationPath="\(v:opt:"storage.dir")/lang/",
+                destinationPath="\(v:opt:"storage.langdir")/",
                 overwriteIfFileExists=true
             )
         End
@@ -298,7 +309,7 @@ If Equals "showSettings"
         SaveFile a{
             service="iCloud Drive"
             askwheretosave=false
-            destinationpath="\(v:opt:"storage.dir")/"
+            destinationpath="\(v:opt:"storage.cfgdir")/"
             overwriteiffileexists=true
         }
         Nothing
@@ -327,7 +338,7 @@ If Equals "showSettings"
         SaveFile a{
             service="iCloud Drive"
             askwheretosave=false
-            destinationpath="\(v:opt:"storage.dir")/"
+            destinationpath="\(v:opt:"storage.cfgdir")/"
             overwriteiffileexists=true
         }
 
@@ -341,17 +352,47 @@ If Equals "showSettings"
             GetFile (
                 service="iCloud Drive",
                 showDocumentPicker=false,
+                filePath="\(v:opt."storage.dir")/",
+                errorIfNotFound=false
+            )
+            RepeatwithEach
+                DeleteFiles false
+            End
+            GetFile (
+                service="iCloud Drive",
+                showDocumentPicker=false,
                 filePath="\(v:userOpts.DownloadFolder)/",
                 errorIfNotFound=false
             )
-            DeleteFiles false
+            RepeatwithEach
+                DeleteFiles false
+            End
+
+            GetFile (
+                service="iCloud Drive",
+                showDocumentPicker=false,
+                filePath="\(v:opt."storage.langdir")/",
+                errorIfNotFound=false
+            )
+            RepeatwithEach
+                DeleteFiles false
+            End
+
+            Text "{}"
+            SetName v:opt:"storage.addons"
+            SaveFile a{
+                service="iCloud Drive"
+                askwheretosave=false
+                destinationpath="\(v:opt:"storage.cfgdir")/"
+                overwriteiffileexists=true
+            }
 
             GetVariable v:defaultOpts
             SetName v:opt:"storage.file"
             SaveFile a{
                 service="iCloud Drive"
                 askwheretosave=false
-                destinationpath="\(v:opt:"storage.dir")/"
+                destinationpath="\(v:opt:"storage.cfgdir")/"
                 overwriteiffileexists=true
             }
             @call {fn:showMessage, message:v:lang.MSG_ALL_CONF_CLEAR}

@@ -151,8 +151,16 @@ If Equals "getUpdates"
             dateFormat="Custom",
             formatString="yyyy-MM-dd HH:mm"
         ) -> mv:newLastUpdate
-        @call {fn:updateSetting, option:"sysLastUpdateCheck", newValue:mv:newLastUpdate}
-
+        //@call {fn:updateSetting, option:"sysLastUpdateCheck", newValue:mv:newLastUpdate}
+        GetVariable v:userOpts
+        SetDictionaryValue key="sysLastUpdateCheck" value=mv:newLastUpdate
+        SetName v:opt:"storage.file"
+        SaveFile a{
+            service="iCloud Drive"
+            askwheretosave=false
+            destinationpath="\(v:opt:"storage.cfgdir")/"
+            overwriteiffileexists=true
+        }
         GetVariable mv:update
 
         ExitShortcut

@@ -34,17 +34,23 @@ If Equals 0
     ContinueShortcutinApp
 End
 
+# load metadata and settings
 @import "_meta.scpl"
 @import "_user_opts.scpl"
-@import "_icons_fontawesome.scpl"
+
+# load localization
 @import "_languages.scpl"
+
+# function identification
 @import "_types.scpl"
 @import "_function_id.scpl"
+
+# load ui
+@import "_icons_fontawesome.scpl"
 
 @dbgAlert "Calling: \(v:function)\n-----------\nWith Parameters:\n\(v:argv)"
 
 @import "./_main.scpl"
-
 @import "./_firstRun.scpl"
 @import "../lib/vcard_menu.scpl"
 
@@ -63,7 +69,6 @@ End
 @import "./fn-fetchFromRedditHostedVideo.scpl"
 @import "./fn-fetchFromRedditLinkedMedia.scpl"
 @import "./fn-getKeySafeValue.scpl"
-#@import "./fn-fetchFromTumblr.scpl"
 
 @import "./ui-showMessage.scpl"
 
@@ -74,12 +79,10 @@ End
 @import "./ui-registerAddon.scpl"
 @import "./ui-removeAddon.scpl"
 @import "./ui-findAddonsRH.scpl"
-@import "./ui-moveFiles.scpl"
-@import "./ui-showDownloads.scpl"
 
 @import "./fn-getUpdates.scpl"
 @import "./fn-checkForUpdate.scpl"
-@import "./fn-updateSetting.scpl"
+//@import "./fn-updateSetting.scpl"
 
 @import "./ui-showSettings.scpl"
 

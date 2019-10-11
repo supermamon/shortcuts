@@ -1,10 +1,10 @@
 Dictionary {
     "English": {
         "SECTION0"              : "-- First Run --",
-        "CONF_INCOMPLETE"       : "Configuration for {SHORTCUT} is not yet complete.\\nThe following steps will guide you through the configuration.",
-        "CONF_PREF_MISSING"     : "The preference file is not yet created.\\nPress next to create it now.",
+        "CONF_INCOMPLETE"       : "Configuration for {SHORTCUT} is not yet complete.\nThe following steps will guide you through the configuration.",
+        "CONF_PREF_MISSING"     : "The preference file is not yet created.\nPress next to create it now.",
         "CONF_PREF_CREATED"     : "Options file created. Tap Next.",
-        "CONF_ADDONS_MISSING"   : "The addon file is not yet created.\\nPress next to create it now.",
+        "CONF_ADDONS_MISSING"   : "The addon file is not yet created.\nPress next to create it now.",
         "CONF_FILE_CREATED"     : "File created. Tap Next.",
         "CONF_COMPLETE"         : "Configuration is complete.",
 
@@ -81,7 +81,7 @@ Dictionary {
         "MSG_NO_DOWNLOADS"      : "No downloads yet.",
         "MSG_PREVIEW"           : "Pick a file to view.",
         "MSG_DOMAIN_NOT_SUPP"   : "Domain {DOMAIN} is not yet supported.",
-        "MSG_POST_NOT_SUP"      : "This type of post is not yet handled.\\nDetails:\\n\\npost_hint: {POST_HINT}",
+        "MSG_POST_NOT_SUP"      : "This type of post is not yet handled.\nDetails:\n\npost_hint: {POST_HINT}",
         "MSG_NOTHING_DOWNLOADED": "Nothing was downloaded."
     }
 } -> mv:languages
@@ -95,7 +95,7 @@ Otherwise
         service="iCloud Drive",
         showDocumentPicker=false,
         selectMultiple=false,
-        filePath="\(v:opt."storage.dir")/lang/\(v:userOpts.Language).json",
+        filePath="\(v:opt."storage.langdir")/\(v:userOpts.Language).json",
         errorIfNotFound=false
     ) -> mv:foreign_lang_file
     Count "Items"
@@ -112,7 +112,7 @@ Otherwise
         SaveFile a{
             service="iCloud Drive"
             askwheretosave=false
-            destinationpath="\(v:opt:"storage.dir")/"
+            destinationpath="\(v:opt:"storage.cfgdir")/"
             overwriteiffileexists=true
         }
         GetVariable v:base_lang
@@ -120,7 +120,8 @@ Otherwise
     Otherwise
         GetVariable mv:foreign_lang_file
         GetDictionaryValue get="Value" key=v:userOpts.Language -> mv:foreign_lang
-
+        SetVariable v:lang
+        /*
         GetVariable v:base_lang
         SetVariable v:lang
         GetDictionaryValue get="All Keys"
@@ -134,5 +135,6 @@ Otherwise
                 SetVariable v:lang
             End
         End
+        */
     End
 End

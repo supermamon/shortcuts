@@ -7,7 +7,7 @@ If Equals "updateSetting"
     SaveFile a{
         service="iCloud Drive"
         askwheretosave=false
-        destinationpath="\(v:opt:"storage.dir")/"
+        destinationpath="\(v:opt:"storage.cfgdir")/"
         overwriteiffileexists=true
     }
 

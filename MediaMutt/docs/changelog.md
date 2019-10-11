@@ -2,8 +2,14 @@
 
 * Media Mutt 2.1.0
   - (new) Translations
+  - (new) Open Downloads folder straight to the Files app
   - (new) Instagram TV downloads
+  - (update) separate Tumblr downloader as an addon
+  - (update) made some performance improvements
+  - (fix) remove triple confirmation when resetting settings
   - (fix) error when there is media in the clipboard
+  - (break) config file moved to `config` folder
+
 
 * Media Mutt 2.0.6
   - (fix) Reddit videos being blank

@@ -2,8 +2,6 @@ GetVariable v:function
 If Equals "firstRun"
     @dbgAlert "Entered firstRun"
 
-    #@call {fn:getSetupState}
-
     Comment `
         ..:: Get Setup State ::..
     `
@@ -14,21 +12,17 @@ If Equals "firstRun"
         SetupComplete   : 0
     } -> v:setup
 
-    # Create the MediaMutt dfolder
-    CreateFolder service="iCloud Drive" path="\(v:opt:"storage.dir")"
-    CreateFolder service="iCloud Drive" path="\(v:opt:"storage.dir")/downloads"
-    CreateFolder service="iCloud Drive" path="\(v:opt:"storage.dir")/lang"
-
-    # get the files in the folder
+    # attempt to get the files in the cfg folder
     GetFile a{
         service="iCloud Drive"
         showDocumentPicker=false
-        filePath="\(v:opt:"storage.dir")/"
+        filePath="\(v:opt:"storage.cfgdir")/"
         errorIfnotFound=false
     } -> mv:files
 
     # count the files that match addons & media_mutt
-    # if there are 2, the setup is complete.
+    # if matched, the setup is complete.
+    # if not, start prompting for configuration
     RepeatwithEach
         GetDetailsofFiles "Name"
     End
@@ -42,6 +36,12 @@ If Equals "firstRun"
             SetupComplete   : 2
         } -> v:setup
         ExitShortcut
+    Otherwise
+        # Create the MediaMutt dfolder
+        CreateFolder service="iCloud Drive" path="\(v:opt:"storage.dir")"
+        CreateFolder service="iCloud Drive" path="\(v:opt:"storage.cfgdir")"
+        CreateFolder service="iCloud Drive" path="\(v:opt:"storage.langdir")"
+        CreateFolder service="iCloud Drive" path="\(v:opt:"storage.dir")/downloads"
     End
 
     # tell the user setup is not complete
@@ -75,7 +75,7 @@ If Equals "firstRun"
         SaveFile a{
             service="iCloud Drive"
             askwheretosave=false
-            destinationpath="\(v:opt:"storage.dir")/"
+            destinationpath="\(v:opt:"storage.cfgdir")/"
             overwriteiffileexists=true
         }
 
@@ -109,7 +109,7 @@ If Equals "firstRun"
         SaveFile a{
             service="iCloud Drive"
             askwheretosave=false
-            destinationpath="\(v:opt:"storage.dir")/"
+            destinationpath="\(v:opt:"storage.cfgdir")/"
             overwriteiffileexists=true
         }
         Text "\(v:lang.CONF_FILE_CREATED)" -> mv:prompt5

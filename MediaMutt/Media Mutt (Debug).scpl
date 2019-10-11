@@ -7,4 +7,5 @@
 
 
 @set SHORTCUT_NAME "Media Mutt (Debug)"
+@set LANG_GH_BRANCH "master"
 @import "_Media Mutt.scpl"

@@ -8,12 +8,14 @@ Dictionary {
         },
         storage : {
             dir     : "MediaMutt",
+            cfgdir  : "MediaMutt/config",
+            langdir : "MediaMutt/lang",
             file    : "media_mutt.json",
             addons  : "addons.json"
         },
         ,
-        langs_web_lst : "https://raw.githubusercontent.com/supermamon/shortcuts/sc-media-mutt/MediaMutt/translations/list.json",
-        langs_web_dir : "https://raw.githubusercontent.com/supermamon/shortcuts/sc-media-mutt/MediaMutt/translations",
+        langs_web_lst : "https://raw.githubusercontent.com/supermamon/shortcuts/\(@:LANG_GH_BRANCH)/MediaMutt/translations/list.json",
+        langs_web_dir : "https://raw.githubusercontent.com/supermamon/shortcuts/\(@:LANG_GH_BRANCH)/MediaMutt/translations",
         <bool> TestMode : false,
     }
 } -> mv:meta
