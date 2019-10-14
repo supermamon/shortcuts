@@ -317,7 +317,7 @@ If Equals "main"
     |Translations:
     |Russian: @Devilmachine
     |Portuguese: @D3W10
-    |Spanish: Joel García
+    |Spanish: iGotTech
     |To contribute translations, message @supermamon.
     ShowAlert title="" message=mv:about showCancelButton=false
     @call{fn:main}

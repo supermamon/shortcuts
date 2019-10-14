@@ -31,8 +31,8 @@ SetVariable v:argv
 Count Items
 If Equals 0
     GetClipboard -> v:argv
-    ContinueShortcutinApp
 End
+ContinueShortcutinApp
 
 # load metadata and settings
 @import "_meta.scpl"

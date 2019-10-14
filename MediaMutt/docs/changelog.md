@@ -1,5 +1,8 @@
 # Media Mutt Changelog
 
+* Media Mutt 2.1.1
+  - (fix) crashing in share sheet
+
 * Media Mutt 2.1.0
   - (new) Translations
   - (new) Open Downloads folder straight to the Files app
