@@ -19,7 +19,7 @@ Dictionary {
     version     : "1.0.0",
     settings    : {
         updater : {
-            ID: 0
+            ID: 3332
         },
     },
     changes     : {
@@ -85,7 +85,7 @@ If Equals "fetchMedia"
     Count Items
     If Equals 0
         Text "Media Mutt"
-    Otherwise   
+    Otherwise
         Text "\(v:argv.caller)"
     End -> mv:caller
 
