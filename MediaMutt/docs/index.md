@@ -13,12 +13,11 @@ The best feature? It doesn't use third-party websites to download. Everything is
 ## Supported Media Pages
 
 Youtube videos • Instagram Posts • Reddit Posts
-Tumblr Posts • Imgur • Gfycat
-Streamable
+Imgur • Gfycat • Streamable
 
 ## Addons
 
-Dailymotion • Facebook Post (Photo/Video) * Instagram Profile * Vero
+9GAG • Dailymotion • Facebook Post (Photo/Video) • Instagram Profile • Vero • Tumblr
 
 ## Creating Addons
 
@@ -30,7 +29,6 @@ If you are interested in authoring addons, check out the [authoring guide](makin
 ![Main Menu & Settings](img/mm-promo-1.png)
 ![Addons](img/mm-promo-2.png)
 ![About Screen & Downloads](img/mm-promo-3.png)
-
 
 ## Credits
 
