@@ -1,0 +1,226 @@
+
+# ######### COMPILER OPTIONS ######### #
+@set debug false
+@set mock false
+@import "../lib/helpers.scpl"
+# #################################### #
+
+@set SHORTCUT_NAME "Media Mutt (Lite)"
+@set SHORTCUT_VERSION "1.0.0"
+@set LANG_GH_BRANCH "master"
+
+
+@icon "dog"
+@color "red"
+@ShowInWidget true
+@ShowInShareSheet [
+	safariwebpage,
+	string,
+	url
+]
+
+Comment `
+             ..:: Input checking ::..
+`
+SetVariable v:argv
+Count Items
+If Equals 0
+    GetClipboard -> v:argv
+End
+ContinueShortcutinApp
+
+# load metadata and settings
+Dictionary {
+    shortcut    : "\(@:SHORTCUT_NAME)",
+    author      : "@supermamon",
+    version     : "\(@:SHORTCUT_VERSION)",
+    settings    : {
+        updater : {
+            ID: 3636
+        },
+        storage : {
+            dir     : "MediaMutt",
+            cfgdir  : "MediaMutt/config",
+            langdir : "MediaMutt/lang",
+            file    : "media_mutt.json",
+            addons  : "addons.json"
+        },
+        <bool> TestMode : false,
+    }
+} -> mv:meta
+GetVariable mv:meta:shortcut -> v:self
+GetVariable mv:meta:settings -> v:opt
+
+
+# import "_user_opts.scpl"
+# load user options
+GetFile a{
+    service="iCloud Drive"
+    showDocumentPicker=false
+    filePath="\(v:opt:"storage.cfgdir")/\(v:opt:"storage.file")"
+    errorIfnotFound=false
+}
+SetVariable v:userOpts
+
+# load localization
+@import "_languages.scpl"
+
+# function identification
+@import "_types.scpl"
+@import "_function_id.scpl"
+
+# load ui
+
+@dbgAlert "Calling: \(v:function)\n-----------\nWith Parameters:\n\(v:argv)"
+
+#@import "./_main.scpl"
+Comment `main function ::..`
+GetVariable v:function
+If Equals "main"
+  @dbgAlert "Entered main"
+
+  # validate that there is an input
+  Text "\(v:argv:url)"
+  Count Characters
+  If Equals 0
+    ShowAlert "No URL received"
+    ExitShortcut
+  End
+
+# if no input passed, don't add a download menu
+  # detect if input is supported by built-in handlers
+  Dictionary {
+      "DIRECT_MEDIA_URL" : [
+          "^https:\\/\\/[iv]\\.redd\\.it\\/[a-z0-9]+\\.[a-z]{3,}",
+      ],
+      "REDDIT_POST": [
+          "^https:\\/\\/(www\\.)*reddit\\.com\\/r\\/\\w+\\/comments\\/\\w+\\/\\w+",
+          "^https:\\/\\/v\\.reddit\\.com\\/[a-z0-9]+",
+          "^https:\\/\\/v\\.redd\\.it\\/[a-z0-9]+",
+      ],
+      "INSTAGRAM_POST": [
+          ".+(www\\.)*instagram\\.com[\\w\\.\\\\/-]*\\/p\\/",
+          ".+(www\\.)*instagram\\.com\\/tv\\/[a-zA-Z0-0]+",
+      ],
+      "YOUTUBE_VIDEO" : [
+          ".+youtu\\.be\\/[a-zA-Z0-9]+",
+          ".+youtube\\.com\\/watch\\?v=[a-zA-Z0-9-]+.*"
+      ],
+      "GFYCAT_VIDEO" : [
+          "^https:\\/\\/gfycat\\.com\\/[\\w]{3,}[\\w-]*"
+      ],
+      "IMGUR_GIFV" : [
+          "^http(s*):\\/\\/i\\.imgur\\.com\\/[a-zA-Z0-9]+\\.gifv(\\?*.*)$"
+      ],
+      "IMGUR_DIRECT" : [
+          "^https:\\/\\/i\\.imgur\\.com\\/[a-zA-Z0-9]+\\.(?!gifv)[a-zA-Z0-9]+(\\?*.*)$"
+          "^https:\\/\\/imgur\\.com\\/[a-zA-Z0-9]+\\.(?!gifv)[a-zA-Z0-9]+(\\?*.*)$",
+      ],
+      "IMGUR_POST" : [
+          "^http(s*):\\/\\/imgur\\.com\\/(a\\/)*[0-9a-zA-Z]+(\\?*.*)$"
+      ],
+      "STREAMABLE_POST" : [
+          "^https:\\/\\/streamable\\.com\\/[a-z0-9]{5,}(\\?*.*)$"
+      ]
+  } -> mv:detection_list
+
+  GetDictionaryValue get="All Keys"
+  RepeatWithEach # type
+      SetVariable v:input_type
+      GetVariable mv:detection_list
+      GetDictionaryValue get="Value" key=v:input_type
+      RepeatWithEach # pattern
+          SetVariable v:pattern
+          GetVariable v:argv:url
+          MatchText pattern=v:pattern casesensitive=false
+          Count Items
+          If "Is Greater Than" 0
+              @dbgAlert "Exiting detectInput\nreturn\n\(v:input_type)"
+              Text "\(v:input_type)" -> v:found_internal_handler
+              #ExitShortcut
+          End
+      End
+  End
+
+
+  Text "\(v:found_internal_handler)"
+  Count Characters
+  If "Is Greater Than" 0
+    GetVariable v:found_internal_handler -> v:return
+  Otherwise
+
+    # detect if input is supported by addons
+
+    @dbgAlert "Assume unsupported before checking with addons"
+    Text "UNSUPPORTED" -> v:return
+
+    # addons here
+    @call {fn:getAddonsList}
+    SetVariable v:addons
+
+    # loop through addons and check if addon can handle
+    RepeatwithEach
+        @dbgAlert "Checking with \(v:"Repeat Item")"
+        @callExt v:"Repeat Item" {fn:canProcessURL, url:v:argv:url}
+        If Equals 1
+            GetVariable v:"Repeat Item"
+            AddToVariable v:ext_addons
+        End
+    End
+
+    # choose the addon that will handle
+    GetVariable v:ext_addons
+    Count Items
+    If "Is Greater Than" 1
+        GetVariable v:ext_addons
+        ChoosefromList prompt="Fetch using" selectMultiple=false -> mv:chosen_addon
+        Text "\(mv:chosen_addon)" -> v:ext_addons
+    End
+    GetVariable v:ext_addons
+    Count Items
+    If "Is Greater Than" 0
+      Text "EXT_\(v:ext_addons)" -> v:return
+    End
+
+
+  End
+
+  Text "\(v:return)" -> v:input_type
+
+  If Equals "UNSUPPORTED"
+    ShowAlert "Unsupported"
+  Otherwise
+
+      @call {fn:fetchMedia, type:v:input_type, url:v:argv:url}
+  End
+
+  @dbgAlert "Exited main"
+  ExitShortcut
+End
+
+@import "./_firstRun.scpl"
+@import "./fn-fetchMedia.scpl"
+
+@import "./fn-fetchFromDirectLink.scpl"
+@import "./fn-fetchFromYoutube.scpl"
+@import "./fn-fetchFromInstagramPost.scpl"
+@import "./fn-fetchFromGfycat.scpl"
+@import "./fn-fetchFromImgurGifV.scpl"
+@import "./fn-fetchFromImgurPost.scpl"
+@import "./fn-fetchFromStreamable.scpl"
+
+@import "./fn-fetchFromRedditPost.scpl"
+@import "./fn-fetchFromRedditDirectImage.scpl"
+@import "./fn-fetchFromRedditHostedVideo.scpl"
+@import "./fn-fetchFromRedditLinkedMedia.scpl"
+@import "./fn-getKeySafeValue.scpl"
+
+@import "./ui-showMessage.scpl"
+
+@import "./ui-getUserOpts.scpl"
+@import "./ui-getAddonsList.scpl"
+
+#
+ShowAlert title=v:self message="Invalid function call - \(v:function)" showCancelButton=false
+Nothing
+ExitShortcut
