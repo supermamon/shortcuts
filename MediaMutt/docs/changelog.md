@@ -1,5 +1,8 @@
 # Media Mutt Changelog
 
+* Media Mutt 2.1.2
+  - (fix) 404 error when downloading Reddit vidoes with audio
+
 * Media Mutt 2.1.1
   - (fix) crashing in share sheet
 

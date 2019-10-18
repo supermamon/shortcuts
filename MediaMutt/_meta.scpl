@@ -1,7 +1,7 @@
 Dictionary {
     shortcut    : "\(@:SHORTCUT_NAME)",
     author      : "@supermamon",
-    version     : "2.1.1",
+    version     : "2.1.2",
     settings    : {
         updater : {
             ID: 3184
@@ -16,6 +16,7 @@ Dictionary {
         ,
         langs_web_lst : "https://raw.githubusercontent.com/supermamon/shortcuts/\(@:LANG_GH_BRANCH)/MediaMutt/translations/list.json",
         langs_web_dir : "https://raw.githubusercontent.com/supermamon/shortcuts/\(@:LANG_GH_BRANCH)/MediaMutt/translations",
+        merger_url    : "https://www.fileconverto.com/add-music-to-video/",
         <bool> TestMode : false,
     }
 } -> mv:meta

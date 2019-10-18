@@ -76,11 +76,15 @@ If Equals "fetchFromRedditHostedVideo"
 
 
 			#@addAudioToVideo v:video_file v:audio_file
-			URL "http://www.fileconverto.com/add-music-to-video/"
+			URL v:opt.merger_url
+
 			GetContentsOfUrl a{
 				advanced=true
 				method="POST"
-				headers=false
+				headers=true,
+				headers2={
+					"Referer": v:opt.merger_url
+				},
 				requestbody="Form"
 				formvalues={
 					<file> videofile: v:video_file,
@@ -88,18 +92,26 @@ If Equals "fetchFromRedditHostedVideo"
 					submitfile: ""
 				}
 			}
+			Wait 3
+
 
 			SetName "src.txt"
 			SplitText separator="Custom" custom="Completed:"
 			GetItemfromList "Last Item"
+			@dbgQuickLook
 			SplitText separator="Custom" custom=">Download"
 			GetItemFromList "First Item"
 			@dbgQuickLook
-			MatchText pattern="(?m)(?:href=\")(http[^\\\"]+)" caseSensitive=false -> v:matches
+			MatchText pattern="href=\"(http[^\"]+)" caseSensitive=false -> v:matches
 			GetGroupfromMatchedText get="Group At Index" groupIndex=1 -> v:url
 			URL "\(v:url)" -> v:media_url
 			@dbgAlert v:media_url
 			GetContentsOfURL -> v:return
+			GetType -> mv:media_type
+			@dbgAlert "Type is \(mv:media_type)"
+
+			#Text "Type=\(mv:media_type)\nURL: \(v:url)"
+			#CopytoClipboard
 
 			GetVariable v:video_file
 			DeleteFiles false

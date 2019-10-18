@@ -243,7 +243,7 @@ If Equals "main"
   #QuickLook
   #RunShortcut shortcut="View With Jayson" showWhileRunning=false
   GetDictionaryFromInput -> mv:menu
-  @dbgAlert " menu_dict \n \(mv:menu)"
+  #@dbgAlert " menu_dict \n \(mv:menu)"
 
   RunShortcut shortcut=v:self false -> mv:chosen_item
   GetDictionaryValue get="Value" key="value"
@@ -312,7 +312,7 @@ If Equals "main"
     |
     |Youtube Download: https://tyrrrz.me/Blog/Reverse-engineering-YouTube
     |
-    |Audio/Video merging: http://www.fileconverto.com/add-music-to-video/
+    |Audio/Video merging: https://www.fileconverto.com/add-music-to-video/
     |
     |Translations:
     |Russian: @Devilmachine
