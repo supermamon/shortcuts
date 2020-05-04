@@ -1,0 +1,176 @@
+@icon "star"
+@color "blue"
+@ShowInShareSheet [
+	safariwebpage,
+	string,
+	url
+]
+@ImportQuestion q:Splash1  "Service Availability" defaultValue=`This shortcut uses a shared server to pull
+the details about a tweet from twitter. 
+Since it is a shared resource, there may 
+be times that that server might be too 
+busy to handle your request. Please be 
+patient  and try again at a later time.
+`
+@ImportQuestion q:Splash2  "Self-Hosting" defaultValue=`It is possible to setup your own server to 
+avoid using the shared server. I will
+share that soon but if you want it sooner
+you can Contact me via 
+mediamutt@supermamon.com for details.
+`
+
+SetVariable v:argv
+
+Comment q:Splash1
+Comment q:Splash2
+
+@set debug false
+@set mock false
+@import "../../lib/helpers.scpl"
+
+Comment "\n\n\n\n[=] Metadata ::.."
+Dictionary {
+    shortcut    : "Go Fetch From Twitter",
+    author      : "@supermamon",
+    version     : "1.0.0",
+    settings    : {
+        updater : {
+            ID: 3939    
+        },
+        apihost: "https://mm-twtstatus.herokuapp.com"
+    },
+    changes     : {
+        "v1.0.0": "Initial release"
+    }
+} -> mv:meta
+GetVariable mv:meta:shortcut -> v:self
+GetVariable mv:meta:settings -> v:opt
+
+Dictionary items={"key":"val"}
+GetType -> v:lDictionary
+
+#  function detection
+GetVariable v:argv
+GetType
+If Equals v:lDictionary
+    GetVariable v:argv:fn -> v:function
+Otherwise
+    @call {fn:main}
+    ExitShortcut
+End
+
+# function list
+GetVariable v:function
+If Equals "main"
+    Text -> mv:msg
+    |This shortcut is an addon to Media Mutt.
+    |Download Media Mutt and register
+    |this addon.
+    ShowAlert title=v:self message=mv:msg
+    @call {
+        fn          : checkForUpdate,
+        name        : v:self,
+        id          : v:opt:"updater.ID",
+        version     : mv:meta:version,
+        noUpdAlert  : "show",
+    }
+    ExitShortcut
+End
+GetVariable v:function
+If Equals "register"
+    GetVariable v:self
+    ExitShortcut
+End
+GetVariable v:function
+If Equals "canProcessURL"
+    @dbgAlert "Entered canProcessURL with \(v:argv:url)"
+    GetVariable v:argv:url
+    MatchText pattern="https:\\/\\/twitter\\.com\\/[\\w\\d]+\\/status\\/\\d+" caseSensitive=false -> v:matches
+    Count Items
+    If "Is Greater Than" 0
+        Number 1
+    Otherwise
+        Number 0
+    End
+    ExitShortcut
+End
+GetVariable v:function
+If Equals "fetchMedia"
+    @dbgAlert "Entered fetchMedia with \(v:argv:url)"
+#@callExt "Media Mutt" {fn:showMessage message="[\(v:self)] Inspecting url"}
+    GetVariable v:argv:url
+    ReplaceText (
+        findText="\\?.*$",
+        replaceWith="",
+        caseSensitive=false
+        regularExpression=true
+    ) -> mv:url_no_qs
+    MatchText pattern="\\d+$" caseSensitive=false -> v:status_id
+    URL "\(v:opt.apihost)/statuses/show.json?tweet_mode=extended&id=\(v:status_id)"
+    GetContentsofURL (
+        advanced=true,
+        method="GET",
+    )
+    GetDictionaryfromInput -> v:tweet
+Text -> v:js `
+<script type="text/javascript">
+var tweet = \(v:tweet)
+    var media_urls = []
+    
+    function getMediaUrls(tweet) {
+
+      if (!tweet.extended_entities.media) return
+
+
+      var murls = tweet.extended_entities.media.map( media => {
+
+        var media_type = media.type=='animated_gif'?'video':media.type
+
+        switch (media_type) {
+          case 'video':
+
+            var variants = media.video_info.variants.filter( variant => variant.content_type=='video/mp4')
+
+            return variants[0].url
+            break;
+          case 'photo':
+            var sizes = ['large','medium','small','thumb']
+            var avail = sizes.filter( size => {
+              return !!media.sizes[size]
+            })
+            var max = avail[0]
+            var media_url = media.media_url_https
+            return media_url
+            break;
+          default:
+            return null
+        }
+    
+      })
+      murls = murls.filter( item => !!item)
+      return murls;
+    }
+    
+    media_urls = getMediaUrls(tweet)
+
+    document.write(JSON.stringify({
+      urls:media_urls
+    }))
+</script>
+`
+    URL "data:text/html,\(v:js)"
+    GetContentsofWebpage -> mv:resp
+    GetVariable mv:resp{as:Text}
+    GetDictionaryfromInput -> mv:d
+    GetVariable mv:d:urls
+    RepeatwithEach
+      GetContentsofURL 
+    End -> v:downloaded_media
+    ExitShortcut
+End
+GetVariable v:function
+@import "../../lib/checkForUpdate-fn.scpl"
+#
+ShowAlert title=v:self message="(addon) Invalid function call - \(v:function)" showCancelButton=false
+Nothing
+ExitShortcut
