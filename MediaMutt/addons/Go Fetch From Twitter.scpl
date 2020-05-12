@@ -5,24 +5,46 @@
 	string,
 	url
 ]
-@ImportQuestion q:Splash1  "Service Availability" defaultValue=`This shortcut uses a shared server to pull
-the details about a tweet from twitter. 
-Since it is a shared resource, there may 
-be times that that server might be too 
-busy to handle your request. Please be 
-patient  and try again at a later time.
-`
-@ImportQuestion q:Splash2  "Self-Hosting" defaultValue=`It is possible to setup your own server to 
-avoid using the shared server. I will
-share that soon but if you want it sooner
-you can Contact me via 
-mediamutt@supermamon.com for details.
-`
+@ImportQuestion q:Splash1  "Privacy Policy" defaultValue=`This shortcut uses a serverless
+function to to interface with twitter's
+API to pull the details of the tweet.
+Besides the tweet's id, no other data
+is sent to the function and the 
+raw response from Twitter is sent back
+to this shortcut. Absolutely no data
+is being logged by the server function.
 
-SetVariable v:argv
+The Serverless funtion is created 
+using Cloudflare Workers -
+https://workers.cloudflare.com/
+and below is the actual code if
+you want to review
+
+-------
+addEventListener('fetch', event => {
+  event.respondWith(handleRequest(event.request))
+})
+const twitterStatus = async request => {  
+    const ourl = new URL(request.url) 
+    const id = ourl.searchParams.get('id') 
+    const url = 'https://api.twitter.com/1.1/statuses/show.json?tweet_mode=extended&id='+id
+    const resp = await fetch(url, {
+      headers: {
+        Authorization: ('Bearer ' + BEARER_TOKEN)
+      }
+    })
+    const json = await resp.json()
+    return new Response(JSON.stringify(json),{status:200})
+}
+async function handleRequest(request) {
+    return await twitterStatus(request)
+}
+-------
+`
 
 Comment q:Splash1
-Comment q:Splash2
+
+SetVariable v:argv
 
 @set debug false
 @set mock false
@@ -32,15 +54,16 @@ Comment "\n\n\n\n[=] Metadata ::.."
 Dictionary {
     shortcut    : "Go Fetch From Twitter",
     author      : "@supermamon",
-    version     : "1.0.0",
+    version     : "1.1.0",
     settings    : {
         updater : {
             ID: 3939    
         },
-        apihost: "https://mm-twtstatus.herokuapp.com"
+        apiEndpoint: "https://gfftwitter.supermamon.workers.dev/"
     },
     changes     : {
-        "v1.0.0": "Initial release"
+        "v1.0.0": "Initial release",
+        "v1.1.0": "Switch api endpoint server for faster performance"
     }
 } -> mv:meta
 GetVariable mv:meta:shortcut -> v:self
@@ -106,7 +129,7 @@ If Equals "fetchMedia"
         regularExpression=true
     ) -> mv:url_no_qs
     MatchText pattern="\\d+$" caseSensitive=false -> v:status_id
-    URL "\(v:opt.apihost)/statuses/show.json?tweet_mode=extended&id=\(v:status_id)"
+    URL "\(v:opt.apiEndpoint)?id=\(v:status_id)"
     GetContentsofURL (
         advanced=true,
         method="GET",
