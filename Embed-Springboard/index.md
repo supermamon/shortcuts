@@ -7,7 +7,7 @@ This shortcut provides a way to merge the [SpringBoard](https://routinehub.co/sh
 
 ### Instructions
 
-1. Add a Comment action to your shortcut where you want the **Open SpringbBoard** to be inserted. Fill it with the text \*SpringBoard\*.
+1. Add a Comment action to your shortcut where you want the **Open SpringBoard** to be inserted. Fill it with the text \*SpringBoard\*.
 2. Run this shortcut. When presented with the menu, choose `Embed`.
 3. Choose your shortcut.
 4. When presented with an alert to Create iCloud Link, tap `Create Link`
