@@ -54,7 +54,7 @@ Comment "\n\n\n\n[=] Metadata ::.."
 Dictionary {
     shortcut    : "Go Fetch From Twitter",
     author      : "@supermamon",
-    version     : "1.1.0",
+    version     : "1.2.0",
     settings    : {
         updater : {
             ID: 3939    
@@ -63,7 +63,8 @@ Dictionary {
     },
     changes     : {
         "v1.0.0": "Initial release",
-        "v1.1.0": "Switch api endpoint server for faster performance"
+        "v1.1.0": "Switch api endpoint server for faster performance",
+        "v1.2.0": "Download highest quality, including 4K",
     }
 } -> mv:meta
 GetVariable mv:meta:shortcut -> v:self
@@ -161,8 +162,15 @@ var tweet = \(v:tweet)
             var avail = sizes.filter( size => {
               return !!media.sizes[size]
             })
-            var max = avail[0]
             var media_url = media.media_url_https
+            var extension = media_url.match(/\\.[a-z]+$/gi)  
+            media_url = media_url.replace(extension,'')
+            extension = (''+extension).replace('.','')
+            
+            var max_size = avail[0]
+            max_size = '4096x4096' // hack for 4k
+            media_url = media_url + '?format=' + extension + '&name=' + max_size
+
             return media_url
             break;
           default:
@@ -186,6 +194,7 @@ var tweet = \(v:tweet)
     GetVariable mv:resp{as:Text}
     GetDictionaryfromInput -> mv:d
     GetVariable mv:d:urls
+@dbgAlert mv:d:urls
     RepeatwithEach
       GetContentsofURL 
     End -> v:downloaded_media
