@@ -1,5 +1,12 @@
 # Shortcuts
 
+_From the ScPL website:_ 
+
+> _Note that ScPL has not been updated to support the new iOS 13/14+ actions._
+
+That happened a few years ago. So, it just makes sense to finally archive this repo since no further changes will be made.
+
+
 This repository contains shortcuts that I have created using and ported into [ScPL](https://scpl.dev).
 
 ### Library
